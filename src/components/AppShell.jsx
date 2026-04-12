@@ -1,7 +1,8 @@
 import { Outlet, Navigate } from 'react-router-dom';
 import { useToken } from '../hooks/useToken';
-import BottomNav from './BottomNav';
+import AppHeader from './AppHeader';
 import StatusBar from './StatusBar';
+import BottomNav from './BottomNav';
 
 export default function AppShell() {
   const { hasToken } = useToken();
@@ -12,6 +13,7 @@ export default function AppShell() {
 
   return (
     <div className="app-shell">
+      <AppHeader />
       <StatusBar />
       <main className="app-content">
         <Outlet />
