@@ -1,0 +1,20 @@
+{
+  "name": "Tambourkorps Kasse",
+  "short_name": "TK Kasse",
+  "description": "Kassenbuch für den Tambourkorps-Schatzmeister",
+  "display": "standalone",
+  "start_url": "/tambourkorps-kasse/",
+  "scope": "/tambourkorps-kasse/",
+  "background_color": "#09090c",
+  "theme_color": "#09090c",
+  "lang": "de",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
