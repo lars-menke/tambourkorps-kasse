@@ -1040,6 +1040,315 @@ a {
   color: var(--red);
 }
 
+/* ── Settings Link Item ──────────────────────────── */
+
+.settings-item--link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+  text-align: left;
+}
+
+.settings-item--link:hover {
+  background: var(--surface2);
+}
+
+/* ── Umlage List ─────────────────────────────────── */
+
+.umlage-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.umlage-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.umlage-card:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+}
+
+.umlage-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.umlage-card__anlass {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.umlage-card__betrag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--green);
+  white-space: nowrap;
+}
+
+.umlage-card__betrag span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.umlage-card__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.umlage-stat {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.umlage-stat--bezahlt  { background: rgba(50, 240, 160, 0.12); color: var(--green); }
+.umlage-stat--offen    { background: rgba(232, 240, 50, 0.12); color: var(--yellow); }
+.umlage-stat--befreit  { background: var(--surface2); color: var(--text-muted); }
+.umlage-stat--faelligkeit { background: var(--surface2); color: var(--text-dim); }
+
+/* ── Progress Bar ────────────────────────────────── */
+
+.umlage-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.umlage-progress__bar {
+  height: 5px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.umlage-progress__fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.umlage-progress__label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── Umlage Detail ───────────────────────────────── */
+
+.umlage-detail-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.umlage-detail-info {
+  display: flex;
+  gap: var(--space-lg);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+}
+
+.umlage-detail-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.umlage-total__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.umlage-total__value {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.umlage-total__value--green { color: var(--green); }
+
+/* ── Umlage Member List ──────────────────────────── */
+
+.umlage-member-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.umlage-member-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: var(--space-md) var(--space-md);
+  transition: border-color 0.12s;
+}
+
+.umlage-member-item--bezahlt {
+  border-color: rgba(50, 240, 160, 0.25);
+}
+
+.umlage-member-item--befreit {
+  opacity: 0.5;
+}
+
+.umlage-member-item__name {
+  flex: 1;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.umlage-member-item__actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.umlage-action-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.umlage-action-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.umlage-action-btn--bezahlt.active {
+  background: rgba(50, 240, 160, 0.15);
+  border-color: rgba(50, 240, 160, 0.4);
+  color: var(--green);
+}
+
+.umlage-action-btn--bezahlt:not(.active):not(:disabled):hover {
+  background: rgba(50, 240, 160, 0.1);
+  color: var(--green);
+}
+
+.umlage-action-btn--befreit.active {
+  background: var(--surface2);
+  color: var(--text-dim);
+}
+
+/* ── Umlage Modal extras ─────────────────────────── */
+
+.form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--cyan);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+
+.member-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--bg2);
+  border-radius: 8px;
+  padding: var(--space-sm);
+}
+
+.member-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 10px var(--space-md);
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  transition: background 0.1s;
+}
+
+.member-checkbox input[type="checkbox"] {
+  accent-color: var(--green);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.member-checkbox--checked {
+  color: var(--text);
+}
+
+.umlage-total-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg2);
+  border-radius: 8px;
+  padding: var(--space-md) var(--space-lg);
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+
+.umlage-total-preview__value {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.88rem;
+}
+
+.umlage-total-preview__value strong {
+  color: var(--green);
+  font-size: 1rem;
+}
+
 /* ── Spin animation (sync button) ────────────────── */
 
 @keyframes spin {

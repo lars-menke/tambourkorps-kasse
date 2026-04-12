@@ -21,13 +21,23 @@ export default function EinstellungenPage() {
   return (
     <div className="page">
       <header className="page-header">
-        <h1>Einstellungen</h1>
+        <h1>Mehr</h1>
       </header>
 
       <div className="settings-list">
+
+        <section className="settings-section">
+          <h2 className="settings-section__title">Navigation</h2>
+          <button className="settings-item settings-item--link" onClick={() => navigate('/mitglieder')}>
+            <span className="settings-item__label">Mitglieder verwalten</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={16} height={16}>
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </section>
+
         <section className="settings-section">
           <h2 className="settings-section__title">GitHub-Verbindung</h2>
-
           <div className="settings-item">
             <span className="settings-item__label">Benutzer</span>
             <span className="settings-item__value">{owner}</span>
@@ -44,19 +54,16 @@ export default function EinstellungenPage() {
 
         <section className="settings-section">
           <h2 className="settings-section__title">Konto</h2>
-          <button
-            className="btn btn--danger btn--full"
-            onClick={handleLogout}
-          >
+          <button className="btn btn--danger btn--full" onClick={handleLogout}>
             Token zurücksetzen
           </button>
         </section>
 
         <section className="settings-section settings-section--info">
           <p className="settings-info">
-            Version 1.0.0 — Phase 1<br />
-            Daten werden in IndexedDB gespeichert und bei Verbindung mit
-            GitHub synchronisiert.
+            Version 1.0.0 — Phase 3<br />
+            Daten werden offline in IndexedDB gespeichert<br />
+            und mit GitHub synchronisiert.
           </p>
         </section>
       </div>
