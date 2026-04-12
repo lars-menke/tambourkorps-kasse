@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'tk-kasse';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Bumped: added belege store
 
 let _db = null;
 
@@ -22,13 +22,15 @@ export async function getDB() {
         db.createObjectStore('umlagen', { keyPath: 'id' });
       }
       if (!db.objectStoreNames.contains('umlage_status')) {
-        // composite key: umlage_id + mitglied_id
         const store = db.createObjectStore('umlage_status', { keyPath: ['umlage_id', 'mitglied_id'] });
         store.createIndex('by_umlage', 'umlage_id');
         store.createIndex('by_mitglied', 'mitglied_id');
       }
+      if (!db.objectStoreNames.contains('belege')) {
+        // Stores compressed image dataURLs — keyed by beleg_id
+        db.createObjectStore('belege', { keyPath: 'id' });
+      }
       if (!db.objectStoreNames.contains('_meta')) {
-        // Sync metadata — SHA per file, last sync time
         db.createObjectStore('_meta', { keyPath: 'path' });
       }
     },
@@ -80,4 +82,23 @@ export async function getMeta(path) {
 export async function putMeta(path, sha) {
   const db = await getDB();
   return db.put('_meta', { path, sha, syncedAt: new Date().toISOString() });
+}
+
+// --- Default data init ---
+
+const DEFAULT_KATEGORIEN = [
+  { id: 'k_umlage',      name: 'Umlage',      typ: 'einzahlung' },
+  { id: 'k_spende',      name: 'Spende',       typ: 'einzahlung' },
+  { id: 'k_beitrag',     name: 'Beitrag',      typ: 'einzahlung' },
+  { id: 'k_ausflug',     name: 'Ausflug',      typ: 'auszahlung' },
+  { id: 'k_ausruestung', name: 'Ausrüstung',   typ: 'auszahlung' },
+  { id: 'k_notenmat',    name: 'Notenmaterial', typ: 'auszahlung' },
+  { id: 'k_sonstiges',   name: 'Sonstiges',    typ: 'beide' },
+];
+
+export async function initDefaultKategorien() {
+  const existing = await dbGetAll('kategorien');
+  if (existing.length === 0) {
+    await dbPutMany('kategorien', DEFAULT_KATEGORIEN);
+  }
 }

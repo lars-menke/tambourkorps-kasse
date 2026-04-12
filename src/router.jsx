@@ -3,6 +3,7 @@ import AppShell from './components/AppShell';
 import SetupPage from './pages/SetupPage';
 import DashboardPage from './pages/DashboardPage';
 import BuchungenPage from './pages/BuchungenPage';
+import MitgliederPage from './pages/MitgliederPage';
 import EinstellungenPage from './pages/EinstellungenPage';
 
 export const router = createBrowserRouter(
@@ -17,6 +18,7 @@ export const router = createBrowserRouter(
       children: [
         { index: true, element: <DashboardPage /> },
         { path: 'buchungen', element: <BuchungenPage /> },
+        { path: 'mitglieder', element: <MitgliederPage /> },
         { path: 'einstellungen', element: <EinstellungenPage /> },
       ],
     },

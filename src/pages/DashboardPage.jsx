@@ -1,36 +1,36 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { dbGetAll } from '../services/db';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
 
 export default function DashboardPage() {
   const [kassenstand, setKassenstand] = useState(null);
+  const [einnahmen, setEinnahmen] = useState(0);
+  const [ausgaben, setAusgaben] = useState(0);
   const [buchungenCount, setBuchungenCount] = useState(0);
   const { sync, syncing } = useSync();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
+    await initDefaultKategorien();
     const buchungen = await dbGetAll('buchungen');
     setBuchungenCount(buchungen.length);
 
-    const saldo = buchungen.reduce((sum, b) => {
-      if (b.typ === 'einzahlung') return sum + (b.betrag || 0);
-      if (b.typ === 'auszahlung') return sum - (b.betrag || 0);
-      return sum;
-    }, 0);
-    setKassenstand(saldo);
-  }
+    let ein = 0, aus = 0;
+    for (const b of buchungen) {
+      if (b.typ === 'einzahlung') ein += b.betrag || 0;
+      else if (b.typ === 'auszahlung') aus += b.betrag || 0;
+    }
+    setEinnahmen(ein);
+    setAusgaben(aus);
+    setKassenstand(ein - aus);
+  }, []);
 
-  const formatBetrag = (betrag) => {
-    if (betrag === null) return '–';
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(betrag);
-  };
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const fmt = (n) => new Intl.NumberFormat('de-DE', {
+    style: 'currency', currency: 'EUR',
+  }).format(n ?? 0);
 
   return (
     <div className="page">
@@ -38,11 +38,11 @@ export default function DashboardPage() {
         <h1>Übersicht</h1>
         <button
           className="btn btn--icon"
-          onClick={sync}
+          onClick={async () => { await sync(); loadData(); }}
           disabled={syncing}
           title="Synchronisieren"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={20} height={20}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" width={20} height={20} className={syncing ? 'spin' : ''}>
             <polyline points="23 4 23 10 17 10" />
             <polyline points="1 20 1 14 7 14" />
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -51,10 +51,11 @@ export default function DashboardPage() {
       </header>
 
       <div className="dashboard">
+        {/* Kassenstand */}
         <div className="saldo-card">
           <div className="saldo-card__label">Kassenstand</div>
-          <div className={`saldo-card__betrag ${kassenstand !== null && kassenstand < 0 ? 'saldo-card__betrag--negativ' : ''}`}>
-            {formatBetrag(kassenstand)}
+          <div className={`saldo-card__betrag${kassenstand !== null && kassenstand < 0 ? ' saldo-card__betrag--negativ' : ''}`}>
+            {fmt(kassenstand)}
           </div>
           {buchungenCount > 0 && (
             <div className="saldo-card__info">
@@ -63,8 +64,23 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* Einnahmen / Ausgaben */}
+        {buchungenCount > 0 && (
+          <div className="dashboard-stats">
+            <div className="stat-card stat-card--green">
+              <div className="stat-card__label">Einnahmen</div>
+              <div className="stat-card__value">{fmt(einnahmen)}</div>
+            </div>
+            <div className="stat-card stat-card--red">
+              <div className="stat-card__label">Ausgaben</div>
+              <div className="stat-card__value">{fmt(ausgaben)}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Schnellaktionen */}
         <div className="dashboard-actions">
-          <Link to="/buchungen" className="action-card">
+          <button className="action-card" onClick={() => navigate('/buchungen')}>
             <div className="action-card__icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -72,17 +88,18 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div className="action-card__label">Buchung erfassen</div>
-          </Link>
+          </button>
 
-          <Link to="/buchungen" className="action-card">
+          <button className="action-card" onClick={() => navigate('/mitglieder')}>
             <div className="action-card__icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <div className="action-card__label">Buchungen ansehen</div>
-          </Link>
+            <div className="action-card__label">Mitglieder</div>
+          </button>
         </div>
 
         {buchungenCount === 0 && (
