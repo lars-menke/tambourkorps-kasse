@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.4',
+    datum: '2026-04-13',
+    aenderungen: [
+      'iOS: Service Worker erzwingt App-Update bei nächstem Start',
+      'iOS: Zoom bei Eingabefeldern global behoben (alle Formulare)',
+    ],
+  },
+  {
     version: '1.3.3',
     datum: '2026-04-13',
     aenderungen: [

@@ -78,6 +78,11 @@ button {
   cursor: pointer;
 }
 
+/* iOS: Automatisches Zoom bei Input-Fokus verhindern (braucht mind. 16px) */
+input, select, textarea {
+  font-size: max(16px, 1em);
+}
+
 a {
   color: inherit;
   text-decoration: none;
