@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.3',
+    datum: '2026-04-13',
+    aenderungen: [
+      'App-Symbol und Theme-Farbe auf Grün umgestellt',
+      'Titel auf "Kasse" vereinfacht',
+      'Blaue Button-Hover-Farben auf Grün korrigiert',
+      'iOS: Automatisches Zoomen bei Eingabefeldern behoben',
+    ],
+  },
+  {
     version: '1.3.2',
     datum: '2026-04-13',
     aenderungen: [

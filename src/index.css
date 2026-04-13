@@ -307,7 +307,7 @@ a {
 }
 
 .btn--primary:not(:disabled):hover {
-  background: #1e40af;
+  background: #14532d;
 }
 
 .btn--danger {
@@ -389,7 +389,7 @@ a {
   margin-bottom: var(--space-xl);
   font-size: 0.85rem;
   line-height: 1.65;
-  color: #1e40af;
+  color: var(--blue);
 }
 
 .setup-page__info p {
@@ -452,7 +452,7 @@ a {
   padding: 11px var(--space-md);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   transition: border-color 0.12s, box-shadow 0.12s;
   box-shadow: var(--shadow-sm);
 }
@@ -462,7 +462,7 @@ a {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
 }
 
 .form-group input::placeholder,
@@ -1391,7 +1391,7 @@ a {
   border-radius: var(--r-md);
   padding: var(--space-md) var(--space-lg);
   font-size: 0.85rem;
-  color: #1e40af;
+  color: var(--blue);
   font-weight: 500;
 }
 
@@ -1404,6 +1404,7 @@ a {
   color: var(--blue);
   font-size: 0.95rem;
 }
+
 
 /* ── Empty State ─────────────────────────────────── */
 

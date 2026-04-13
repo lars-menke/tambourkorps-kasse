@@ -8,7 +8,7 @@ export default function AppHeader() {
       <div className="app-header__brand">
         <div className="app-header__logo">€</div>
         <div className="app-header__name">
-          <span className="app-header__title">TK Kasse</span>
+          <span className="app-header__title">Kasse</span>
           <span className="app-header__sub">Tambourkorps</span>
         </div>
       </div>
