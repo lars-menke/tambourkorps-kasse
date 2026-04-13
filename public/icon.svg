@@ -1,7 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <!-- Grüner Hintergrund -->
   <rect width="192" height="192" rx="40" fill="#166534"/>
-  <text x="96" y="76" font-family="sans-serif" font-size="22" font-weight="600"
-        fill="rgba(255,255,255,0.6)" text-anchor="middle" letter-spacing="3">KASSE</text>
-  <text x="96" y="138" font-family="sans-serif" font-size="76" font-weight="700"
-        fill="#ffffff" text-anchor="middle">€</text>
+
+  <!-- Trommelschlägel (gekreuzt, hinter der Trommel) -->
+  <line x1="60" y1="38" x2="108" y2="76" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <line x1="132" y1="38" x2="84" y2="76" stroke="white" stroke-width="6" stroke-linecap="round"/>
+  <!-- Schlägel-Köpfe -->
+  <circle cx="60" cy="38" r="7" fill="white"/>
+  <circle cx="132" cy="38" r="7" fill="white"/>
+
+  <!-- Trommel-Körper Schatten / unterer Rand -->
+  <ellipse cx="96" cy="130" rx="48" ry="13" fill="#0f4c23"/>
+
+  <!-- Trommel-Körper Seiten -->
+  <rect x="48" y="78" width="96" height="52" fill="rgba(255,255,255,0.1)"/>
+  <line x1="48"  y1="78" x2="48"  y2="130" stroke="rgba(255,255,255,0.45)" stroke-width="2.5"/>
+  <line x1="144" y1="78" x2="144" y2="130" stroke="rgba(255,255,255,0.45)" stroke-width="2.5"/>
+
+  <!-- Spannseile (vertikale Linien am Korpus) -->
+  <line x1="64"  y1="78" x2="64"  y2="130" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+  <line x1="80"  y1="78" x2="80"  y2="130" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+  <line x1="96"  y1="78" x2="96"  y2="130" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+  <line x1="112" y1="78" x2="112" y2="130" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+  <line x1="128" y1="78" x2="128" y2="130" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+
+  <!-- Unteres Fell -->
+  <ellipse cx="96" cy="130" rx="48" ry="13" fill="rgba(255,255,255,0.55)" stroke="rgba(255,255,255,0.75)" stroke-width="2.5"/>
+
+  <!-- Oberes Fell (Schlagfell) -->
+  <ellipse cx="96" cy="78" rx="48" ry="13" fill="rgba(255,255,255,0.88)" stroke="white" stroke-width="2.5"/>
+  <!-- Fell-Glanzpunkt -->
+  <ellipse cx="84" cy="75" rx="14" ry="5" fill="rgba(255,255,255,0.4)"/>
+
+  <!-- Schrift -->
+  <text x="96" y="160" font-family="sans-serif" font-size="18" font-weight="700"
+        fill="rgba(255,255,255,0.6)" text-anchor="middle" letter-spacing="4">KASSE</text>
 </svg>

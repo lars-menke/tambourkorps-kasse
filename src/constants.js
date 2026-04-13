@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.6',
+    datum: '2026-04-13',
+    aenderungen: [
+      'App-Symbol: Trommel mit Schlägeln statt Euro-Zeichen',
+      'App-Symbol: grüner Hintergrund (Vereinsfarbe)',
+      'iOS: apple-touch-icon.png hinzugefügt (180×180)',
+    ],
+  },
+  {
     version: '1.3.5',
     datum: '2026-04-13',
     aenderungen: [
