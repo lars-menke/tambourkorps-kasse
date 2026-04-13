@@ -1,8 +1,8 @@
-const CACHE_NAME = 'tk-kasse-v1';
+const CACHE_NAME = 'tk-kasse-v2';
 const BASE = '/tambourkorps-kasse/';
+
+// Nur die statischen Shell-Dateien precachen
 const APP_SHELL = [
-  BASE,
-  BASE + 'index.html',
   BASE + 'manifest.json',
   BASE + 'icon.svg',
 ];
@@ -27,19 +27,37 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  // Never intercept GitHub API calls — always needs network
   if (e.request.url.includes('api.github.com')) return;
+  if (e.request.url.includes('fonts.googleapis.com')) return;
+  if (e.request.url.includes('fonts.gstatic.com')) return;
 
+  const url = new URL(e.request.url);
+
+  // Gehashte Vite-Assets (/assets/index-XYZ.js) → Cache First (unveränderlich)
+  if (url.pathname.includes('/assets/')) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(response => {
+          if (response.ok) {
+            caches.open(CACHE_NAME).then(c => c.put(e.request, response.clone()));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // HTML + alle anderen Dateien → Network First, Cache als Fallback
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(response => {
-        if (response.ok && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+    fetch(e.request)
+      .then(response => {
+        if (response.ok) {
+          caches.open(CACHE_NAME).then(c => c.put(e.request, response.clone()));
         }
         return response;
-      }).catch(() => caches.match(BASE));
-    })
+      })
+      .catch(() => caches.match(e.request).then(cached => cached ?? caches.match(BASE)))
   );
 });
