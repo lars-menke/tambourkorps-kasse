@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.7',
+    datum: '2026-04-13',
+    aenderungen: [
+      'App-Header: Euro-Zeichen durch Trommel-Symbol ersetzt',
+    ],
+  },
+  {
     version: '1.3.6',
     datum: '2026-04-13',
     aenderungen: [
