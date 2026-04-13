@@ -1,5 +1,5 @@
 import { ghReadFile, ghWriteFile } from '../services/github';
-import { dbGetAll, dbPutMany, getMeta, putMeta } from '../services/db';
+import { dbGetAll, dbReplaceAll, getMeta, putMeta } from '../services/db';
 import { REPO_OWNER_KEY, REPO_DATA_KEY, DEFAULT_DATA_REPO } from '../constants';
 
 function getRepoConfig() {
@@ -36,9 +36,9 @@ async function syncStore(owner, repo, storeName, path) {
     return { action: 'unchanged', store: storeName };
   }
 
-  // Remote has new data — pull into IndexedDB
+  // Remote has new data — vollständig ersetzen, damit Löschungen übernommen werden
   if (Array.isArray(remote.content)) {
-    await dbPutMany(storeName, remote.content);
+    await dbReplaceAll(storeName, remote.content);
   }
   await putMeta(path, remote.sha);
   return { action: 'pulled', store: storeName };

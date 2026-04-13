@@ -62,6 +62,16 @@ export async function dbPutMany(storeName, records) {
   await tx.done;
 }
 
+// Ersetzt den kompletten Store-Inhalt — wird beim Pull vom Remote verwendet,
+// damit gelöschte Einträge auch lokal verschwinden.
+export async function dbReplaceAll(storeName, records) {
+  const db = await getDB();
+  const tx = db.transaction(storeName, 'readwrite');
+  await tx.store.clear();
+  await Promise.all(records.map(r => tx.store.put(r)));
+  await tx.done;
+}
+
 export async function dbDelete(storeName, id) {
   const db = await getDB();
   return db.delete(storeName, id);
