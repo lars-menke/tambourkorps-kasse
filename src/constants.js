@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.8',
+    datum: '2026-04-13',
+    aenderungen: [
+      'App-Symbol überarbeitet: Trommel im Emoji-Stil (🥁)',
+    ],
+  },
+  {
     version: '1.3.7',
     datum: '2026-04-13',
     aenderungen: [
