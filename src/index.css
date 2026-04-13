@@ -8,23 +8,23 @@
 
 :root {
   /* Backgrounds */
-  --bg:       #f4f6f9;
-  --bg2:      #eef0f4;
+  --bg:       #f3f8f4;
+  --bg2:      #e8f0ea;
   --surface:  #ffffff;
-  --surface2: #f0f2f5;
+  --surface2: #edf4ef;
 
   /* Borders */
-  --border:   #e5e7eb;
-  --border2:  #d1d5db;
+  --border:   #d9e8db;
+  --border2:  #c2d9c5;
 
-  /* Primary */
-  --blue:     #1d4ed8;
-  --blue-light: #eff6ff;
-  --blue-mid:   #dbeafe;
+  /* Primary (Vereinsgrün) */
+  --blue:       #166534;
+  --blue-light: #f0fdf4;
+  --blue-mid:   #bbf7d0;
 
   /* Finance */
-  --green:    #047857;
-  --green-bg: #ecfdf5;
+  --green:    #14532d;
+  --green-bg: #f0fdf4;
   --red:      #b91c1c;
   --red-bg:   #fef2f2;
   --orange:   #b45309;

@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.2',
+    datum: '2026-04-13',
+    aenderungen: [
+      'Vereinsfarbe Grün als Primärfarbe eingeführt',
+    ],
+  },
+  {
     version: '1.3.1',
     datum: '2026-04-13',
     aenderungen: [
