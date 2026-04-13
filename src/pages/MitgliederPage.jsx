@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { dbGetAll, dbPut, dbDelete } from '../services/db';
 import { generateId } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
@@ -9,16 +9,21 @@ export default function MitgliederPage() {
   const [newName, setNewName] = useState('');
   const [saving, setSaving] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     const data = await dbGetAll('mitglieder');
     const sorted = [...data].sort((a, b) => {
       if (a.aktiv !== b.aktiv) return a.aktiv ? -1 : 1;
       return a.name.localeCompare(b.name, 'de');
     });
     setMitglieder(sorted);
-  }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    window.addEventListener('tk-sync-complete', load);
+    return () => window.removeEventListener('tk-sync-complete', load);
+  }, [load]);
 
   async function handleAdd(e) {
     e.preventDefault();

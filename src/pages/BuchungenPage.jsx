@@ -25,6 +25,11 @@ export default function BuchungenPage() {
     loadBuchungen();
   }, [loadBuchungen]);
 
+  useEffect(() => {
+    window.addEventListener('tk-sync-complete', loadBuchungen);
+    return () => window.removeEventListener('tk-sync-complete', loadBuchungen);
+  }, [loadBuchungen]);
+
   const filtered = filter === 'alle'
     ? buchungen
     : buchungen.filter(b => b.typ === filter);

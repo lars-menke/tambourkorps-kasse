@@ -10,24 +10,19 @@ function getRepoConfig() {
 }
 
 const SYNC_FILES = [
-  { store: 'buchungen',    path: 'data/buchungen.json' },
-  { store: 'mitglieder',   path: 'data/mitglieder.json' },
-  { store: 'kategorien',   path: 'data/kategorien.json' },
-  { store: 'umlagen',      path: 'data/umlagen.json' },
+  { store: 'buchungen',     path: 'data/buchungen.json' },
+  { store: 'mitglieder',    path: 'data/mitglieder.json' },
+  { store: 'kategorien',    path: 'data/kategorien.json' },
+  { store: 'umlagen',       path: 'data/umlagen.json' },
   { store: 'umlage_status', path: 'data/umlage-status.json' },
 ];
 
-/**
- * Sync a single store to/from GitHub.
- * Strategy: if remote has newer data (different SHA), remote wins.
- * If file doesn't exist on remote and we have local data, push it.
- */
 async function syncStore(owner, repo, storeName, path) {
   const meta = await getMeta(path);
   const remote = await ghReadFile(owner, repo, path);
 
   if (!remote) {
-    // File doesn't exist yet on GitHub — push local data if any
+    // File doesn't exist on GitHub yet — push local data if any
     const local = await dbGetAll(storeName);
     if (local.length > 0) {
       const { sha } = await ghWriteFile(owner, repo, path, local, null, `Init ${path}`);
@@ -36,13 +31,13 @@ async function syncStore(owner, repo, storeName, path) {
     return { action: 'pushed', store: storeName };
   }
 
-  // If SHA matches what we last saw, nothing changed on remote
+  // SHA unchanged — nothing to do
   if (meta && meta.sha === remote.sha) {
     return { action: 'unchanged', store: storeName };
   }
 
-  // Remote has new data — pull it into IndexedDB
-  if (Array.isArray(remote.content) && remote.content.length > 0) {
+  // Remote has new data — pull into IndexedDB
+  if (Array.isArray(remote.content)) {
     await dbPutMany(storeName, remote.content);
   }
   await putMeta(path, remote.sha);
@@ -50,13 +45,24 @@ async function syncStore(owner, repo, storeName, path) {
 }
 
 /**
- * Push local data for a store to GitHub (overwrites remote).
- * Use this after local writes to keep remote in sync.
+ * Push local store to GitHub.
+ * Always fetches the current remote SHA first if we don't have one locally,
+ * to avoid 409 Conflict on devices that haven't synced yet.
  */
 export async function pushStore(storeName, path) {
   const { owner, repo } = getRepoConfig();
   const local = await dbGetAll(storeName);
-  const meta = await getMeta(path);
+  let meta = await getMeta(path);
+
+  // No local SHA → fetch current SHA from remote to avoid 409
+  if (!meta?.sha) {
+    const remote = await ghReadFile(owner, repo, path);
+    if (remote) {
+      await putMeta(path, remote.sha);
+      meta = { sha: remote.sha };
+    }
+  }
+
   const { sha } = await ghWriteFile(
     owner, repo, path, local,
     meta?.sha ?? null,
@@ -66,7 +72,8 @@ export async function pushStore(storeName, path) {
 }
 
 /**
- * Sync all stores.
+ * Sync all stores and dispatch a 'tk-sync-complete' event when done,
+ * so pages can re-load their data.
  */
 export async function syncAll() {
   const { owner, repo } = getRepoConfig();
@@ -75,5 +82,6 @@ export async function syncAll() {
     const result = await syncStore(owner, repo, store, path);
     results.push(result);
   }
+  window.dispatchEvent(new CustomEvent('tk-sync-complete', { detail: results }));
   return results;
 }

@@ -30,6 +30,11 @@ export default function UmlagenPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    window.addEventListener('tk-sync-complete', load);
+    return () => window.removeEventListener('tk-sync-complete', load);
+  }, [load]);
+
   function handleSave() {
     setShowModal(false);
     load();

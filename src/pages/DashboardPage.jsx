@@ -28,6 +28,11 @@ export default function DashboardPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  useEffect(() => {
+    window.addEventListener('tk-sync-complete', loadData);
+    return () => window.removeEventListener('tk-sync-complete', loadData);
+  }, [loadData]);
+
   const fmt = (n) => new Intl.NumberFormat('de-DE', {
     style: 'currency', currency: 'EUR',
   }).format(n ?? 0);
