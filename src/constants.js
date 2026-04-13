@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.1',
+    datum: '2026-04-13',
+    aenderungen: [
+      'Sync: Löschungen werden auf allen Geräten übernommen',
+      'Sync: 409-Fehler auf neuen Geräten behoben',
+      'Seiten aktualisieren sich automatisch nach dem Sync',
+      'Service Worker: altes Layout-Problem behoben',
+    ],
+  },
+  {
     version: '1.3.0',
     datum: '2026-04-12',
     aenderungen: [
