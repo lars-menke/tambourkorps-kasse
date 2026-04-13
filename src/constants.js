@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.3.5',
+    datum: '2026-04-13',
+    aenderungen: [
+      'iOS: Zoom beim Anlegen von Mitgliedern behoben',
+    ],
+  },
+  {
     version: '1.3.4',
     datum: '2026-04-13',
     aenderungen: [

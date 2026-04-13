@@ -938,14 +938,14 @@ a {
   padding: 10px var(--space-md);
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   box-shadow: var(--shadow-sm);
 }
 
 .member-add-form input:focus {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.1);
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
 }
 
 .member-section {
