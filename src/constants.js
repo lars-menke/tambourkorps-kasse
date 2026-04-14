@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.4.1',
+    datum: '2026-04-14',
+    aenderungen: [
+      'Browser-Icon: PNG-Favicon erzwingt grünes Symbol im Tab',
+    ],
+  },
+  {
     version: '1.4.0',
     datum: '2026-04-14',
     aenderungen: [
