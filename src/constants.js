@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.4.0',
+    datum: '2026-04-14',
+    aenderungen: [
+      'Kategorien in Einstellungen verwaltbar (anlegen, löschen)',
+      'Beleg-Upload: Foto oder Datei aus Galerie wählbar (iOS)',
+      'App-Symbol für Windows/PC: 512×192px PNG ergänzt',
+    ],
+  },
+  {
     version: '1.3.8',
     datum: '2026-04-13',
     aenderungen: [

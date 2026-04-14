@@ -1095,6 +1095,120 @@ a {
   line-height: 1.8;
 }
 
+/* ── Kategorien in Einstellungen ─────────────────── */
+
+.settings-section__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.settings-section__title--inline {
+  border-bottom: none;
+  flex: 1;
+}
+
+.settings-section__add-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.kategorie-add-form {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.kategorie-add-form input {
+  flex: 1;
+  min-width: 120px;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  padding: 8px var(--space-md);
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+}
+
+.kategorie-add-form select {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  padding: 8px var(--space-md);
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+}
+
+.settings-item--kategorie {
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-item--kategorie:last-child {
+  border-bottom: none;
+}
+
+.kategorie-item__info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.kategorie-item__name {
+  font-size: 0.875rem;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.kategorie-item__typ {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 99px;
+}
+
+.kategorie-item__typ--einzahlung {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.kategorie-item__typ--auszahlung {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.kategorie-item__typ--beide {
+  background: var(--surface2);
+  color: var(--text-dim);
+}
+
+.kategorie-item__delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--r-sm);
+}
+
+.kategorie-item__delete:hover {
+  color: var(--red);
+  background: var(--red-bg);
+}
+
 .settings-item--link {
   display: flex;
   justify-content: space-between;

@@ -1,9 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToken } from '../hooks/useToken';
+import { dbGetAll, dbPut, dbDelete } from '../services/db';
+import { pushStore } from '../utils/sync';
+import { generateId } from '../utils/imageUtils';
 import { REPO_OWNER_KEY, REPO_DATA_KEY, LAST_SEEN_VERSION_KEY, CHANGELOG } from '../constants';
 
 const APP_VERSION = __APP_VERSION__;
+
+const TYP_LABELS = {
+  einzahlung: 'Einnahme',
+  auszahlung: 'Ausgabe',
+  beide:      'Beide',
+};
 
 export default function EinstellungenPage() {
   const { clearToken } = useToken();
@@ -16,14 +25,11 @@ export default function EinstellungenPage() {
 
   useEffect(() => {
     const lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY);
-    if (lastSeen !== APP_VERSION) {
-      setIstNeu(true);
-    }
+    if (lastSeen !== APP_VERSION) setIstNeu(true);
   }, []);
 
   function handleChangelogOeffnen() {
     setChangelogOffen(v => !v);
-    // Mark as seen
     localStorage.setItem(LAST_SEEN_VERSION_KEY, APP_VERSION);
     setIstNeu(false);
   }
@@ -83,6 +89,9 @@ export default function EinstellungenPage() {
           )}
         </section>
 
+        {/* Kategorien */}
+        <KategorienSection />
+
         {/* Navigation */}
         <section className="settings-section">
           <h2 className="settings-section__title">Navigation</h2>
@@ -120,5 +129,110 @@ export default function EinstellungenPage() {
 
       </div>
     </div>
+  );
+}
+
+function KategorienSection() {
+  const [kategorien, setKategorien] = useState([]);
+  const [neuName, setNeuName] = useState('');
+  const [neuTyp, setNeuTyp] = useState('auszahlung');
+  const [addOffen, setAddOffen] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(() => {
+    dbGetAll('kategorien').then(data =>
+      setKategorien([...data].sort((a, b) => a.name.localeCompare(b.name, 'de')))
+    );
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!neuName.trim()) return;
+    setSaving(true);
+    try {
+      await dbPut('kategorien', { id: generateId('k'), name: neuName.trim(), typ: neuTyp });
+      setNeuName('');
+      setAddOffen(false);
+      load();
+      pushStore('kategorien', 'data/kategorien.json').catch(console.warn);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm('Kategorie löschen?')) return;
+    await dbDelete('kategorien', id);
+    load();
+    pushStore('kategorien', 'data/kategorien.json').catch(console.warn);
+  }
+
+  return (
+    <section className="settings-section">
+      <div className="settings-section__title-row">
+        <h2 className="settings-section__title settings-section__title--inline">Kategorien</h2>
+        <button
+          className="settings-section__add-btn"
+          onClick={() => setAddOffen(v => !v)}
+          aria-label="Kategorie hinzufügen"
+        >
+          {addOffen ? '✕' : '+ Neu'}
+        </button>
+      </div>
+
+      {addOffen && (
+        <form onSubmit={handleAdd} className="kategorie-add-form">
+          <input
+            type="text"
+            value={neuName}
+            onChange={e => setNeuName(e.target.value)}
+            placeholder="Name der Kategorie"
+            required
+            autoFocus
+          />
+          <select value={neuTyp} onChange={e => setNeuTyp(e.target.value)}>
+            <option value="einzahlung">Einnahme</option>
+            <option value="auszahlung">Ausgabe</option>
+            <option value="beide">Beide</option>
+          </select>
+          <button type="submit" className="btn btn--primary btn--sm" disabled={saving || !neuName.trim()}>
+            {saving ? '…' : 'Hinzufügen'}
+          </button>
+        </form>
+      )}
+
+      {kategorien.length === 0 && !addOffen ? (
+        <div className="settings-item">
+          <span className="settings-item__label" style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>
+            Noch keine Kategorien
+          </span>
+        </div>
+      ) : (
+        kategorien.map(k => (
+          <div key={k.id} className="settings-item settings-item--kategorie">
+            <div className="kategorie-item__info">
+              <span className="kategorie-item__name">{k.name}</span>
+              <span className={`kategorie-item__typ kategorie-item__typ--${k.typ}`}>
+                {TYP_LABELS[k.typ] ?? k.typ}
+              </span>
+            </div>
+            <button
+              className="kategorie-item__delete"
+              onClick={() => handleDelete(k.id)}
+              aria-label={`${k.name} löschen`}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={15} height={15}>
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4h6v2" />
+              </svg>
+            </button>
+          </div>
+        ))
+      )}
+    </section>
   );
 }
