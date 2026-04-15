@@ -46,27 +46,35 @@ export default function BuchungenPage() {
 
     // Pro Umlage einen virtuellen Listeneintrag erzeugen
     const umlageMap = Object.fromEntries(allUmlagen.map(u => [u.id, u]));
-    const virtuelleEintraege = Object.entries(umlageGruppen).map(([umlageId, buchungen]) => {
-      const umlage = umlageMap[umlageId];
-      const gesamtBetrag = buchungen.reduce((s, b) => s + b.betrag, 0);
-      // Datum: Fälligkeit der Umlage, sonst letztes Zahlungsdatum
-      const datum = umlage?.faelligkeit
-        ?? [...buchungen].sort((a, b) => b.datum.localeCompare(a.datum))[0]?.datum
-        ?? new Date().toISOString().slice(0, 10);
-      return {
-        id:        `__umlage_${umlageId}`,
-        typ:       'einzahlung',
-        betrag:    gesamtBetrag,
-        datum,
-        kategorie: 'Umlage',
-        notiz:     umlage?.anlass ?? 'Umlage',
-        umlage_id: umlageId,
-        anzahl:    buchungen.length,
-        _isUmlage: true,
-      };
-    });
+    const verwaisteBuchungen = []; // Umlage-Buchungen deren Umlage gelöscht wurde
+    const virtuelleEintraege = Object.entries(umlageGruppen)
+      .filter(([umlageId, buchungen]) => {
+        if (umlageMap[umlageId]) return true;
+        // Umlage nicht mehr vorhanden → als normale Buchungen behandeln
+        verwaisteBuchungen.push(...buchungen);
+        return false;
+      })
+      .map(([umlageId, buchungen]) => {
+        const umlage = umlageMap[umlageId];
+        const gesamtBetrag = buchungen.reduce((s, b) => s + b.betrag, 0);
+        // Datum: Fälligkeit der Umlage, sonst letztes Zahlungsdatum
+        const datum = umlage?.faelligkeit
+          ?? [...buchungen].sort((a, b) => b.datum.localeCompare(a.datum))[0]?.datum
+          ?? new Date().toISOString().slice(0, 10);
+        return {
+          id:        `__umlage_${umlageId}`,
+          typ:       'einzahlung',
+          betrag:    gesamtBetrag,
+          datum,
+          kategorie: 'Umlage',
+          notiz:     umlage?.anlass ?? 'Umlage',
+          umlage_id: umlageId,
+          anzahl:    buchungen.length,
+          _isUmlage: true,
+        };
+      });
 
-    const combined = [...normalBuchungen, ...virtuelleEintraege]
+    const combined = [...normalBuchungen, ...verwaisteBuchungen, ...virtuelleEintraege]
       .sort((a, b) => b.datum.localeCompare(a.datum));
 
     setListItems(combined);
