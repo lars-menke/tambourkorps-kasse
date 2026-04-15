@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.8',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Feedback-Modul in den Einstellungen: Notizen und Wünsche direkt in GitHub speichern',
+    ],
+  },
+  {
     version: '1.5.7',
     datum: '2026-04-15',
     aenderungen: [

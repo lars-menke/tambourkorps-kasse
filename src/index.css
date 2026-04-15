@@ -1167,6 +1167,54 @@ a {
   border-bottom: none;
 }
 
+/* ── Feedback Form ───────────────────────────────── */
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.feedback-form__textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--space-sm) var(--space-md);
+  font-size: 1rem;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.feedback-form__textarea:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(22,101,52,0.1);
+}
+
+.feedback-form__error {
+  font-size: 0.82rem;
+  color: var(--red);
+  padding: var(--space-xs) 0;
+}
+
+.feedback-form__hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  padding: 0 var(--space-lg) var(--space-md);
+  line-height: 1.5;
+}
+
+.feedback-form__hint code {
+  font-family: 'DM Mono', monospace;
+  background: var(--surface2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
 .kategorie-item__info {
   display: flex;
   align-items: center;

@@ -5,6 +5,7 @@ import { dbGetAll, dbPut, dbDelete } from '../services/db';
 import { pushStore } from '../utils/sync';
 import { generateId } from '../utils/imageUtils';
 import { REPO_OWNER_KEY, REPO_DATA_KEY, LAST_SEEN_VERSION_KEY, CHANGELOG } from '../constants';
+import { ghReadRawFile, ghWriteRawFile } from '../services/github';
 
 const APP_VERSION = __APP_VERSION__;
 
@@ -92,6 +93,9 @@ export default function EinstellungenPage() {
         {/* Kategorien */}
         <KategorienSection />
 
+        {/* Feedback */}
+        <FeedbackSection />
+
         {/* Navigation */}
         <section className="settings-section">
           <h2 className="settings-section__title">Navigation</h2>
@@ -129,6 +133,91 @@ export default function EinstellungenPage() {
 
       </div>
     </div>
+  );
+}
+
+const FEEDBACK_PATH = 'feedback.md';
+
+function FeedbackSection() {
+  const [text, setText] = useState('');
+  const [status, setStatus] = useState('idle'); // idle | saving | ok | error
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const owner = localStorage.getItem(REPO_OWNER_KEY);
+  const repo  = localStorage.getItem(REPO_DATA_KEY) || 'tambourkorps-kasse-data';
+
+  async function handleSave(e) {
+    e.preventDefault();
+    if (!text.trim()) return;
+    setStatus('saving');
+    setErrorMsg('');
+    try {
+      const existing = await ghReadRawFile(owner, repo, FEEDBACK_PATH);
+
+      const datum = new Date().toLocaleDateString('de-DE', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+      const header = `## ${datum} — v${APP_VERSION}`;
+      const newEntry = `${header}\n\n${text.trim()}\n\n---\n\n`;
+
+      let newContent;
+      if (existing) {
+        // Neuen Eintrag oben einfügen (nach dem H1-Header falls vorhanden)
+        const lines = existing.content.split('\n');
+        const h1End = lines.findIndex((l, i) => i > 0 && l.startsWith('---'));
+        if (h1End > 0) {
+          lines.splice(h1End + 1, 0, '', newEntry.trimEnd());
+          newContent = lines.join('\n');
+        } else {
+          newContent = newEntry + existing.content;
+        }
+      } else {
+        newContent = `# TambourWallet — Feedback & Änderungswünsche\n\n---\n\n${newEntry.trimEnd()}\n`;
+      }
+
+      await ghWriteRawFile(
+        owner, repo, FEEDBACK_PATH,
+        newContent,
+        existing?.sha ?? null,
+        `Feedback ${datum}`
+      );
+
+      setText('');
+      setStatus('ok');
+      setTimeout(() => setStatus('idle'), 3000);
+    } catch (err) {
+      setErrorMsg(err.message);
+      setStatus('error');
+    }
+  }
+
+  return (
+    <section className="settings-section">
+      <h2 className="settings-section__title">Feedback & Wünsche</h2>
+      <form onSubmit={handleSave} className="feedback-form">
+        <textarea
+          value={text}
+          onChange={e => setText(e.target.value)}
+          placeholder="Änderungswünsche, Bugs, Ideen…"
+          rows={4}
+          className="feedback-form__textarea"
+        />
+        {status === 'error' && (
+          <div className="feedback-form__error">{errorMsg}</div>
+        )}
+        <button
+          type="submit"
+          className="btn btn--primary btn--full"
+          disabled={status === 'saving' || !text.trim()}
+        >
+          {status === 'saving' ? 'Wird gespeichert…' : status === 'ok' ? '✓ Gespeichert' : 'In GitHub speichern'}
+        </button>
+      </form>
+      <p className="feedback-form__hint">
+        Wird als <code>feedback.md</code> im Daten-Repository gespeichert.
+      </p>
+    </section>
   );
 }
 
