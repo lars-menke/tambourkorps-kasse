@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.1',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Mitglieder: Bearbeiten-Funktion hinzugefügt',
+      'Mitglieder: Vor- und Nachname getrennt, Sortierung nach Nachname',
+      'Mitglieder: Funktionen Tambourmajor, Vize, Kassenwart mit Badge',
+    ],
+  },
+  {
     version: '1.6.0',
     datum: '2026-04-15',
     aenderungen: [

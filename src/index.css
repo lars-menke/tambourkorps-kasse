@@ -1020,6 +1020,7 @@ a {
   font-weight: 500;
 }
 
+.member-item__edit,
 .member-item__delete {
   background: none;
   border: none;
@@ -1028,11 +1029,58 @@ a {
   cursor: pointer;
   border-radius: var(--r-sm);
   transition: color 0.12s, background 0.12s;
+  flex-shrink: 0;
 }
 
-.member-item__delete:hover {
-  color: var(--red);
-  background: var(--red-bg);
+.member-item__edit:hover  { color: var(--blue);  background: var(--blue-light); }
+.member-item__delete:hover { color: var(--red);   background: var(--red-bg); }
+
+.member-funktion-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+  line-height: 1.4;
+}
+
+.member-funktion-badge--tambourmajor {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.member-funktion-badge--vize {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.member-funktion-badge--kassenwart {
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.form-group--inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-group--inline label {
+  margin-bottom: 0;
+}
+
+.toggle-row {
+  display: flex;
+  gap: var(--space-xs);
 }
 
 /* ── Settings ────────────────────────────────────── */
