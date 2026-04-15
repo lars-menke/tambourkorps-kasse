@@ -828,6 +828,10 @@ a {
   gap: var(--space-lg);
 }
 
+.bottom-sheet__body > * {
+  flex-shrink: 0;
+}
+
 /* ── Type Toggle ─────────────────────────────────── */
 
 .type-toggle {
