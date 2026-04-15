@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.1',
+    datum: '2026-04-14',
+    aenderungen: [
+      'Splashscreen beim App-Start: Logo-Animation + Fortschrittsbalken',
+    ],
+  },
+  {
     version: '1.5.0',
     datum: '2026-04-14',
     aenderungen: [

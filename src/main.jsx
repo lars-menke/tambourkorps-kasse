@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
+import SplashScreen from './components/SplashScreen';
 import './index.css';
+
+function Root() {
+  const [splashDone, setSplashDone] = useState(false);
+  return (
+    <>
+      {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+      <RouterProvider router={router} />
+    </>
+  );
+}
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Root />
   </React.StrictMode>
 );
 
