@@ -1693,12 +1693,36 @@ a {
   font-size: 0.875rem;
   color: var(--text);
   text-align: right;
+  flex: 1;
+  min-width: 0;
 }
 
 .detail-row__value--notiz {
   white-space: pre-wrap;
   word-break: break-word;
   text-align: left;
+}
+
+.detail-notiz {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--space-md) var(--space-lg);
+}
+
+.detail-notiz__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.detail-notiz__text {
+  font-size: 0.875rem;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.55;
 }
 
 .detail-beleg { display: flex; flex-direction: column; gap: var(--space-sm); }

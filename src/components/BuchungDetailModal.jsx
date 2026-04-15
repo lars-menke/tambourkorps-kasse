@@ -94,12 +94,6 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
                   <span className="detail-row__value">{buchung.kategorie}</span>
                 </div>
               )}
-              {buchung.notiz && (
-                <div className="detail-row detail-row--notiz">
-                  <span className="detail-row__label">Notiz</span>
-                  <span className="detail-row__value detail-row__value--notiz">{buchung.notiz}</span>
-                </div>
-              )}
               <div className="detail-row">
                 <span className="detail-row__label">Erfasst</span>
                 <span className="detail-row__value">
@@ -110,6 +104,14 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
                 </span>
               </div>
             </div>
+
+            {/* Notiz (außerhalb der Tabelle, damit overflow:hidden nicht stört) */}
+            {buchung.notiz ? (
+              <div className="detail-notiz">
+                <div className="detail-notiz__label">Notiz</div>
+                <div className="detail-notiz__text">{buchung.notiz}</div>
+              </div>
+            ) : null}
 
             {/* Beleg */}
             {buchung.beleg_id && (

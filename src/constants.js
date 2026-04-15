@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.5',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Notiz in Detailansicht: eigener Bereich unabhängig vom Beleg',
+    ],
+  },
+  {
     version: '1.5.4',
     datum: '2026-04-15',
     aenderungen: [
