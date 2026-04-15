@@ -48,7 +48,7 @@ export default function UmlageDetailPage() {
         id: buchungId,
         typ: 'einzahlung',
         betrag: umlage.betrag_pro_kopf,
-        datum: todayIso(),
+        datum: umlage.faelligkeit || todayIso(),
         kategorie_id: 'k_umlage',
         kategorie: 'Umlage',
         notiz: `${umlage.anlass}${m ? ` — ${m.name}` : ''}`,

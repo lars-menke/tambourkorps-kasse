@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.0',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Umlage: Fälligkeitsdatum wird als Buchungsdatum verwendet',
+      'Sync: Race-Condition bei gleichzeitigen Pushes behoben (kein stiller 409-Fehler mehr)',
+    ],
+  },
+  {
     version: '1.5.9',
     datum: '2026-04-15',
     aenderungen: [

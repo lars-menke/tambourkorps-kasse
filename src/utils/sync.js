@@ -44,19 +44,15 @@ async function syncStore(owner, repo, storeName, path) {
 export async function pushStore(storeName, path) {
   const { owner, repo } = getRepoConfig();
   const local = await dbGetAll(storeName);
-  let meta = await getMeta(path);
 
-  if (!meta?.sha) {
-    const remote = await ghReadFile(owner, repo, path);
-    if (remote) {
-      await putMeta(path, remote.sha);
-      meta = { sha: remote.sha };
-    }
-  }
+  // Immer aktuellen SHA von GitHub holen — verhindert 409 bei Race Conditions
+  // (z.B. zwei Pushes gleichzeitig kurz nach dem Anlegen)
+  const remote = await ghReadFile(owner, repo, path);
+  const currentSha = remote?.sha ?? null;
 
   const { sha } = await ghWriteFile(
     owner, repo, path, local,
-    meta?.sha ?? null,
+    currentSha,
     `Update ${path}`
   );
   await putMeta(path, sha);
