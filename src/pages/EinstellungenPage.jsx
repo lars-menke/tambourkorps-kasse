@@ -137,6 +137,7 @@ export default function EinstellungenPage() {
 }
 
 const FEEDBACK_PATH = 'feedback.md';
+const CODE_REPO = 'tambourkorps-kasse';
 
 function FeedbackSection() {
   const [text, setText] = useState('');
@@ -144,7 +145,7 @@ function FeedbackSection() {
   const [errorMsg, setErrorMsg] = useState('');
 
   const owner = localStorage.getItem(REPO_OWNER_KEY);
-  const repo  = localStorage.getItem(REPO_DATA_KEY) || 'tambourkorps-kasse-data';
+  const repo  = CODE_REPO;
 
   async function handleSave(e) {
     e.preventDefault();
@@ -215,7 +216,8 @@ function FeedbackSection() {
         </button>
       </form>
       <p className="feedback-form__hint">
-        Wird als <code>feedback.md</code> im Daten-Repository gespeichert.
+        Wird als <code>feedback.md</code> im App-Repository gespeichert.<br />
+        Token benötigt <strong>Contents: Read &amp; Write</strong> auf <code>{CODE_REPO}</code>.
       </p>
     </section>
   );

@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.9',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Feedback wird im App-Repository gespeichert (direkt lesbar für Entwicklung)',
+    ],
+  },
+  {
     version: '1.5.8',
     datum: '2026-04-15',
     aenderungen: [
