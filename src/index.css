@@ -93,11 +93,12 @@ a {
 .app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 0 var(--space-lg);
-  height: 52px;
+  padding: env(safe-area-inset-top) var(--space-lg) 0;
+  height: calc(52px + env(safe-area-inset-top));
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  padding-bottom: 10px;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
 }
@@ -169,7 +170,7 @@ a {
 
 .app-content {
   flex: 1;
-  padding-bottom: var(--nav-h);
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
   overflow-y: auto;
 }
 
@@ -220,7 +221,8 @@ a {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
-  height: var(--nav-h);
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface);
   border-top: 1px solid var(--border);
   display: flex;
@@ -1741,6 +1743,57 @@ a {
   line-height: 1.55;
 }
 
+.detail-beleg__btn {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.beleg-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.beleg-lightbox__close {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: 16px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+}
+
+.beleg-lightbox__img {
+  max-width: 100%;
+  max-height: 85dvh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.beleg-lightbox__hint {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+}
+
 .detail-actions {
   display: flex;
   flex-direction: column;
@@ -1799,7 +1852,7 @@ a {
 
 .splash__progress-wrap {
   position: absolute;
-  bottom: 52px;
+  bottom: calc(52px + env(safe-area-inset-bottom));
   left: 48px;
   right: 48px;
   height: 3px;

@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.4',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Beleg-Lightbox: Tippen öffnet Vollbild-Overlay statt neuen Tab',
+      'iOS Notch: App-Header und Navigation berücksichtigen Safe Area',
+      'Detailansicht: Bemerkungen werden korrekt neben dem Beleg angezeigt',
+    ],
+  },
+  {
     version: '1.5.3',
     datum: '2026-04-14',
     aenderungen: [
