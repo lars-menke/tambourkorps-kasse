@@ -56,6 +56,10 @@
   --r-md:  10px;
   --r-lg:  14px;
   --r-xl:  18px;
+
+  /* iOS Safe Area — zentral als Variablen, damit env() einmalig ausgewertet wird */
+  --sat: env(safe-area-inset-top,    0px);
+  --sab: env(safe-area-inset-bottom, 0px);
 }
 
 html {
@@ -93,12 +97,12 @@ a {
 .app-header {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: env(safe-area-inset-top) var(--space-lg) 0;
-  height: calc(52px + env(safe-area-inset-top));
+  /* padding-top wächst mit dem Notch — kein berechnetes height nötig */
+  padding: var(--sat) var(--space-lg) 10px;
+  min-height: calc(52px + var(--sat));
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding-bottom: 10px;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
 }
@@ -170,7 +174,7 @@ a {
 
 .app-content {
   flex: 1;
-  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--nav-h) + var(--sab));
   overflow-y: auto;
 }
 
@@ -221,8 +225,8 @@ a {
   transform: translateX(-50%);
   width: 100%;
   max-width: 480px;
-  height: calc(var(--nav-h) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(var(--nav-h) + var(--sab));
+  padding-bottom: var(--sab);
   background: var(--surface);
   border-top: 1px solid var(--border);
   display: flex;
@@ -822,7 +826,7 @@ a {
   overflow-y: auto;
   flex: 1;
   min-height: 0;
-  padding: var(--space-lg) var(--space-lg) max(var(--space-xl), env(safe-area-inset-bottom));
+  padding: var(--space-lg) var(--space-lg) max(var(--space-xl), var(--sab));
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
@@ -1895,7 +1899,7 @@ a {
 
 .beleg-lightbox__close {
   position: absolute;
-  top: max(16px, env(safe-area-inset-top));
+  top: max(16px, var(--sat));
   right: 16px;
   background: rgba(255,255,255,0.15);
   border: none;
@@ -1980,7 +1984,7 @@ a {
 
 .splash__progress-wrap {
   position: absolute;
-  bottom: calc(52px + env(safe-area-inset-bottom));
+  bottom: calc(52px + var(--sab));
   left: 48px;
   right: 48px;
   height: 3px;
