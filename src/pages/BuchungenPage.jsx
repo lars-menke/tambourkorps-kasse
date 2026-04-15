@@ -1,42 +1,91 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { dbGetAll, dbDelete } from '../services/db';
 import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
 import BuchungDetailModal from '../components/BuchungDetailModal';
 
 const FILTER_TYPEN = [
-  { value: 'alle', label: 'Alle' },
+  { value: 'alle',       label: 'Alle' },
   { value: 'einzahlung', label: 'Einzahlungen' },
   { value: 'auszahlung', label: 'Auszahlungen' },
 ];
 
-export default function BuchungenPage() {
-  const [buchungen, setBuchungen] = useState([]);
-  const [filter, setFilter] = useState('alle');
-  const [detailBuchung, setDetailBuchung] = useState(null);
-  const [editBuchung, setEditBuchung] = useState(null);
+const formatBetrag = (betrag, typ) => {
+  const f = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(betrag);
+  return typ === 'einzahlung' ? `+${f}` : `−${f}`;
+};
 
-  const loadBuchungen = useCallback(async () => {
-    const data = await dbGetAll('buchungen');
-    const sorted = [...data].sort((a, b) => b.datum.localeCompare(a.datum));
-    setBuchungen(sorted);
+const formatDatum = (datum) =>
+  new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  });
+
+export default function BuchungenPage() {
+  const [listItems, setListItems] = useState([]); // Normal-Buchungen + virtuelle Umlage-Einträge
+  const [filter, setFilter]       = useState('alle');
+  const [detailBuchung, setDetailBuchung] = useState(null);
+  const [editBuchung,   setEditBuchung]   = useState(null);
+  const navigate = useNavigate();
+
+  const load = useCallback(async () => {
+    const [allBuchungen, allUmlagen] = await Promise.all([
+      dbGetAll('buchungen'),
+      dbGetAll('umlagen'),
+    ]);
+
+    // Umlage-Buchungen herausfiltern und gruppieren
+    const normalBuchungen  = allBuchungen.filter(b => !b.umlage_id);
+    const umlageBuchungen  = allBuchungen.filter(b =>  b.umlage_id);
+
+    const umlageGruppen = {};
+    for (const b of umlageBuchungen) {
+      if (!umlageGruppen[b.umlage_id]) umlageGruppen[b.umlage_id] = [];
+      umlageGruppen[b.umlage_id].push(b);
+    }
+
+    // Pro Umlage einen virtuellen Listeneintrag erzeugen
+    const umlageMap = Object.fromEntries(allUmlagen.map(u => [u.id, u]));
+    const virtuelleEintraege = Object.entries(umlageGruppen).map(([umlageId, buchungen]) => {
+      const umlage = umlageMap[umlageId];
+      const gesamtBetrag = buchungen.reduce((s, b) => s + b.betrag, 0);
+      // Datum: Fälligkeit der Umlage, sonst letztes Zahlungsdatum
+      const datum = umlage?.faelligkeit
+        ?? [...buchungen].sort((a, b) => b.datum.localeCompare(a.datum))[0]?.datum
+        ?? new Date().toISOString().slice(0, 10);
+      return {
+        id:        `__umlage_${umlageId}`,
+        typ:       'einzahlung',
+        betrag:    gesamtBetrag,
+        datum,
+        kategorie: 'Umlage',
+        notiz:     umlage?.anlass ?? 'Umlage',
+        umlage_id: umlageId,
+        anzahl:    buchungen.length,
+        _isUmlage: true,
+      };
+    });
+
+    const combined = [...normalBuchungen, ...virtuelleEintraege]
+      .sort((a, b) => b.datum.localeCompare(a.datum));
+
+    setListItems(combined);
   }, []);
 
-  useEffect(() => { loadBuchungen(); }, [loadBuchungen]);
-
+  useEffect(() => { load(); }, [load]);
   useEffect(() => {
-    window.addEventListener('tk-sync-complete', loadBuchungen);
-    return () => window.removeEventListener('tk-sync-complete', loadBuchungen);
-  }, [loadBuchungen]);
+    window.addEventListener('tk-sync-complete', load);
+    return () => window.removeEventListener('tk-sync-complete', load);
+  }, [load]);
 
   const filtered = filter === 'alle'
-    ? buchungen
-    : buchungen.filter(b => b.typ === filter);
+    ? listItems
+    : listItems.filter(b => b.typ === filter);
 
-  async function handleSave(record) {
+  async function handleSave() {
     setEditBuchung(null);
     setDetailBuchung(null);
-    await loadBuchungen();
+    await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
   }
 
@@ -49,21 +98,19 @@ export default function BuchungenPage() {
     if (!confirm('Buchung löschen?')) return;
     await dbDelete('buchungen', id);
     setDetailBuchung(null);
-    await loadBuchungen();
+    await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
   }
 
-  const formatBetrag = (betrag, typ) => {
-    const formatted = new Intl.NumberFormat('de-DE', {
-      style: 'currency', currency: 'EUR',
-    }).format(betrag);
-    return typ === 'einzahlung' ? `+${formatted}` : `−${formatted}`;
-  };
+  function handleItemClick(item) {
+    if (item._isUmlage) {
+      navigate(`/umlagen/${item.umlage_id}`);
+    } else {
+      setDetailBuchung(item);
+    }
+  }
 
-  const formatDatum = (datum) =>
-    new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-    });
+  const hasBuchungen = listItems.some(b => !b._isUmlage);
 
   return (
     <div className="page">
@@ -74,7 +121,6 @@ export default function BuchungenPage() {
         </button>
       </header>
 
-      {/* Filter */}
       <div className="filter-bar">
         {FILTER_TYPEN.map(({ value, label }) => (
           <button
@@ -89,34 +135,64 @@ export default function BuchungenPage() {
 
       {filtered.length === 0 ? (
         <div className="empty-state">
-          {buchungen.length === 0
+          {!hasBuchungen && listItems.length === 0
             ? <><p>Noch keine Buchungen.</p><p>Tippe auf „+ Neu" um loszulegen.</p></>
             : <p>Keine {filter === 'einzahlung' ? 'Einzahlungen' : 'Auszahlungen'} vorhanden.</p>
           }
         </div>
       ) : (
         <ul className="buchungen-list">
-          {filtered.map(b => (
-            <li key={b.id} className="buchung-item" onClick={() => setDetailBuchung(b)}>
-              <div className="buchung-item__meta">
-                <span className="buchung-item__datum">{formatDatum(b.datum)}</span>
-                {b.kategorie && (
-                  <span className="buchung-item__kategorie">{b.kategorie}</span>
-                )}
-              </div>
-              {b.notiz && (
-                <div className="buchung-item__notiz">{b.notiz}</div>
-              )}
-              <div className="buchung-item__right">
-                <div className={`buchung-item__betrag buchung-item__betrag--${b.typ}`}>
-                  {formatBetrag(b.betrag, b.typ)}
+          {filtered.map(item => item._isUmlage
+            ? (
+              <li
+                key={item.id}
+                className="buchung-item buchung-item--umlage"
+                onClick={() => handleItemClick(item)}
+              >
+                <div className="buchung-item__meta">
+                  <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
+                  <span className="buchung-item__kategorie">Umlage</span>
                 </div>
-                {b.beleg_id && (
-                  <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+                <div className="buchung-item__notiz">
+                  {item.notiz}
+                  <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
+                </div>
+                <div className="buchung-item__right">
+                  <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
+                    {formatBetrag(item.betrag, item.typ)}
+                  </div>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+                    width={14} height={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+              </li>
+            ) : (
+              <li
+                key={item.id}
+                className="buchung-item"
+                onClick={() => handleItemClick(item)}
+              >
+                <div className="buchung-item__meta">
+                  <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
+                  {item.kategorie && (
+                    <span className="buchung-item__kategorie">{item.kategorie}</span>
+                  )}
+                </div>
+                {item.notiz && (
+                  <div className="buchung-item__notiz">{item.notiz}</div>
                 )}
-              </div>
-            </li>
-          ))}
+                <div className="buchung-item__right">
+                  <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
+                    {formatBetrag(item.betrag, item.typ)}
+                  </div>
+                  {item.beleg_id && (
+                    <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+                  )}
+                </div>
+              </li>
+            )
+          )}
         </ul>
       )}
 

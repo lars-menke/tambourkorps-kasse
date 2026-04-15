@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.2',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Buchungen: Umlage-Zahlungen werden zu einem Eintrag zusammengefasst',
+      'Buchungen: Klick auf Umlage-Eintrag öffnet die Umlage-Detailansicht',
+    ],
+  },
+  {
     version: '1.6.1',
     datum: '2026-04-15',
     aenderungen: [

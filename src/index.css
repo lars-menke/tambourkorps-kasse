@@ -711,6 +711,27 @@ a {
   font-size: 0.7rem;
 }
 
+.buchung-item--umlage {
+  background: var(--surface-2);
+  border-left: 3px solid var(--acc);
+}
+
+.buchung-item--umlage:hover {
+  background: var(--surface-3);
+}
+
+.buchung-item__umlage-count {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.68rem;
+  background: var(--acc);
+  color: #000;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
 .buchung-item__delete {
   background: none;
   border: none;
