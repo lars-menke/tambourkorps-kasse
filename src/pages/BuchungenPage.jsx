@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { dbGetAll, dbDelete } from '../services/db';
 import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
+import BuchungDetailModal from '../components/BuchungDetailModal';
 
 const FILTER_TYPEN = [
   { value: 'alle', label: 'Alle' },
@@ -12,7 +13,7 @@ const FILTER_TYPEN = [
 export default function BuchungenPage() {
   const [buchungen, setBuchungen] = useState([]);
   const [filter, setFilter] = useState('alle');
-  const [showModal, setShowModal] = useState(false);
+  const [detailBuchung, setDetailBuchung] = useState(null);
   const [editBuchung, setEditBuchung] = useState(null);
 
   const loadBuchungen = useCallback(async () => {
@@ -21,9 +22,7 @@ export default function BuchungenPage() {
     setBuchungen(sorted);
   }, []);
 
-  useEffect(() => {
-    loadBuchungen();
-  }, [loadBuchungen]);
+  useEffect(() => { loadBuchungen(); }, [loadBuchungen]);
 
   useEffect(() => {
     window.addEventListener('tk-sync-complete', loadBuchungen);
@@ -34,50 +33,43 @@ export default function BuchungenPage() {
     ? buchungen
     : buchungen.filter(b => b.typ === filter);
 
-  function handleNeu() {
-    setEditBuchung(null);
-    setShowModal(true);
-  }
-
-  function handleEdit(b) {
-    setEditBuchung(b);
-    setShowModal(true);
-  }
-
   async function handleSave(record) {
-    setShowModal(false);
+    setEditBuchung(null);
+    setDetailBuchung(null);
     await loadBuchungen();
-    // Sync in background
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+  }
+
+  function handleEditFromDetail(b) {
+    setDetailBuchung(null);
+    setEditBuchung(b);
   }
 
   async function handleDelete(id) {
     if (!confirm('Buchung löschen?')) return;
     await dbDelete('buchungen', id);
+    setDetailBuchung(null);
     await loadBuchungen();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
   }
 
   const formatBetrag = (betrag, typ) => {
     const formatted = new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
+      style: 'currency', currency: 'EUR',
     }).format(betrag);
     return typ === 'einzahlung' ? `+${formatted}` : `−${formatted}`;
   };
 
   const formatDatum = (datum) =>
     new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+      day: '2-digit', month: '2-digit', year: 'numeric',
     });
 
   return (
     <div className="page">
       <header className="page-header">
         <h1>Buchungen</h1>
-        <button className="btn btn--primary btn--sm" onClick={handleNeu}>
+        <button className="btn btn--primary btn--sm" onClick={() => setEditBuchung({})}>
           + Neu
         </button>
       </header>
@@ -105,7 +97,7 @@ export default function BuchungenPage() {
       ) : (
         <ul className="buchungen-list">
           {filtered.map(b => (
-            <li key={b.id} className="buchung-item" onClick={() => handleEdit(b)}>
+            <li key={b.id} className="buchung-item" onClick={() => setDetailBuchung(b)}>
               <div className="buchung-item__meta">
                 <span className="buchung-item__datum">{formatDatum(b.datum)}</span>
                 {b.kategorie && (
@@ -119,30 +111,29 @@ export default function BuchungenPage() {
                 <div className={`buchung-item__betrag buchung-item__betrag--${b.typ}`}>
                   {formatBetrag(b.betrag, b.typ)}
                 </div>
-                {b.beleg_id && <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>}
+                {b.beleg_id && (
+                  <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+                )}
               </div>
-              <button
-                className="buchung-item__delete"
-                onClick={e => { e.stopPropagation(); handleDelete(b.id); }}
-                aria-label="Löschen"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={16} height={16}>
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14H6L5 6" />
-                  <path d="M10 11v6M14 11v6" />
-                  <path d="M9 6V4h6v2" />
-                </svg>
-              </button>
             </li>
           ))}
         </ul>
       )}
 
-      {showModal && (
+      {detailBuchung && (
+        <BuchungDetailModal
+          buchung={detailBuchung}
+          onClose={() => setDetailBuchung(null)}
+          onEdit={handleEditFromDetail}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {editBuchung !== null && (
         <BuchungModal
-          buchung={editBuchung}
+          buchung={Object.keys(editBuchung).length === 0 ? null : editBuchung}
           onSave={handleSave}
-          onClose={() => setShowModal(false)}
+          onClose={() => setEditBuchung(null)}
         />
       )}
     </div>

@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.2',
+    datum: '2026-04-14',
+    aenderungen: [
+      'Buchungen: Detailansicht vor dem Bearbeiten',
+      'Detailansicht zeigt Betrag, Datum, Kategorie, Notiz und Beleg',
+      'Bearbeiten und Löschen nur über die Detailansicht',
+    ],
+  },
+  {
     version: '1.5.1',
     datum: '2026-04-14',
     aenderungen: [
