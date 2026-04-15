@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { dbGet } from '../services/db';
 import { fetchBeleg } from '../utils/sync';
 
@@ -16,6 +16,12 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
   const [belegUrl, setBelegUrl] = useState(null);
   const [belegStatus, setBelegStatus] = useState('idle'); // idle | loading | fetching | done | fehlt
   const [lightbox, setLightbox] = useState(false);
+  const bodyRef = useRef(null);
+
+  // Scroll immer ganz nach oben beim Öffnen (iOS-Problem)
+  useEffect(() => {
+    if (bodyRef.current) bodyRef.current.scrollTop = 0;
+  }, [buchung]);
 
   useEffect(() => {
     if (!buchung.beleg_id) return;
@@ -70,7 +76,7 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
             </button>
           </div>
 
-          <div className="bottom-sheet__body">
+          <div className="bottom-sheet__body" ref={bodyRef}>
 
             {/* Betrag + Typ */}
             <div className="detail-hero">

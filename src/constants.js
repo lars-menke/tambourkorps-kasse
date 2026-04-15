@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.6',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Detailansicht scrollt korrekt: Datum/Kategorie immer sichtbar',
+      'Beleg-Vorschau auf max. 260px begrenzt, Vollbild per Lightbox',
+    ],
+  },
+  {
     version: '1.5.5',
     datum: '2026-04-15',
     aenderungen: [
