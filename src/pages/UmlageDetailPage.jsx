@@ -82,10 +82,44 @@ export default function UmlageDetailPage() {
   }
 
   async function handleDelete() {
-    if (!confirm(`Umlage „${umlage.anlass}" löschen? Verknüpfte Buchungen bleiben erhalten.`)) return;
+    if (!confirm(`Umlage „${umlage.anlass}" löschen?`)) return;
+
+    const allBuchungen = await dbGetAll('buchungen');
+    const zugehoerig = allBuchungen.filter(b => b.umlage_id === id);
+
+    let buchungenLoeschen = false;
+    if (zugehoerig.length > 0) {
+      buchungenLoeschen = confirm(
+        `${zugehoerig.length} Zahlung${zugehoerig.length !== 1 ? 'en' : ''} vorhanden.\n\n` +
+        `OK → Buchungen löschen\nAbbrechen → als Einzelbuchungen behalten`
+      );
+    }
+
+    // Umlage-Status löschen
+    const allStatus = await dbGetAll('umlage_status');
+    for (const s of allStatus.filter(s => s.umlage_id === id)) {
+      await dbDelete('umlage_status', [s.umlage_id, s.mitglied_id]);
+    }
+
+    // Buchungen löschen oder zu Einzelbuchungen konvertieren
+    if (buchungenLoeschen) {
+      for (const b of zugehoerig) {
+        await dbDelete('buchungen', b.id);
+      }
+    } else if (zugehoerig.length > 0) {
+      for (const b of zugehoerig) {
+        await dbPut('buchungen', { ...b, umlage_id: null });
+      }
+    }
+
     await dbDelete('umlagen', id);
     navigate('/umlagen', { replace: true });
+
     pushStore('umlagen', 'data/umlagen.json').catch(console.warn);
+    pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
+    if (zugehoerig.length > 0) {
+      pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+    }
   }
 
   if (!umlage) return null;
@@ -100,7 +134,7 @@ export default function UmlageDetailPage() {
   return (
     <div className="page">
       <header className="page-header">
-        <button className="btn btn--icon" onClick={() => navigate('/umlagen')} aria-label="Zurück">
+        <button className="btn btn--icon" onClick={() => navigate(-1)} aria-label="Zurück">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={20} height={20}>
             <polyline points="15 18 9 12 15 6" />
           </svg>

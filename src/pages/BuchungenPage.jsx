@@ -152,10 +152,10 @@ export default function BuchungenPage() {
                 <div className="buchung-item__meta">
                   <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
                   <span className="buchung-item__kategorie">Umlage</span>
+                  <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
                 </div>
                 <div className="buchung-item__notiz">
                   {item.notiz}
-                  <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
                 </div>
                 <div className="buchung-item__right">
                   <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>

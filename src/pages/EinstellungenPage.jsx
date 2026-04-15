@@ -141,11 +141,32 @@ const CODE_REPO = 'tambourkorps-kasse';
 
 function FeedbackSection() {
   const [text, setText] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | saving | ok | error
+  const [status, setStatus] = useState('idle'); // idle | saving | ok | error | clearing
   const [errorMsg, setErrorMsg] = useState('');
 
   const owner = localStorage.getItem(REPO_OWNER_KEY);
   const repo  = CODE_REPO;
+
+  async function handleClear() {
+    if (!confirm('Feedback-Datei leeren?')) return;
+    setStatus('clearing');
+    setErrorMsg('');
+    try {
+      const existing = await ghReadRawFile(owner, repo, FEEDBACK_PATH);
+      const emptyContent = '# TambourWallet — Feedback & Änderungswünsche\n\n---\n';
+      await ghWriteRawFile(
+        owner, repo, FEEDBACK_PATH,
+        emptyContent,
+        existing?.sha ?? null,
+        'Feedback geleert'
+      );
+      setStatus('ok');
+      setTimeout(() => setStatus('idle'), 3000);
+    } catch (err) {
+      setErrorMsg(err.message);
+      setStatus('error');
+    }
+  }
 
   async function handleSave(e) {
     e.preventDefault();
@@ -207,13 +228,23 @@ function FeedbackSection() {
         {status === 'error' && (
           <div className="feedback-form__error">{errorMsg}</div>
         )}
-        <button
-          type="submit"
-          className="btn btn--primary btn--full"
-          disabled={status === 'saving' || !text.trim()}
-        >
-          {status === 'saving' ? 'Wird gespeichert…' : status === 'ok' ? '✓ Gespeichert' : 'In GitHub speichern'}
-        </button>
+        <div className="feedback-form__actions">
+          <button
+            type="submit"
+            className="btn btn--primary"
+            disabled={status === 'saving' || status === 'clearing' || !text.trim()}
+          >
+            {status === 'saving' ? 'Wird gespeichert…' : status === 'ok' ? '✓ Gespeichert' : 'Speichern'}
+          </button>
+          <button
+            type="button"
+            className="btn btn--danger"
+            onClick={handleClear}
+            disabled={status === 'saving' || status === 'clearing'}
+          >
+            {status === 'clearing' ? 'Wird geleert…' : 'Leeren'}
+          </button>
+        </div>
       </form>
       <p className="feedback-form__hint">
         Wird als <code>feedback.md</code> im App-Repository gespeichert.<br />

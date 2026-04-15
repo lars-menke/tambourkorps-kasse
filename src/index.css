@@ -712,20 +712,20 @@ a {
 }
 
 .buchung-item--umlage {
-  background: var(--surface-2);
-  border-left: 3px solid var(--acc);
+  background: var(--surface);
+  border-left: 4px solid var(--orange);
 }
 
 .buchung-item--umlage:hover {
-  background: var(--surface-3);
+  background: var(--surface2);
 }
 
 .buchung-item__umlage-count {
   display: inline-block;
-  margin-left: 0.5rem;
-  font-size: 0.68rem;
-  background: var(--acc);
-  color: #000;
+  margin-left: 0.4rem;
+  font-size: 0.65rem;
+  background: var(--orange);
+  color: #fff;
   padding: 1px 6px;
   border-radius: 10px;
   font-weight: 600;
@@ -1272,6 +1272,16 @@ a {
   font-size: 0.82rem;
   color: var(--red);
   padding: var(--space-xs) 0;
+}
+
+.feedback-form__actions {
+  display: flex;
+  gap: var(--space-sm);
+  padding: 0 var(--space-lg);
+}
+
+.feedback-form__actions .btn {
+  flex: 1;
 }
 
 .feedback-form__hint {

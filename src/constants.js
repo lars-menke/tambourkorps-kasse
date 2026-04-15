@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.3',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Buchungen: Umlage-Eintrag mit orangem Rand, Badge in der Kopfzeile sichtbar',
+      'Buchungen: Zurück-Button aus Umlage-Detail führt wieder zur Buchungsliste',
+      'Umlagen: Löschen fragt ob Buchungen mitgelöscht oder als Einzelbuchungen behalten werden',
+      'Einstellungen: Feedback-Datei per Button leeren',
+    ],
+  },
+  {
     version: '1.6.2',
     datum: '2026-04-15',
     aenderungen: [
