@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.0',
+    datum: '2026-04-14',
+    aenderungen: [
+      'App umbenannt: TambourWallet',
+      'Neues App-Symbol: Wallet-Icon (grün/weiß)',
+    ],
+  },
+  {
     version: '1.4.1',
     datum: '2026-04-14',
     aenderungen: [

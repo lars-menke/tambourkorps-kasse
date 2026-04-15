@@ -1,6 +1,6 @@
 {
-  "name": "Tambourkorps Kasse",
-  "short_name": "Kasse",
+  "name": "TambourWallet",
+  "short_name": "TambourWallet",
   "description": "Kassenbuch für den Tambourkorps-Schatzmeister",
   "display": "standalone",
   "start_url": "/tambourkorps-kasse/",

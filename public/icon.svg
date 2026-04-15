@@ -1,24 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
   <rect width="192" height="192" rx="40" fill="#166534"/>
 
-  <!-- Schlägel links (von oben links nach unten rechts) -->
-  <line x1="60" y1="34" x2="104" y2="73" stroke="white" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="60" cy="34" r="10" fill="white"/>
+  <!-- Wallet body -->
+  <rect x="20" y="58" width="152" height="86" rx="18" fill="white"/>
 
-  <!-- Schlägel rechts (von oben rechts nach unten links) -->
-  <line x1="132" y1="34" x2="88" y2="73" stroke="white" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="132" cy="34" r="10" fill="white"/>
+  <!-- Coin pocket (dark insert, right side) -->
+  <rect x="106" y="70" width="54" height="62" rx="12" fill="#0f4c23"/>
 
-  <!-- Trommelkörper Seiten -->
-  <line x1="48" y1="82" x2="48" y2="130" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
-  <line x1="144" y1="82" x2="144" y2="130" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
-
-  <!-- Unteres Fell (leicht transparent) -->
-  <ellipse cx="96" cy="130" rx="48" ry="14" fill="white" opacity="0.55"/>
-
-  <!-- Schlagfell oben (voll weiß, dominant) -->
-  <ellipse cx="96" cy="82" rx="48" ry="14" fill="white"/>
-
-  <!-- Mittelkreis auf dem Fell (charakteristisch wie beim Emoji) -->
-  <ellipse cx="96" cy="82" rx="28" ry="8" fill="none" stroke="#166534" stroke-width="2.5" opacity="0.2"/>
+  <!-- Coin in pocket -->
+  <circle cx="133" cy="101" r="19" fill="white"/>
 </svg>
