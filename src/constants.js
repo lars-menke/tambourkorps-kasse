@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.4',
+    datum: '2026-04-15',
+    aenderungen: [
+      'Buchungen: Links wischen öffnet roten Löschen-Button',
+    ],
+  },
+  {
     version: '1.6.3',
     datum: '2026-04-15',
     aenderungen: [

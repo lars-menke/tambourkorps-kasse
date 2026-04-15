@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dbGetAll, dbDelete } from '../services/db';
 import { pushStore } from '../utils/sync';
@@ -110,6 +110,12 @@ export default function BuchungenPage() {
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
   }
 
+  async function handleSwipeDelete(id) {
+    await dbDelete('buchungen', id);
+    await load();
+    pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+  }
+
   function handleItemClick(item) {
     if (item._isUmlage) {
       navigate(`/umlagen/${item.umlage_id}`);
@@ -176,29 +182,30 @@ export default function BuchungenPage() {
                 </div>
               </li>
             ) : (
-              <li
-                key={item.id}
-                className="buchung-item"
-                onClick={() => handleItemClick(item)}
-              >
-                <div className="buchung-item__meta">
-                  <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
-                  {item.kategorie && (
-                    <span className="buchung-item__kategorie">{item.kategorie}</span>
-                  )}
-                </div>
-                {item.notiz && (
-                  <div className="buchung-item__notiz">{item.notiz}</div>
-                )}
-                <div className="buchung-item__right">
-                  <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
-                    {formatBetrag(item.betrag, item.typ)}
+              <SwipeToDelete key={item.id} onDelete={() => handleSwipeDelete(item.id)}>
+                <div
+                  className="buchung-item"
+                  onClick={() => handleItemClick(item)}
+                >
+                  <div className="buchung-item__meta">
+                    <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
+                    {item.kategorie && (
+                      <span className="buchung-item__kategorie">{item.kategorie}</span>
+                    )}
                   </div>
-                  {item.beleg_id && (
-                    <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+                  {item.notiz && (
+                    <div className="buchung-item__notiz">{item.notiz}</div>
                   )}
+                  <div className="buchung-item__right">
+                    <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
+                      {formatBetrag(item.betrag, item.typ)}
+                    </div>
+                    {item.beleg_id && (
+                      <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+                    )}
+                  </div>
                 </div>
-              </li>
+              </SwipeToDelete>
             )
           )}
         </ul>
@@ -221,5 +228,84 @@ export default function BuchungenPage() {
         />
       )}
     </div>
+  );
+}
+
+const DELETE_W = 76;
+const THRESHOLD = 38;
+
+function SwipeToDelete({ children, onDelete }) {
+  const [offset, setOffset]   = useState(0);
+  const [animate, setAnimate] = useState(false);
+  const touch = useRef({ startX: 0, startY: 0, active: false, wasOpen: false });
+
+  const isOpen = offset <= -DELETE_W;
+
+  function onTouchStart(e) {
+    touch.current = {
+      startX: e.touches[0].clientX,
+      startY: e.touches[0].clientY,
+      active: false,
+      wasOpen: isOpen,
+    };
+    setAnimate(false);
+  }
+
+  function onTouchMove(e) {
+    const t = touch.current;
+    const dx = e.touches[0].clientX - t.startX;
+    const dy = e.touches[0].clientY - t.startY;
+
+    if (!t.active) {
+      if (Math.abs(dy) > Math.abs(dx) + 4) return; // vertikales Scrollen
+      t.active = true;
+    }
+
+    const base = t.wasOpen ? -DELETE_W : 0;
+    setOffset(Math.max(-DELETE_W, Math.min(0, base + dx)));
+  }
+
+  function onTouchEnd() {
+    if (!touch.current.active) return;
+    setAnimate(true);
+    setOffset(prev => prev < -THRESHOLD ? -DELETE_W : 0);
+  }
+
+  function close() {
+    setAnimate(true);
+    setOffset(0);
+  }
+
+  return (
+    <li className="swipeable-wrapper">
+      <div className="swipeable-delete-bg">
+        <button
+          className="swipeable-delete-btn"
+          onPointerDown={e => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); close(); onDelete(); }}
+          tabIndex={isOpen ? 0 : -1}
+          aria-label="Buchung löschen"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={20} height={20}>
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14H6L5 6" />
+            <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+          </svg>
+        </button>
+      </div>
+      <div
+        className="swipeable-content"
+        style={{
+          transform: `translateX(${offset}px)`,
+          transition: animate ? 'transform 0.2s ease' : 'none',
+        }}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onClickCapture={isOpen ? (e) => { e.stopPropagation(); e.preventDefault(); close(); } : undefined}
+      >
+        {children}
+      </div>
+    </li>
   );
 }
