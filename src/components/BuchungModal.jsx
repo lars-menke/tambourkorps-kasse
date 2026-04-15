@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { dbGetAll, dbPut, dbGet, dbDelete } from '../services/db';
+import { pushBeleg, deleteBeleg } from '../utils/sync';
 import { generateId, todayIso } from '../utils/imageUtils';
 import BelegUpload from './BelegUpload';
 
@@ -53,9 +54,11 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
       if (belegDataUrl && belegDataUrl !== 'unchanged') {
         belegId = belegId ?? generateId('beleg');
         await dbPut('belege', { id: belegId, dataUrl: belegDataUrl, datum });
+        pushBeleg(belegId, belegDataUrl).catch(console.warn);
       } else if (!belegDataUrl && belegId) {
         // Removed beleg
         await dbDelete('belege', belegId);
+        deleteBeleg(belegId).catch(console.warn);
         belegId = null;
       }
 

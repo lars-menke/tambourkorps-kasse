@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { dbGet } from '../services/db';
+import { fetchBeleg } from '../utils/sync';
 
 const formatBetrag = (betrag, typ) => {
   const formatted = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(betrag);
@@ -13,11 +14,33 @@ const formatDatum = (datum) =>
 
 export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete }) {
   const [belegUrl, setBelegUrl] = useState(null);
+  // 'idle' | 'loading' | 'fetching' | 'fehlt' | 'done'
+  const [belegStatus, setBelegStatus] = useState('idle');
 
   useEffect(() => {
-    if (buchung.beleg_id) {
-      dbGet('belege', buchung.beleg_id).then(b => { if (b) setBelegUrl(b.dataUrl); });
-    }
+    if (!buchung.beleg_id) return;
+    setBelegStatus('loading');
+
+    dbGet('belege', buchung.beleg_id).then(async (b) => {
+      if (b?.dataUrl) {
+        setBelegUrl(b.dataUrl);
+        setBelegStatus('done');
+        return;
+      }
+      // Nicht lokal vorhanden → von GitHub laden
+      setBelegStatus('fetching');
+      try {
+        const remote = await fetchBeleg(buchung.beleg_id);
+        if (remote?.dataUrl) {
+          setBelegUrl(remote.dataUrl);
+          setBelegStatus('done');
+        } else {
+          setBelegStatus('fehlt');
+        }
+      } catch {
+        setBelegStatus('fehlt');
+      }
+    });
   }, [buchung]);
 
   const handleBackdrop = useCallback((e) => {
@@ -89,16 +112,33 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
           </div>
 
           {/* Beleg */}
-          {belegUrl && (
+          {buchung.beleg_id && (
             <div className="detail-beleg">
               <div className="detail-beleg__label">Beleg</div>
-              <img
-                src={belegUrl}
-                alt="Beleg"
-                className="detail-beleg__img"
-                onClick={() => window.open(belegUrl)}
-              />
-              <div className="detail-beleg__hint">Antippen zum Vergrößern</div>
+
+              {(belegStatus === 'loading' || belegStatus === 'fetching') && (
+                <div className="detail-beleg__loading">
+                  {belegStatus === 'fetching' ? 'Lade von GitHub…' : 'Lädt…'}
+                </div>
+              )}
+
+              {belegStatus === 'done' && belegUrl && (
+                <>
+                  <img
+                    src={belegUrl}
+                    alt="Beleg"
+                    className="detail-beleg__img"
+                    onClick={() => window.open(belegUrl)}
+                  />
+                  <div className="detail-beleg__hint">Antippen zum Vergrößern</div>
+                </>
+              )}
+
+              {belegStatus === 'fehlt' && (
+                <div className="detail-beleg__fehlt">
+                  Beleg nicht verfügbar. Er wurde möglicherweise auf einem anderen Gerät hochgeladen und noch nicht synchronisiert.
+                </div>
+              )}
             </div>
           )}
 

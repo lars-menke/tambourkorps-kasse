@@ -1721,6 +1721,26 @@ a {
   text-align: center;
 }
 
+.detail-beleg__loading {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: var(--space-lg);
+  text-align: center;
+  background: var(--surface2);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--border2);
+}
+
+.detail-beleg__fehlt {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface2);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  line-height: 1.55;
+}
+
 .detail-actions {
   display: flex;
   flex-direction: column;

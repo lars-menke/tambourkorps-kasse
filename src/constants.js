@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.5.3',
+    datum: '2026-04-14',
+    aenderungen: [
+      'Belege werden nach GitHub synchronisiert (geräteübergreifend)',
+      'Fehlender Beleg wird automatisch von GitHub nachgeladen',
+    ],
+  },
+  {
     version: '1.5.2',
     datum: '2026-04-14',
     aenderungen: [
