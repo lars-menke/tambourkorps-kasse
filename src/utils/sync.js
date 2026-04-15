@@ -31,6 +31,14 @@ async function syncStore(owner, repo, storeName, path) {
   }
 
   if (meta && meta.sha === remote.sha) {
+    // SHA stimmt überein — aber prüfen ob lokal mehr Datensätze existieren
+    // (passiert wenn ein Push zuvor fehlgeschlagen ist)
+    const local = await dbGetAll(storeName);
+    if (local.length > (Array.isArray(remote.content) ? remote.content.length : 0)) {
+      const { sha } = await ghWriteFile(owner, repo, path, local, remote.sha, `Update ${path}`);
+      await putMeta(path, sha);
+      return { action: 'pushed', store: storeName };
+    }
     return { action: 'unchanged', store: storeName };
   }
 
