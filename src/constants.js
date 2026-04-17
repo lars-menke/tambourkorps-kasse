@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.7',
+    datum: '2026-04-17',
+    aenderungen: [
+      'Übersicht: Saldo berücksichtigt Umlage-Zahlungen korrekt',
+    ],
+  },
+  {
     version: '1.6.6',
     datum: '2026-04-17',
     aenderungen: [

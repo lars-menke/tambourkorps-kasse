@@ -32,10 +32,10 @@ export default function DashboardPage() {
     ]);
 
     const normalBuchungen = buchungen.filter(b => !b.umlage_id);
-    setBuchungenCount(normalBuchungen.length);
+    setBuchungenCount(buchungen.length);
 
     let ein = 0, aus = 0;
-    for (const b of normalBuchungen) {
+    for (const b of buchungen) {
       if (b.typ === 'einzahlung') ein += b.betrag || 0;
       else if (b.typ === 'auszahlung') aus += b.betrag || 0;
     }
