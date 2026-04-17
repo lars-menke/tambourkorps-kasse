@@ -3,27 +3,55 @@ import { useNavigate } from 'react-router-dom';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
 
+const fmtDatum = (datum) =>
+  datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  }) : null;
+
 export default function DashboardPage() {
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
   const [ausgaben, setAusgaben] = useState(0);
   const [buchungenCount, setBuchungenCount] = useState(0);
+  const [letzteBuchung, setLetzteBuchung] = useState(null);
+  const [letzteUmlage, setLetzteUmlage] = useState(null);
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
     await initDefaultKategorien();
-    const buchungen = await dbGetAll('buchungen');
-    setBuchungenCount(buchungen.length);
+    const [buchungen, umlagen, statuses] = await Promise.all([
+      dbGetAll('buchungen'),
+      dbGetAll('umlagen'),
+      dbGetAll('umlage_status'),
+    ]);
+
+    const normalBuchungen = buchungen.filter(b => !b.umlage_id);
+    setBuchungenCount(normalBuchungen.length);
 
     let ein = 0, aus = 0;
-    for (const b of buchungen) {
+    for (const b of normalBuchungen) {
       if (b.typ === 'einzahlung') ein += b.betrag || 0;
       else if (b.typ === 'auszahlung') aus += b.betrag || 0;
     }
     setEinnahmen(ein);
     setAusgaben(aus);
     setKassenstand(ein - aus);
+
+    // Letzte normale Buchung (nach Datum)
+    const sorted = [...normalBuchungen].sort((a, b) => b.datum.localeCompare(a.datum));
+    setLetzteBuchung(sorted[0] ?? null);
+
+    // Letzte Umlage (nach Erstelldatum)
+    if (umlagen.length > 0) {
+      const lastU = [...umlagen].sort((a, b) => (b.erstellt ?? '').localeCompare(a.erstellt ?? ''))[0];
+      const uStatuses = statuses.filter(s => s.umlage_id === lastU.id);
+      const bezahlt = uStatuses.filter(s => s.status === 'bezahlt').length;
+      const befreit = uStatuses.filter(s => s.status === 'befreit').length;
+      setLetzteUmlage({ ...lastU, bezahlt, befreit, gesamt: uStatuses.length });
+    } else {
+      setLetzteUmlage(null);
+    }
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -111,6 +139,75 @@ export default function DashboardPage() {
           <div className="empty-state">
             <p>Noch keine Buchungen vorhanden.</p>
             <p>Tippe auf „Buchung erfassen" um loszulegen.</p>
+          </div>
+        )}
+
+        {/* Letzte Aktivitäten */}
+        {(letzteBuchung || letzteUmlage) && (
+          <div className="dashboard-recents">
+            <div className="dashboard-recents__title">Zuletzt</div>
+
+            {letzteBuchung && (
+              <button
+                className="recent-card"
+                onClick={() => navigate('/buchungen')}
+              >
+                <div className="recent-card__header">
+                  <span className="recent-card__label">Letzte Buchung</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={14} height={14}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+                <div className="recent-card__body">
+                  <span className="recent-card__datum">{fmtDatum(letzteBuchung.datum)}</span>
+                  {letzteBuchung.kategorie && (
+                    <span className="recent-card__chip">{letzteBuchung.kategorie}</span>
+                  )}
+                  {letzteBuchung.notiz && (
+                    <span className="recent-card__notiz">{letzteBuchung.notiz}</span>
+                  )}
+                </div>
+                <div className={`recent-card__betrag recent-card__betrag--${letzteBuchung.typ}`}>
+                  {letzteBuchung.typ === 'einzahlung' ? '+' : '−'}{fmt(letzteBuchung.betrag)}
+                </div>
+              </button>
+            )}
+
+            {letzteUmlage && (
+              <button
+                className="recent-card"
+                onClick={() => navigate(`/umlagen/${letzteUmlage.id}`)}
+              >
+                <div className="recent-card__header">
+                  <span className="recent-card__label">Letzte Umlage</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={14} height={14}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+                <div className="recent-card__body">
+                  {letzteUmlage.faelligkeit && (
+                    <span className="recent-card__datum">{fmtDatum(letzteUmlage.faelligkeit)}</span>
+                  )}
+                  <span className="recent-card__notiz">{letzteUmlage.anlass}</span>
+                </div>
+                <div className="recent-card__umlage-progress">
+                  <div className="recent-card__umlage-bar">
+                    <div
+                      className="recent-card__umlage-fill"
+                      style={{
+                        width: (letzteUmlage.gesamt - letzteUmlage.befreit) > 0
+                          ? `${Math.round(letzteUmlage.bezahlt / (letzteUmlage.gesamt - letzteUmlage.befreit) * 100)}%`
+                          : '0%',
+                      }}
+                    />
+                  </div>
+                  <span className="recent-card__umlage-label">
+                    {letzteUmlage.bezahlt} / {letzteUmlage.gesamt - letzteUmlage.befreit} bezahlt
+                    {letzteUmlage.befreit > 0 ? ` · ${letzteUmlage.befreit} befreit` : ''}
+                  </span>
+                </div>
+              </button>
+            )}
           </div>
         )}
       </div>
