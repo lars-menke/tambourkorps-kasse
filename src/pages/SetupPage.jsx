@@ -42,8 +42,10 @@ export default function SetupPage() {
   return (
     <div className="setup-page">
       <div className="setup-page__card">
-        <div className="setup-page__icon">€</div>
-        <h1 className="setup-page__title">TK Kasse</h1>
+        <div className="setup-page__icon">
+          <img src={`${import.meta.env.BASE_URL}logo.PNG`} alt="TambourWallet" width="56" height="56" style={{ borderRadius: '12px' }} />
+        </div>
+        <h1 className="setup-page__title">TambourWallet</h1>
         <p className="setup-page__subtitle">Kassenbuch Tambourkorps</p>
 
         <div className="setup-page__info">
