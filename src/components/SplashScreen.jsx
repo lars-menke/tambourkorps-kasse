@@ -15,7 +15,7 @@ export default function SplashScreen({ onDone }) {
     <div className={`splash${fadingOut ? ' splash--out' : ''}`}>
       <div className="splash__content">
         <div className="splash__logo">
-          <img src="/logo.png" alt="Tambourkorps Logo" />
+          <img src="/logo.PNG" alt="Tambourkorps Logo" />
         </div>
         <div className="splash__name">TambourWallet</div>
         <div className="splash__sub">Kassenbuch des Tambourkorps</div>

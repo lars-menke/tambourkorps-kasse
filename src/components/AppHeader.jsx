@@ -7,7 +7,7 @@ export default function AppHeader() {
     <header className="app-header">
       <div className="app-header__brand">
         <div className="app-header__logo">
-          <img src="/logo.png" alt="Tambourkorps" />
+          <img src="/logo.PNG" alt="Tambourkorps" />
         </div>
         <div className="app-header__name">
           <span className="app-header__title">TambourWallet</span>
