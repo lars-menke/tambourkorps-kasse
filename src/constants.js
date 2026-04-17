@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.7.1',
+    datum: '2026-04-17',
+    aenderungen: [
+      'App-Symbol: Stilisierter Adlerkopf in Gold auf Vereinsgrün',
+      'Alle Icon-Varianten neu generiert (192px, 512px, Apple Touch Icon)',
+      'Manifest + Theme-Color auf Vereinsgrün (#0d3d18) aktualisiert',
+      'Portrait-Modus: Drehen des iPhones gesperrt',
+    ],
+  },
+  {
     version: '1.7.0',
     datum: '2026-04-17',
     aenderungen: [
