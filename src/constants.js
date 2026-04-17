@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.7.0',
+    datum: '2026-04-17',
+    aenderungen: [
+      'Design: Farbschema auf Vereinsfarben abgestimmt (Waldgrün + Gold)',
+      'Splash Screen: Vereinslogo + goldener Fortschrittsbalken',
+      'App-Header: Vereinslogo als rundes Icon mit Goldrand',
+      'Umlagen: Fortschrittsbalken in Vereinsgold',
+    ],
+  },
+  {
     version: '1.6.8',
     datum: '2026-04-17',
     aenderungen: [

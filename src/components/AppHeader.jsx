@@ -7,14 +7,11 @@ export default function AppHeader() {
     <header className="app-header">
       <div className="app-header__brand">
         <div className="app-header__logo">
-          <svg viewBox="0 0 192 192" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
-            <rect x="20" y="58" width="152" height="86" rx="18" fill="white"/>
-            <rect x="106" y="70" width="54" height="62" rx="12" fill="#0f4c23"/>
-            <circle cx="133" cy="101" r="19" fill="white"/>
-          </svg>
+          <img src="/logo.png" alt="Tambourkorps" />
         </div>
         <div className="app-header__name">
           <span className="app-header__title">TambourWallet</span>
+          <span className="app-header__sub">Tambourkorps · WSG 1403</span>
         </div>
       </div>
       <span className="app-header__version">v{APP_VERSION}</span>

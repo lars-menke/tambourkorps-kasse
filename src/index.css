@@ -8,23 +8,28 @@
 
 :root {
   /* Backgrounds */
-  --bg:       #f3f8f4;
-  --bg2:      #e8f0ea;
+  --bg:       #f4f6f2;
+  --bg2:      #e8ece3;
   --surface:  #ffffff;
-  --surface2: #edf4ef;
+  --surface2: #eef1ea;
 
   /* Borders */
-  --border:   #d9e8db;
-  --border2:  #c2d9c5;
+  --border:   #d8ddd2;
+  --border2:  #bfc8b8;
 
-  /* Primary (Vereinsgrün) */
-  --blue:       #166534;
-  --blue-light: #f0fdf4;
-  --blue-mid:   #bbf7d0;
+  /* Primary — Tambourkorps Waldgrün */
+  --blue:       #0d3d18;
+  --blue-light: #edf5ea;
+  --blue-mid:   #b6d4a8;
+
+  /* Gold — Vereinsgold */
+  --gold:       #c9a227;
+  --gold-light: #fdf8e6;
+  --gold-border: #e8cc7a;
 
   /* Finance */
-  --green:    #14532d;
-  --green-bg: #f0fdf4;
+  --green:    #0d3d18;
+  --green-bg: #edf5ea;
   --red:      #b91c1c;
   --red-bg:   #fef2f2;
   --orange:   #b45309;
@@ -114,17 +119,20 @@ a {
 }
 
 .app-header__logo {
-  width: 30px;
-  height: 30px;
-  background: var(--blue);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
   flex-shrink: 0;
+  border: 2px solid var(--gold-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+.app-header__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .app-header__name {
@@ -738,7 +746,7 @@ a {
 
 .recent-card__umlage-fill {
   height: 100%;
-  background: var(--blue);
+  background: var(--gold);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -1648,7 +1656,7 @@ a {
 
 .umlage-progress__fill {
   height: 100%;
-  background: var(--green);
+  background: var(--gold);
   border-radius: 3px;
   transition: width 0.4s ease;
 }
@@ -2200,7 +2208,7 @@ a {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #166534;
+  background: #0d3d18;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2222,23 +2230,31 @@ a {
 
 .splash__logo {
   animation: splash-logo-in 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.25));
+  filter: drop-shadow(0 8px 32px rgba(0,0,0,0.5));
+}
+
+.splash__logo img {
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: block;
 }
 
 .splash__name {
-  color: white;
+  color: #c9a227;
   font-size: 1.75rem;
   font-weight: 700;
-  margin-top: 20px;
-  letter-spacing: -0.02em;
+  margin-top: 22px;
+  letter-spacing: -0.01em;
   opacity: 0;
   animation: splash-text-in 0.45s ease 0.45s forwards;
 }
 
 .splash__sub {
-  color: rgba(255,255,255,0.55);
-  font-size: 0.85rem;
-  margin-top: 6px;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.82rem;
+  margin-top: 5px;
+  letter-spacing: 0.03em;
   opacity: 0;
   animation: splash-text-in 0.45s ease 0.62s forwards;
 }
@@ -2249,7 +2265,7 @@ a {
   left: 48px;
   right: 48px;
   height: 3px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.15);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -2257,7 +2273,7 @@ a {
 .splash__progress-bar {
   height: 100%;
   width: 0%;
-  background: white;
+  background: #c9a227;
   border-radius: 99px;
   animation: splash-progress 2s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
 }
