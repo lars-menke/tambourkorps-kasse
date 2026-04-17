@@ -8,6 +8,11 @@ const fmtDatum = (datum) =>
     day: '2-digit', month: '2-digit', year: 'numeric',
   }) : null;
 
+const fmtIso = (iso) =>
+  iso ? new Date(iso).toLocaleDateString('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  }) : null;
+
 export default function DashboardPage() {
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
@@ -150,7 +155,7 @@ export default function DashboardPage() {
             {letzteBuchung && (
               <button
                 className="recent-card"
-                onClick={() => navigate('/buchungen')}
+                onClick={() => navigate('/buchungen', { state: { openBuchung: letzteBuchung } })}
               >
                 <div className="recent-card__header">
                   <span className="recent-card__label">Letzte Buchung</span>
@@ -185,8 +190,8 @@ export default function DashboardPage() {
                   </svg>
                 </div>
                 <div className="recent-card__body">
-                  {letzteUmlage.faelligkeit && (
-                    <span className="recent-card__datum">{fmtDatum(letzteUmlage.faelligkeit)}</span>
+                  {letzteUmlage.erstellt && (
+                    <span className="recent-card__datum">{fmtIso(letzteUmlage.erstellt)}</span>
                   )}
                   <span className="recent-card__notiz">{letzteUmlage.anlass}</span>
                 </div>

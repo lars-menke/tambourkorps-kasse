@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { dbGetAll, dbDelete } from '../services/db';
 import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
@@ -27,6 +27,15 @@ export default function BuchungenPage() {
   const [detailBuchung, setDetailBuchung] = useState(null);
   const [editBuchung,   setEditBuchung]   = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Direkt-Aufruf vom Dashboard: Detail-Modal der übergebenen Buchung öffnen
+  useEffect(() => {
+    if (location.state?.openBuchung) {
+      setDetailBuchung(location.state.openBuchung);
+      window.history.replaceState({}, ''); // State einmalig konsumieren
+    }
+  }, []);
 
   const load = useCallback(async () => {
     const [allBuchungen, allUmlagen] = await Promise.all([
