@@ -1558,6 +1558,33 @@ a {
   box-shadow: var(--shadow-md);
 }
 
+.umlage-card--erledigt {
+  opacity: 0.72;
+  border-left: 3px solid var(--blue);
+}
+
+.umlage-card__anlass {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.umlage-erledigt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 2px 7px 2px 5px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .umlage-card__header {
   display: flex;
   align-items: baseline;

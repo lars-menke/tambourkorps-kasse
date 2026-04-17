@@ -62,14 +62,25 @@ export default function UmlagenPage() {
             const bezahlt = statuses.filter(s => s.status === 'bezahlt').length;
             const befreit = statuses.filter(s => s.status === 'befreit').length;
             const offen = total - bezahlt - befreit;
+            const erledigt = total > 0 && offen === 0;
             const progress = total > 0 ? bezahlt / (total - befreit) : 0;
             const erwartet = (total - befreit) * u.betrag_pro_kopf;
             const gesammelt = bezahlt * u.betrag_pro_kopf;
 
             return (
-              <li key={u.id} className="umlage-card" onClick={() => navigate(`/umlagen/${u.id}`)}>
+              <li key={u.id} className={`umlage-card${erledigt ? ' umlage-card--erledigt' : ''}`} onClick={() => navigate(`/umlagen/${u.id}`)}>
                 <div className="umlage-card__header">
-                  <div className="umlage-card__anlass">{u.anlass}</div>
+                  <div className="umlage-card__anlass">
+                    {u.anlass}
+                    {erledigt && (
+                      <span className="umlage-erledigt-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} width={11} height={11}>
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Erledigt
+                      </span>
+                    )}
+                  </div>
                   <div className="umlage-card__betrag">
                     {fmt(u.betrag_pro_kopf)} <span>/ Person</span>
                   </div>
