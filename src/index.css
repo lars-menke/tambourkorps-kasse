@@ -2208,7 +2208,7 @@ a {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #0d3d18;
+  background: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2238,8 +2238,8 @@ a {
 }
 
 .splash__logo img {
-  width: 148px;
-  height: 148px;
+  width: 200px;
+  height: 200px;
   display: block;
 }
 
