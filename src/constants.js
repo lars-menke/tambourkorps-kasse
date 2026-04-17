@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '1.6.5',
+    datum: '2026-04-17',
+    aenderungen: [
+      'Umlagen: Bearbeiten-Funktion (Anlass, Betrag, Fälligkeit)',
+      'Umlagen: Teilnehmer einzeln aus Umlage entfernen',
+      'Einstellungen: Feedback-Ansicht ohne Bearbeiten oder Löschen',
+    ],
+  },
+  {
     version: '1.6.4',
     datum: '2026-04-15',
     aenderungen: [

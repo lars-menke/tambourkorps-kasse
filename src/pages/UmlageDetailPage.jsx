@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { dbGet, dbGetAll, dbPut, dbDelete } from '../services/db';
 import { generateId, todayIso } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
+import UmlageModal from '../components/UmlageModal';
 
 export default function UmlageDetailPage() {
   const { id } = useParams();
@@ -10,6 +11,7 @@ export default function UmlageDetailPage() {
   const [umlage, setUmlage] = useState(null);
   const [mitglieder, setMitglieder] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [showEdit, setShowEdit] = useState(false);
 
   const load = useCallback(async () => {
     const [u, allMitglieder, allStatus] = await Promise.all([
@@ -81,6 +83,28 @@ export default function UmlageDetailPage() {
     pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
   }
 
+  async function handleRemoveMember(status) {
+    const m = mitglieder[status.mitglied_id];
+    const name = m?.name ?? 'Mitglied';
+    const hatBuchung = status.status === 'bezahlt' && status.buchung_id;
+    const msg = `${name} aus der Umlage entfernen?${hatBuchung ? '\nDie zugehörige Buchung wird ebenfalls gelöscht.' : ''}`;
+    if (!confirm(msg)) return;
+
+    if (status.buchung_id) {
+      await dbDelete('buchungen', status.buchung_id);
+    }
+    await dbDelete('umlage_status', [status.umlage_id, status.mitglied_id]);
+    await dbPut('umlagen', {
+      ...umlage,
+      mitglieder_ids: (umlage.mitglieder_ids ?? []).filter(mid => mid !== status.mitglied_id),
+    });
+
+    await load();
+    pushStore('umlagen', 'data/umlagen.json').catch(console.warn);
+    pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
+    if (hatBuchung) pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+  }
+
   async function handleDelete() {
     if (!confirm(`Umlage „${umlage.anlass}" löschen?`)) return;
 
@@ -140,6 +164,12 @@ export default function UmlageDetailPage() {
           </svg>
         </button>
         <h1 style={{ flex: 1, textAlign: 'center' }}>{umlage.anlass}</h1>
+        <button className="btn btn--icon" onClick={() => setShowEdit(true)} aria-label="Bearbeiten">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={18} height={18}>
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+        </button>
         <button className="btn btn--icon" onClick={handleDelete} aria-label="Löschen" style={{ color: 'var(--red)' }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={18} height={18}>
             <polyline points="3 6 5 6 21 6" />
@@ -206,11 +236,30 @@ export default function UmlageDetailPage() {
                 >
                   {s.status === 'bezahlt' ? '✓ Bezahlt' : 'Bezahlt'}
                 </button>
+                <button
+                  className="umlage-action-btn umlage-action-btn--remove"
+                  onClick={() => handleRemoveMember(s)}
+                  title="Aus Umlage entfernen"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={14} height={14}>
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                    <path d="M10 11v6M14 11v6M9 6V4h6v2" />
+                  </svg>
+                </button>
               </div>
             </li>
           );
         })}
       </ul>
+
+      {showEdit && (
+        <UmlageModal
+          umlage={umlage}
+          onSave={() => { setShowEdit(false); load(); }}
+          onClose={() => setShowEdit(false)}
+        />
+      )}
     </div>
   );
 }

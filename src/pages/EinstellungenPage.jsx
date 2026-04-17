@@ -143,9 +143,26 @@ function FeedbackSection() {
   const [text, setText] = useState('');
   const [status, setStatus] = useState('idle'); // idle | saving | ok | error | clearing
   const [errorMsg, setErrorMsg] = useState('');
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewContent, setViewContent] = useState('');
+  const [viewLoading, setViewLoading] = useState(false);
 
   const owner = localStorage.getItem(REPO_OWNER_KEY);
   const repo  = CODE_REPO;
+
+  async function handleToggleView() {
+    if (viewOpen) { setViewOpen(false); return; }
+    setViewLoading(true);
+    setViewOpen(true);
+    try {
+      const existing = await ghReadRawFile(owner, repo, FEEDBACK_PATH);
+      setViewContent(existing?.content ?? '(leer)');
+    } catch {
+      setViewContent('Fehler beim Laden.');
+    } finally {
+      setViewLoading(false);
+    }
+  }
 
   async function handleClear() {
     if (!confirm('Feedback-Datei leeren?')) return;
@@ -216,7 +233,26 @@ function FeedbackSection() {
 
   return (
     <section className="settings-section">
-      <h2 className="settings-section__title">Feedback & Wünsche</h2>
+      <div className="settings-section__title-row">
+        <h2 className="settings-section__title settings-section__title--inline">Feedback & Wünsche</h2>
+        <button
+          type="button"
+          className="settings-section__add-btn"
+          onClick={handleToggleView}
+        >
+          {viewOpen ? 'Schließen' : 'Anzeigen'}
+        </button>
+      </div>
+
+      {viewOpen && (
+        <div className="feedback-view">
+          {viewLoading
+            ? <span className="feedback-view__loading">Lädt…</span>
+            : <pre className="feedback-view__content">{viewContent}</pre>
+          }
+        </div>
+      )}
+
       <form onSubmit={handleSave} className="feedback-form">
         <textarea
           value={text}

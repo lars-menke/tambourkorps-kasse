@@ -1630,6 +1630,44 @@ a {
   color: var(--text-dim);
 }
 
+.umlage-action-btn--remove {
+  color: var(--text-muted);
+  padding: 4px 6px;
+}
+
+.umlage-action-btn--remove:hover {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+/* ── Feedback View ───────────────────────────────── */
+
+.feedback-view {
+  margin: 0 var(--space-lg) var(--space-md);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.feedback-view__loading {
+  display: block;
+  padding: var(--space-md);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.feedback-view__content {
+  padding: var(--space-md);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+
 /* ── Umlage Modal extras ─────────────────────────── */
 
 .form-label-row {
