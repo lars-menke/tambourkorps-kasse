@@ -6,6 +6,7 @@ import { CategoryChip } from '../components/CategoryChip';
 import { BalanceCard } from '../components/BalanceCard';
 import { CategoryDonut } from '../components/CategoryDonut';
 import { EmptyState } from '../components/EmptyState';
+import { PullToRefresh } from '../components/PullToRefresh';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -159,6 +160,7 @@ export default function DashboardPage() {
         </button>
       </header>
 
+      <PullToRefresh onRefresh={async () => { await sync(); await loadData(); }}>
       <div className="dashboard">
         {/* Kassenstand */}
         <BalanceCard
@@ -285,6 +287,7 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      </PullToRefresh>
     </div>
   );
 }

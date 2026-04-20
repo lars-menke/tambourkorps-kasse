@@ -2571,3 +2571,15 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .skeleton { animation: none; opacity: 0.7; }
 }
+
+/* ── Pull-to-Refresh ─────────────────────────────── */
+
+.ptr__indicator {
+  display: grid;
+  place-items: center;
+  color: var(--color-brand);
+  overflow: hidden;
+  transition: height 0.15s ease;
+}
+
+.ptr__indicator .is-spinning { animation: spin 0.8s linear infinite; }
