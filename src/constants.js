@@ -7,6 +7,23 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.0.0',
+    datum: '2026-04-20',
+    aenderungen: [
+      'Dark Mode: Auto/Hell/Dunkel wählbar in den Einstellungen',
+      'Neues Design: Token-System, semantische Farben, konsistente Abstände',
+      'Dashboard: Kassenstand-Karte mit Sparkline und Monatsvergleich',
+      'Dashboard: Ausgaben-Donut nach Kategorie',
+      'Kategorie-Chips mit Icons in Buchungslisten',
+      'Mitglieder-Avatare mit deterministischer Farbe',
+      'Schnell-Erfassen: Bottom Sheet direkt vom Dashboard',
+      'Toast-Meldungen mit Rückgängig-Funktion beim Löschen',
+      'Pull-to-Refresh auf Dashboard und Buchungen',
+      'Onboarding: Schritt-für-Schritt-Einrichtung',
+      'PWA-Shortcuts: Lange drücken auf App-Icon für Einnahme/Ausgabe',
+    ],
+  },
+  {
     version: '1.7.1',
     datum: '2026-04-17',
     aenderungen: [
