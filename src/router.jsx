@@ -7,6 +7,7 @@ import MitgliederPage from './pages/MitgliederPage';
 import UmlagenPage from './pages/UmlagenPage';
 import UmlageDetailPage from './pages/UmlageDetailPage';
 import EinstellungenPage from './pages/EinstellungenPage';
+import KategorienPage from './pages/KategorienPage';
 
 export const router = createBrowserRouter(
   [
@@ -23,6 +24,7 @@ export const router = createBrowserRouter(
         { path: 'umlagen', element: <UmlagenPage /> },
         { path: 'umlagen/:id', element: <UmlageDetailPage /> },
         { path: 'mitglieder', element: <MitgliederPage /> },
+        { path: 'kategorien', element: <KategorienPage /> },
         { path: 'einstellungen', element: <EinstellungenPage /> },
       ],
     },

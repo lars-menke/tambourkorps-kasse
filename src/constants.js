@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.1.0',
+    datum: '2026-04-20',
+    aenderungen: [
+      'Dark Mode: Farbwechsel funktioniert jetzt korrekt',
+      'Titelzeile aller Seiten ist beim Scrollen fixiert',
+      'Kategorien-Verwaltung als eigene Seite mit Symbol-Auswahl und Bearbeiten-Funktion',
+      'Reiter "Mehr" heißt jetzt "Einstellungen"',
+    ],
+  },
+  {
     version: '2.0.0',
     datum: '2026-04-20',
     aenderungen: [
