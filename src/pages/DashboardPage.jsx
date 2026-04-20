@@ -7,6 +7,7 @@ import { BalanceCard } from '../components/BalanceCard';
 import { CategoryDonut } from '../components/CategoryDonut';
 import { EmptyState } from '../components/EmptyState';
 import { PullToRefresh } from '../components/PullToRefresh';
+import { QuickAddSheet } from '../components/QuickAddSheet';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -90,6 +91,7 @@ export default function DashboardPage() {
   const [sparkData, setSparkData] = useState([]);
   const [deltaInfo, setDeltaInfo] = useState({ delta: 0, label: '' });
   const [donutData, setDonutData] = useState([]);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
 
@@ -186,7 +188,7 @@ export default function DashboardPage() {
 
         {/* Schnellaktionen */}
         <div className="dashboard-actions">
-          <button className="action-card" onClick={() => navigate('/buchungen')}>
+          <button className="action-card" onClick={() => setQuickAddOpen(true)}>
             <div className="action-card__icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -288,6 +290,11 @@ export default function DashboardPage() {
         )}
       </div>
       </PullToRefresh>
+      <QuickAddSheet
+        open={quickAddOpen}
+        onClose={() => setQuickAddOpen(false)}
+        onSave={loadData}
+      />
     </div>
   );
 }
