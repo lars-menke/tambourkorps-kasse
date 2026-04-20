@@ -2,6 +2,12 @@
 
 ---
 
+## 20.04.2026, 23:55 — v2.1.0
+
+Ich habe gerade beim Testen gemerkt, dass die Symbole der Kategorien und die entsprechenden Badges überhaupt nicht mit den Einstellungen übereinstimmen und gar nicht synchronisiert werden.
+
+---
+
 ## 20.04.2026, 23:50 — v2.1.0
 
 Die Sektion Einstellung heißt in der Fußzeile Einstellung, auf der Seite selbst oben steht aber immer noch mehr, das muss auch in Einstellung geändert werden.
