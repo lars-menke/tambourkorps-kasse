@@ -8,6 +8,7 @@ import { CategoryChip } from '../components/CategoryChip';
 import { EmptyState } from '../components/EmptyState';
 import { useToast } from '../components/ToastProvider';
 import { haptic } from '../lib/haptics';
+import { PullToRefresh } from '../components/PullToRefresh';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -175,6 +176,7 @@ export default function BuchungenPage() {
         </button>
       </header>
 
+      <PullToRefresh onRefresh={load}>
       <div className="filter-bar">
         {FILTER_TYPEN.map(({ value, label }) => (
           <button
@@ -270,6 +272,7 @@ export default function BuchungenPage() {
           onClose={() => setEditBuchung(null)}
         />
       )}
+      </PullToRefresh>
     </div>
   );
 }
