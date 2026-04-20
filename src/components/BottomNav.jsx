@@ -1,4 +1,6 @@
 import { NavLink } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { dbGetAll } from '../services/db';
 
 const NAV_ITEMS = [
   {
@@ -25,6 +27,7 @@ const NAV_ITEMS = [
   {
     to: '/umlagen',
     label: 'Umlagen',
+    badgeKey: 'umlagen',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
         <line x1="12" y1="1" x2="12" y2="23" />
@@ -43,20 +46,57 @@ const NAV_ITEMS = [
   },
 ];
 
+function useUmlagenBadge() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    async function load() {
+      const [umlagen, statuses] = await Promise.all([
+        dbGetAll('umlagen'),
+        dbGetAll('umlage_status'),
+      ]);
+      const statusByUmlage = statuses.reduce((acc, s) => {
+        (acc[s.umlage_id] ??= []).push(s);
+        return acc;
+      }, {});
+      const openCount = umlagen.filter(u => {
+        const ss = statusByUmlage[u.id] ?? [];
+        const offen = ss.filter(s => s.status !== 'bezahlt' && s.status !== 'befreit').length;
+        return offen > 0;
+      }).length;
+      setCount(openCount);
+    }
+    load().catch(() => {});
+  }, []);
+
+  return count;
+}
+
 export default function BottomNav() {
+  const umlagenBadge = useUmlagenBadge();
+  const badges = { umlagen: umlagenBadge };
+
   return (
     <nav className="bottom-nav">
-      {NAV_ITEMS.map(({ to, label, icon }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={to === '/'}
-          className={({ isActive }) => `bottom-nav__item${isActive ? ' bottom-nav__item--active' : ''}`}
-        >
-          <span className="bottom-nav__icon">{icon}</span>
-          <span className="bottom-nav__label">{label}</span>
-        </NavLink>
-      ))}
+      {NAV_ITEMS.map(({ to, label, icon, badgeKey }) => {
+        const badge = badgeKey ? badges[badgeKey] : 0;
+        return (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === '/'}
+            className={({ isActive }) => `bottom-nav__item${isActive ? ' bottom-nav__item--active' : ''}`}
+          >
+            <span className="bottom-nav__icon">
+              {icon}
+              {badge > 0 && (
+                <span className="nav-badge">{badge > 99 ? '99+' : badge}</span>
+              )}
+            </span>
+            <span className="bottom-nav__label">{label}</span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }
