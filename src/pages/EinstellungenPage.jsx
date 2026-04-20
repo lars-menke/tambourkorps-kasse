@@ -6,6 +6,7 @@ import { pushStore } from '../utils/sync';
 import { generateId } from '../utils/imageUtils';
 import { REPO_OWNER_KEY, REPO_DATA_KEY, LAST_SEEN_VERSION_KEY, CHANGELOG } from '../constants';
 import { ghReadRawFile, ghWriteRawFile } from '../services/github';
+import { applyTheme, getStoredTheme } from '../lib/theme';
 
 const APP_VERSION = __APP_VERSION__;
 
@@ -20,6 +21,7 @@ export default function EinstellungenPage() {
   const navigate = useNavigate();
   const [changelogOffen, setChangelogOffen] = useState(false);
   const [istNeu, setIstNeu] = useState(false);
+  const [theme, setTheme] = useState(getStoredTheme());
 
   const owner = localStorage.getItem(REPO_OWNER_KEY) || '–';
   const dataRepo = localStorage.getItem(REPO_DATA_KEY) || '–';
@@ -88,6 +90,26 @@ export default function EinstellungenPage() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* Erscheinungsbild */}
+        <section className="settings-section">
+          <h2 className="settings-section__title">Erscheinungsbild</h2>
+          <div className="settings-item">
+            <span className="settings-item__label">Design</span>
+            <div className="segmented">
+              {(['system', 'light', 'dark']).map(opt => (
+                <button
+                  key={opt}
+                  type="button"
+                  className={`segmented__item${theme === opt ? ' is-active' : ''}`}
+                  onClick={() => { applyTheme(opt); setTheme(opt); }}
+                >
+                  {opt === 'system' ? 'Auto' : opt === 'light' ? 'Hell' : 'Dunkel'}
+                </button>
+              ))}
+            </div>
+          </div>
         </section>
 
         {/* Kategorien */}
