@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
+import { CategoryChip } from '../components/CategoryChip';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -166,7 +167,7 @@ export default function DashboardPage() {
                 <div className="recent-card__body">
                   <span className="recent-card__datum">{fmtDatum(letzteBuchung.datum)}</span>
                   {letzteBuchung.kategorie && (
-                    <span className="recent-card__chip">{letzteBuchung.kategorie}</span>
+                    <CategoryChip name={letzteBuchung.kategorie} />
                   )}
                   {letzteBuchung.notiz && (
                     <span className="recent-card__notiz">{letzteBuchung.notiz}</span>

@@ -4,6 +4,7 @@ import { dbGetAll, dbDelete } from '../services/db';
 import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
 import BuchungDetailModal from '../components/BuchungDetailModal';
+import { CategoryChip } from '../components/CategoryChip';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -174,7 +175,7 @@ export default function BuchungenPage() {
               >
                 <div className="buchung-item__meta">
                   <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
-                  <span className="buchung-item__kategorie">Umlage</span>
+                  <CategoryChip name="Umlage" />
                   <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
                 </div>
                 <div className="buchung-item__notiz">
@@ -199,7 +200,7 @@ export default function BuchungenPage() {
                   <div className="buchung-item__meta">
                     <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
                     {item.kategorie && (
-                      <span className="buchung-item__kategorie">{item.kategorie}</span>
+                      <CategoryChip name={item.kategorie} />
                     )}
                   </div>
                   {item.notiz && (
