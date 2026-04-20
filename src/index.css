@@ -399,6 +399,76 @@ a {
   color: var(--red);
 }
 
+/* ── Onboarding ──────────────────────────────────── */
+
+.ob-progress {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0 20px;
+  justify-content: center;
+}
+
+.ob-progress__dot {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+  transition: background 0.2s;
+}
+
+.ob-progress__dot.is-current { background: var(--color-brand); }
+.ob-progress__dot.is-done    { background: var(--color-brand); opacity: 0.5; }
+
+.ob-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ob-step--welcome {
+  text-align: center;
+  align-items: center;
+}
+
+.ob-step__title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.ob-step__desc {
+  font-size: 0.875rem;
+  color: var(--color-text-dim);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.ob-step__nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.ob-step--done {
+  text-align: center;
+  align-items: center;
+  padding: 24px 0;
+}
+
+.ob-done__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-income-bg);
+  border: 2px solid var(--color-income-border);
+  color: var(--color-income);
+  font-size: 1.8rem;
+  display: grid;
+  place-items: center;
+}
+
 /* ── Form Elements ───────────────────────────────── */
 
 .form-group {
