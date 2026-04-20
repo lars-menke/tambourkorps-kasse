@@ -1,0 +1,181 @@
+/* ── Basis-Paletten (nie direkt in Komponenten verwenden) ──────────────── */
+:root {
+  /* Neutral */
+  --neutral-0:   #ffffff;
+  --neutral-50:  #f4f6f2;
+  --neutral-100: #eef1ea;
+  --neutral-200: #e8ece3;
+  --neutral-300: #d8ddd2;
+  --neutral-400: #bfc8b8;
+  --neutral-500: #9ca3af;
+  --neutral-600: #6b7280;
+  --neutral-700: #4b5563;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
+  --neutral-950: #0a0f0d;
+
+  /* Vereinsgrün (Brand Primary) */
+  --green-50:  #edf5ea;
+  --green-100: #dbe9d4;
+  --green-200: #b6d4a8;
+  --green-300: #7fae69;
+  --green-400: #4a8739;
+  --green-500: #2d6a1f;
+  --green-600: #14532d;
+  --green-700: #0d3d18;
+  --green-800: #082b10;
+  --green-900: #041807;
+
+  /* Vereinsgold (Brand Secondary) */
+  --gold-50:  #fdf8e6;
+  --gold-100: #faefc2;
+  --gold-200: #e8cc7a;
+  --gold-300: #d9b948;    /* heller, AAA-tauglich auf green-700 */
+  --gold-400: #c9a227;    /* Splash, Hero, große Flächen */
+  --gold-500: #9a7a1c;
+
+  /* Rot — Ausgaben, Fehler */
+  --red-50:  #fef2f2;
+  --red-100: #fecaca;
+  --red-200: #fca5a5;
+  --red-500: #b91c1c;
+  --red-600: #991b1b;
+
+  /* Orange — Warnung, offen, ausstehend */
+  --orange-50:  #fff7ed;
+  --orange-100: #ffedd5;
+  --orange-200: #fed7aa;
+  --orange-500: #b45309;
+  --orange-600: #9a3412;
+
+  /* Blau — Info, Action-Cards */
+  --blue-50:  #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-500: #2563eb;
+  --blue-600: #1d4ed8;
+
+  /* Kategorie-Akzente */
+  --purple-50:  #faf5ff;
+  --purple-500: #7c3aed;
+  --amber-50:   #fffbeb;
+  --amber-500:  #d97706;
+  --teal-50:    #f0fdfa;
+  --teal-500:   #0d9488;
+  --pink-50:    #fdf2f8;
+  --pink-500:   #db2777;
+}
+
+/* ── Semantische Tokens, Light Mode ────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --color-bg:           var(--neutral-50);
+  --color-bg-elevated:  var(--neutral-200);
+  --color-surface:      var(--neutral-0);
+  --color-surface-alt:  var(--neutral-100);
+  --color-overlay:      rgba(0, 0, 0, 0.4);
+
+  /* Borders */
+  --color-border:        var(--neutral-300);
+  --color-border-strong: var(--neutral-400);
+
+  /* Text */
+  --color-text:          var(--neutral-900);
+  --color-text-dim:      var(--neutral-600);
+  --color-text-muted:    var(--neutral-500);
+  --color-text-on-brand: var(--neutral-0);
+
+  /* Brand */
+  --color-brand:               var(--green-700);
+  --color-brand-hover:         var(--green-600);
+  --color-brand-subtle:        var(--green-50);
+  --color-brand-border:        var(--green-200);
+  --color-brand-accent:        var(--gold-300);
+  --color-brand-accent-strong: var(--gold-400);
+
+  /* Semantik — Finanzen */
+  --color-income:         var(--green-700);
+  --color-income-bg:      var(--green-50);
+  --color-income-border:  var(--green-200);
+  --color-expense:        var(--red-500);
+  --color-expense-bg:     var(--red-50);
+  --color-expense-border: var(--red-100);
+  --color-warning:        var(--orange-500);
+  --color-warning-bg:     var(--orange-50);
+  --color-warning-border: var(--orange-200);
+  --color-info:           var(--blue-500);
+  --color-info-bg:        var(--blue-50);
+  --color-info-border:    var(--blue-200);
+
+  /* Focus */
+  --color-focus: var(--green-700);
+}
+
+/* ── Legacy-Aliases (damit bestehende Styles nicht brechen) ─────────────── */
+:root {
+  /* Surfaces */
+  --bg:         var(--color-bg);
+  --bg2:        var(--color-bg-elevated);
+  --surface:    var(--color-surface);
+  --surface2:   var(--color-surface-alt);
+
+  /* Borders */
+  --border:     var(--color-border);
+  --border2:    var(--color-border-strong);
+
+  /* Text */
+  --text:       var(--color-text);
+  --text-dim:   var(--color-text-dim);
+  --text-muted: var(--color-text-muted);
+
+  /* Brand (ehemals irreführend --blue benannt) */
+  --blue:       var(--color-brand);
+  --blue-light: var(--color-brand-subtle);
+  --blue-mid:   var(--color-brand-border);
+
+  /* Gold */
+  --gold:        var(--color-brand-accent-strong);
+  --gold-light:  var(--gold-50);
+  --gold-border: var(--gold-200);
+
+  /* Finanzen */
+  --green:    var(--color-income);
+  --green-bg: var(--color-income-bg);
+  --red:      var(--color-expense);
+  --red-bg:   var(--color-expense-bg);
+  --orange:   var(--color-warning);
+}
+
+/* ── Nicht-Farb-Tokens ──────────────────────────────────────────────────── */
+:root {
+  /* Spacing */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+  --space-2xl: 32px;
+
+  /* Radius (primäre Namen) */
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  14px;
+  --r-xl:  18px;
+
+  /* Radius-Aliases (Spec-Namen für neue Komponenten) */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+  --radius-xl: var(--r-xl);
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
+
+  /* Layout */
+  --nav-h: 64px;
+  --sat: env(safe-area-inset-top,    0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
