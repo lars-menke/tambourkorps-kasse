@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
 import { CategoryChip } from '../components/CategoryChip';
+import { BalanceCard } from '../components/BalanceCard';
+import { CategoryDonut } from '../components/CategoryDonut';
+import { EmptyState } from '../components/EmptyState';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -14,6 +17,68 @@ const fmtIso = (iso) =>
     day: '2-digit', month: '2-digit', year: 'numeric',
   }) : null;
 
+function buildSparkline(buchungen, days = 30) {
+  const now = new Date();
+  const points = [];
+  let running = 0;
+
+  // Sum all buchungen before the window as baseline
+  const cutoff = new Date(now);
+  cutoff.setDate(cutoff.getDate() - days);
+  for (const b of buchungen) {
+    const d = new Date(b.datum + 'T12:00:00');
+    if (d < cutoff) {
+      running += b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0);
+    }
+  }
+
+  for (let i = days - 1; i >= 0; i--) {
+    const day = new Date(now);
+    day.setDate(day.getDate() - i);
+    const dayStr = day.toISOString().slice(0, 10);
+    for (const b of buchungen) {
+      if (b.datum === dayStr) {
+        running += b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0);
+      }
+    }
+    points.push(running);
+  }
+  return points;
+}
+
+function buildDelta(buchungen) {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+  const prevMonth = thisMonth === 0 ? 11 : thisMonth - 1;
+  const prevYear = thisMonth === 0 ? thisYear - 1 : thisYear;
+
+  let thisNet = 0, prevNet = 0;
+  for (const b of buchungen) {
+    const d = new Date(b.datum + 'T12:00:00');
+    const sign = b.typ === 'einzahlung' ? 1 : -1;
+    const val = (b.betrag || 0) * sign;
+    if (d.getFullYear() === thisYear && d.getMonth() === thisMonth) thisNet += val;
+    if (d.getFullYear() === prevYear && d.getMonth() === prevMonth) prevNet += val;
+  }
+  const delta = thisNet - prevNet;
+  const prevLabel = new Date(prevYear, prevMonth).toLocaleDateString('de-DE', { month: 'long' });
+  return { delta, label: `ggü. ${prevLabel}` };
+}
+
+function buildDonut(buchungen) {
+  const map = {};
+  for (const b of buchungen) {
+    if (b.typ !== 'auszahlung') continue;
+    const key = b.kategorie || 'Sonstiges';
+    map[key] = (map[key] || 0) + (b.betrag || 0);
+  }
+  return Object.entries(map)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 6);
+}
+
 export default function DashboardPage() {
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
@@ -21,6 +86,9 @@ export default function DashboardPage() {
   const [buchungenCount, setBuchungenCount] = useState(0);
   const [letzteBuchung, setLetzteBuchung] = useState(null);
   const [letzteUmlage, setLetzteUmlage] = useState(null);
+  const [sparkData, setSparkData] = useState([]);
+  const [deltaInfo, setDeltaInfo] = useState({ delta: 0, label: '' });
+  const [donutData, setDonutData] = useState([]);
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
 
@@ -44,11 +112,13 @@ export default function DashboardPage() {
     setAusgaben(aus);
     setKassenstand(ein - aus);
 
-    // Letzte normale Buchung (nach Datum)
+    setSparkData(buildSparkline(buchungen));
+    setDeltaInfo(buildDelta(buchungen));
+    setDonutData(buildDonut(buchungen));
+
     const sorted = [...normalBuchungen].sort((a, b) => b.datum.localeCompare(a.datum));
     setLetzteBuchung(sorted[0] ?? null);
 
-    // Letzte Umlage (nach Erstelldatum)
     if (umlagen.length > 0) {
       const lastU = [...umlagen].sort((a, b) => (b.erstellt ?? '').localeCompare(a.erstellt ?? ''))[0];
       const uStatuses = statuses.filter(s => s.umlage_id === lastU.id);
@@ -91,17 +161,12 @@ export default function DashboardPage() {
 
       <div className="dashboard">
         {/* Kassenstand */}
-        <div className="saldo-card">
-          <div className="saldo-card__label">Kassenstand</div>
-          <div className={`saldo-card__betrag${kassenstand !== null && kassenstand < 0 ? ' saldo-card__betrag--negativ' : ''}`}>
-            {fmt(kassenstand)}
-          </div>
-          {buchungenCount > 0 && (
-            <div className="saldo-card__info">
-              aus {buchungenCount} Buchung{buchungenCount !== 1 ? 'en' : ''}
-            </div>
-          )}
-        </div>
+        <BalanceCard
+          balance={kassenstand ?? 0}
+          deltaAmount={deltaInfo.delta}
+          deltaLabel={deltaInfo.label}
+          history={sparkData}
+        />
 
         {/* Einnahmen / Ausgaben */}
         {buchungenCount > 0 && (
@@ -142,11 +207,14 @@ export default function DashboardPage() {
         </div>
 
         {buchungenCount === 0 && (
-          <div className="empty-state">
-            <p>Noch keine Buchungen vorhanden.</p>
-            <p>Tippe auf „Buchung erfassen" um loszulegen.</p>
-          </div>
+          <EmptyState
+            title="Noch keine Buchungen"
+            description='Tippe auf "Buchung erfassen" um loszulegen.'
+          />
         )}
+
+        {/* Kategorie-Donut */}
+        {ausgaben > 0 && <CategoryDonut data={donutData} />}
 
         {/* Letzte Aktivitäten */}
         {(letzteBuchung || letzteUmlage) && (

@@ -494,6 +494,131 @@ a {
   margin-top: var(--space-sm);
 }
 
+/* ── Balance Card (new) ──────────────────────────── */
+
+.balance-card {
+  position: relative;
+  background: var(--color-brand);
+  color: var(--color-text-on-brand);
+  padding: 20px 24px 24px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.balance-card__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.balance-card__amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 8px 0 4px;
+  color: var(--color-brand-accent);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.balance-card.is-negative .balance-card__amount { color: var(--red-200); }
+
+.balance-card__spark {
+  width: 100%;
+  height: 32px;
+  color: var(--color-brand-accent);
+  margin: 8px 0 12px;
+  display: block;
+}
+
+.balance-card__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.85;
+  font-family: 'DM Mono', monospace;
+}
+
+/* ── Donut Chart ─────────────────────────────────── */
+
+.donut-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.donut-card__title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+
+.donut-card__body {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.donut-svg { width: 120px; height: 120px; }
+
+.donut-total {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--color-text);
+}
+
+.donut-sub {
+  font-size: 5.5px;
+  fill: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.donut-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.donut-legend li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.78rem;
+}
+
+.donut-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.donut-legend__label { color: var(--color-text-dim); }
+
+.donut-legend__val {
+  font-family: 'DM Mono', monospace;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
 /* ── Dashboard Stats ─────────────────────────────── */
 
 .dashboard-stats {
