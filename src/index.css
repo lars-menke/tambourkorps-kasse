@@ -1480,6 +1480,40 @@ a {
 
 .settings-item--link:hover { background: var(--surface2); }
 
+/* ── Segmented Control ───────────────────────────── */
+.segmented {
+  display: flex;
+  background: var(--color-bg-elevated);
+  border-radius: var(--r-lg);
+  padding: 3px;
+  gap: 2px;
+}
+
+.segmented__item {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  border-radius: calc(var(--r-lg) - 3px);
+  background: transparent;
+  color: var(--color-text-dim);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.segmented__item:hover:not(.is-active) {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.segmented__item.is-active {
+  background: var(--color-surface);
+  color: var(--color-brand);
+  box-shadow: var(--shadow-sm);
+}
+
 /* ── Umlage List ─────────────────────────────────── */
 
 .umlage-list {
