@@ -3,15 +3,19 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import SplashScreen from './components/SplashScreen';
+import { ToastProvider } from './components/ToastProvider';
+import { initTheme } from './lib/theme';
 import './index.css';
+
+initTheme();
 
 function Root() {
   const [splashDone, setSplashDone] = useState(false);
   return (
-    <>
+    <ToastProvider>
       {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
       <RouterProvider router={router} />
-    </>
+    </ToastProvider>
   );
 }
 

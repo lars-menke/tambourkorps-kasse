@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { dbGetAll, dbDelete } from '../services/db';
+import { dbGetAll, dbDelete, dbPut } from '../services/db';
 import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
 import BuchungDetailModal from '../components/BuchungDetailModal';
 import { CategoryChip } from '../components/CategoryChip';
 import { EmptyState } from '../components/EmptyState';
+import { useToast } from '../components/ToastProvider';
+import { haptic } from '../lib/haptics';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -30,6 +32,7 @@ export default function BuchungenPage() {
   const [editBuchung,   setEditBuchung]   = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { push: toast } = useToast();
 
   // Direkt-Aufruf vom Dashboard: Detail-Modal der übergebenen Buchung öffnen
   useEffect(() => {
@@ -106,6 +109,8 @@ export default function BuchungenPage() {
     setDetailBuchung(null);
     await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+    haptic('success');
+    toast({ message: 'Buchung gespeichert.', variant: 'success' });
   }
 
   function handleEditFromDetail(b) {
@@ -115,16 +120,40 @@ export default function BuchungenPage() {
 
   async function handleDelete(id) {
     if (!confirm('Buchung löschen?')) return;
+    const deleted = listItems.find(b => b.id === id);
     await dbDelete('buchungen', id);
     setDetailBuchung(null);
     await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+    haptic('warning');
+    toast({
+      message: 'Buchung gelöscht.',
+      variant: 'success',
+      undo: deleted ? async () => {
+        const { _isUmlage, ...rest } = deleted;
+        await dbPut('buchungen', rest);
+        await load();
+        pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+      } : undefined,
+    });
   }
 
   async function handleSwipeDelete(id) {
+    const deleted = listItems.find(b => b.id === id);
     await dbDelete('buchungen', id);
     await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+    haptic('warning');
+    toast({
+      message: 'Buchung gelöscht.',
+      variant: 'success',
+      undo: deleted ? async () => {
+        const { _isUmlage, ...rest } = deleted;
+        await dbPut('buchungen', rest);
+        await load();
+        pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+      } : undefined,
+    });
   }
 
   function handleItemClick(item) {
