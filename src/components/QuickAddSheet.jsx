@@ -18,8 +18,8 @@ function getTopKategorien(buchungen, kategorien, n = 4) {
   return kategorien.slice(0, n).map(k => k.name);
 }
 
-export function QuickAddSheet({ open, onClose, onSave }) {
-  const [typ, setTyp] = useState('auszahlung');
+export function QuickAddSheet({ open, onClose, onSave, initialTyp = null }) {
+  const [typ, setTyp] = useState(initialTyp || 'auszahlung');
   const [betrag, setBetrag] = useState('');
   const [kategorie, setKategorie] = useState('');
   const [quickPicks, setQuickPicks] = useState([]);
@@ -28,7 +28,7 @@ export function QuickAddSheet({ open, onClose, onSave }) {
 
   useEffect(() => {
     if (!open) return;
-    setTyp('auszahlung');
+    setTyp(initialTyp || 'auszahlung');
     setBetrag('');
     setKategorie('');
     setSaving(false);

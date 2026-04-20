@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
 import { CategoryChip } from '../components/CategoryChip';
@@ -92,8 +92,10 @@ export default function DashboardPage() {
   const [deltaInfo, setDeltaInfo] = useState({ delta: 0, label: '' });
   const [donutData, setDonutData] = useState([]);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickAddTyp, setQuickAddTyp] = useState(null);
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const loadData = useCallback(async () => {
     await initDefaultKategorien();
@@ -134,6 +136,14 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    const q = searchParams.get('quick');
+    if (q === 'income' || q === 'expense') {
+      setQuickAddTyp(q === 'income' ? 'einzahlung' : 'auszahlung');
+      setQuickAddOpen(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     window.addEventListener('tk-sync-complete', loadData);
@@ -292,7 +302,8 @@ export default function DashboardPage() {
       </PullToRefresh>
       <QuickAddSheet
         open={quickAddOpen}
-        onClose={() => setQuickAddOpen(false)}
+        initialTyp={quickAddTyp}
+        onClose={() => { setQuickAddOpen(false); setQuickAddTyp(null); }}
         onSave={loadData}
       />
     </div>

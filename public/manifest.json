@@ -9,6 +9,20 @@
   "theme_color": "#0d3d18",
   "lang": "de",
   "orientation": "portrait-primary",
+  "shortcuts": [
+    {
+      "name": "Neue Einnahme",
+      "short_name": "Einnahme",
+      "url": "/tambourkorps-kasse/?quick=income",
+      "icons": [{ "src": "/tambourkorps-kasse/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Neue Ausgabe",
+      "short_name": "Ausgabe",
+      "url": "/tambourkorps-kasse/?quick=expense",
+      "icons": [{ "src": "/tambourkorps-kasse/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
     {
       "src": "apple-touch-icon.png",
