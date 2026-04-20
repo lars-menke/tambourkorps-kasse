@@ -1514,6 +1514,22 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
+/* ── Category Chip ───────────────────────────────── */
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  font-size: 0.69rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cat-chip--md { padding: 5px 10px; font-size: 0.78rem; gap: 6px; }
+
 /* ── Umlage List ─────────────────────────────────── */
 
 .umlage-list {
