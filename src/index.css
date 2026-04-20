@@ -282,6 +282,17 @@ a {
   border: 1px solid var(--color-expense-border);
 }
 
+.btn--ghost {
+  background: transparent;
+  color: var(--color-text-dim);
+  border: 1px solid var(--color-border);
+}
+
+.btn--ghost:not(:disabled):hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
 .btn--full { width: 100%; }
 
 .btn--sm {
@@ -2583,3 +2594,130 @@ a {
 }
 
 .ptr__indicator .is-spinning { animation: spin 0.8s linear infinite; }
+
+/* ── Bottom Sheet ────────────────────────────────── */
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  z-index: 200;
+}
+
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 201;
+  background: var(--color-surface);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 12px 20px calc(var(--sab) + 24px);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(calc(-1 * var(--kbd-offset, 0px)));
+  transition: transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: sheet-in 0.25s cubic-bezier(0.32,0.72,0,1);
+}
+
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(calc(-1 * var(--kbd-offset, 0px))); }
+}
+
+.bottom-sheet__handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border-strong);
+  margin: 0 auto 4px;
+}
+
+.sheet-type-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sheet-type-btn {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  color: var(--color-text-dim);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sheet-type-btn.is-active--income {
+  background: var(--color-income-bg);
+  border-color: var(--color-income-border);
+  color: var(--color-income);
+}
+
+.sheet-type-btn.is-active--expense {
+  background: var(--color-expense-bg);
+  border-color: var(--color-expense-border);
+  color: var(--color-expense);
+}
+
+.sheet-amount-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sheet-amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  text-align: right;
+  width: 160px;
+  outline: none;
+}
+
+.sheet-amount__currency {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.sheet-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sheet-pick {
+  padding: 6px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-alt);
+  color: var(--color-text-dim);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.sheet-pick.is-active {
+  background: var(--color-brand-subtle);
+  border-color: var(--color-brand-border);
+  color: var(--color-brand);
+}
+
+.sheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
