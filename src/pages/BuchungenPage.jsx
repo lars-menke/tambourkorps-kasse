@@ -5,6 +5,7 @@ import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
 import BuchungDetailModal from '../components/BuchungDetailModal';
 import { CategoryChip } from '../components/CategoryChip';
+import { EmptyState } from '../components/EmptyState';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -158,12 +159,15 @@ export default function BuchungenPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="empty-state">
-          {!hasBuchungen && listItems.length === 0
-            ? <><p>Noch keine Buchungen.</p><p>Tippe auf „+ Neu" um loszulegen.</p></>
-            : <p>Keine {filter === 'einzahlung' ? 'Einzahlungen' : 'Auszahlungen'} vorhanden.</p>
-          }
-        </div>
+        !hasBuchungen && listItems.length === 0
+          ? <EmptyState
+              title="Noch keine Buchungen"
+              description="Lege deine erste Einnahme oder Ausgabe an. Die App synchronisiert automatisch."
+            />
+          : <EmptyState
+              title={`Keine ${filter === 'einzahlung' ? 'Einzahlungen' : 'Auszahlungen'}`}
+              description="Wechsle den Filter, um andere Buchungen zu sehen."
+            />
       ) : (
         <ul className="buchungen-list">
           {filtered.map(item => item._isUmlage

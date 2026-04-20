@@ -200,6 +200,7 @@ a {
 }
 
 .bottom-nav__icon {
+  position: relative;
   width: 22px;
   height: 22px;
   display: flex;
@@ -232,10 +233,10 @@ a {
 }
 
 .page-header h1 {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 /* ── Buttons ─────────────────────────────────────── */
@@ -1896,10 +1897,77 @@ a {
 
 .empty-state {
   text-align: center;
-  padding: var(--space-2xl) var(--space-lg);
-  color: var(--text-muted);
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-state__art {
+  color: var(--color-text-muted);
+  width: 100px;
+  height: 100px;
+  opacity: 0.6;
+}
+
+.empty-state__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 8px 0 0;
+}
+
+.empty-state__desc {
   font-size: 0.875rem;
-  line-height: 1.9;
+  color: var(--color-text-dim);
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+
+/* ── Avatar ──────────────────────────────────────── */
+
+.avatar {
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .avatar {
+  filter: brightness(0.82);
+}
+
+/* ── Nav Badge ───────────────────────────────────── */
+
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--color-expense);
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ── Tabular Numerals ────────────────────────────── */
+
+.saldo-card__betrag,
+.buchung-item__betrag,
+.stat-card__value {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* ── Focus ───────────────────────────────────────── */

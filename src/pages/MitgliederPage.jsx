@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { dbGetAll, dbPut, dbDelete } from '../services/db';
 import { generateId } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
+import { Avatar } from '../components/Avatar';
+import { EmptyState } from '../components/EmptyState';
 
 const FUNKTIONEN = [
   { value: '',             label: '— Keine —' },
@@ -100,10 +102,10 @@ export default function MitgliederPage() {
       </header>
 
       {mitglieder.length === 0 ? (
-        <div className="empty-state">
-          <p>Noch keine Mitglieder.</p>
-          <p>Tippe auf „+ Neu" um ein Mitglied hinzuzufügen.</p>
-        </div>
+        <EmptyState
+          title="Noch keine Mitglieder"
+          description="Füge dein erstes Mitglied hinzu, um Umlagen zu verwalten."
+        />
       ) : (
         <>
           {aktive.length > 0 && (
@@ -161,6 +163,8 @@ function MemberItem({ member, onEdit, onToggle, onDelete }) {
 
   return (
     <li className={`member-item${member.aktiv ? '' : ' member-item--inaktiv'}`}>
+      <Avatar name={displayName(member)} size={34} />
+
       <button
         className={`member-item__status ${member.aktiv ? 'member-item__status--aktiv' : 'member-item__status--inaktiv'}`}
         onClick={() => onToggle(member)}
