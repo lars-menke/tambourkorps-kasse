@@ -9,6 +9,7 @@ import { EmptyState } from '../components/EmptyState';
 import { useToast } from '../components/ToastProvider';
 import { haptic } from '../lib/haptics';
 import { PullToRefresh } from '../components/PullToRefresh';
+import { useCategorienMap } from '../hooks/useCategorienMap';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -34,6 +35,7 @@ export default function BuchungenPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { push: toast } = useToast();
+  const catIcons = useCategorienMap();
 
   // Direkt-Aufruf vom Dashboard: Detail-Modal der übergebenen Buchung öffnen
   useEffect(() => {
@@ -235,7 +237,7 @@ export default function BuchungenPage() {
                   <div className="buchung-item__meta">
                     <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
                     {item.kategorie && (
-                      <CategoryChip name={item.kategorie} />
+                      <CategoryChip name={item.kategorie} icon={catIcons[item.kategorie]} />
                     )}
                   </div>
                   {item.notiz && (

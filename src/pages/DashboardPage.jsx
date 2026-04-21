@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
 import { CategoryChip } from '../components/CategoryChip';
+import { useCategorienMap } from '../hooks/useCategorienMap';
 import { BalanceCard } from '../components/BalanceCard';
 import { CategoryDonut } from '../components/CategoryDonut';
 import { EmptyState } from '../components/EmptyState';
@@ -96,6 +97,7 @@ export default function DashboardPage() {
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const catIcons = useCategorienMap();
 
   const loadData = useCallback(async () => {
     await initDefaultKategorien();
@@ -249,7 +251,7 @@ export default function DashboardPage() {
                 <div className="recent-card__body">
                   <span className="recent-card__datum">{fmtDatum(letzteBuchung.datum)}</span>
                   {letzteBuchung.kategorie && (
-                    <CategoryChip name={letzteBuchung.kategorie} />
+                    <CategoryChip name={letzteBuchung.kategorie} icon={catIcons[letzteBuchung.kategorie]} />
                   )}
                   {letzteBuchung.notiz && (
                     <span className="recent-card__notiz">{letzteBuchung.notiz}</span>

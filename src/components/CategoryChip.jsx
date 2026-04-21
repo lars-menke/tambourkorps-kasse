@@ -1,11 +1,22 @@
-import { Users, HandCoins, Heart, Drum, Music, Shirt, Car, Utensils, Calendar, Landmark, MoreHorizontal } from 'lucide-react';
+import {
+  Users, HandCoins, Heart, Drum, Music, Shirt, Car, Utensils,
+  Calendar, Landmark, MoreHorizontal, Package, Star, Wrench,
+  Coffee, ShoppingBag, Tag, Banknote, Gift, Megaphone, BookOpen,
+  Briefcase, Truck, Home,
+} from 'lucide-react';
 import { resolveCategoryDef } from '../config/categories';
 
-const ICON_MAP = { Users, HandCoins, Heart, Drum, Music, Shirt, Car, Utensils, Calendar, Landmark, MoreHorizontal };
+const ICON_MAP = {
+  Users, HandCoins, Heart, Drum, Music, Shirt, Car, Utensils,
+  Calendar, Landmark, MoreHorizontal, Package, Star, Wrench,
+  Coffee, ShoppingBag, Tag, Banknote, Gift, Megaphone, BookOpen,
+  Briefcase, Truck, Home,
+};
 
-export function CategoryChip({ name, size = 'sm' }) {
+export function CategoryChip({ name, icon: iconOverride, size = 'sm' }) {
   const def = resolveCategoryDef(name);
-  const Icon = ICON_MAP[def.icon];
+  const iconName = iconOverride || def.icon;
+  const Icon = ICON_MAP[iconName] ?? ICON_MAP.MoreHorizontal;
   const iconSize = size === 'sm' ? 11 : 13;
 
   return (

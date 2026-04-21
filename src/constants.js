@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.1.1',
+    datum: '2026-04-21',
+    aenderungen: [
+      'Seitentitel "Mehr" auf "Einstellungen" korrigiert',
+      'App-Header und Titelzeilen beim Scrollen fixiert (Scroll-Architektur korrigiert)',
+      'Kategorie-Symbole werden jetzt aus den Einstellungen übernommen und synchronisiert',
+    ],
+  },
+  {
     version: '2.1.0',
     datum: '2026-04-20',
     aenderungen: [

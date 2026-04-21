@@ -41,7 +41,7 @@ export default function EinstellungenPage() {
   return (
     <div className="page">
       <header className="page-header">
-        <h1>Mehr</h1>
+        <h1>Einstellungen</h1>
       </header>
 
       <div className="settings-list">
