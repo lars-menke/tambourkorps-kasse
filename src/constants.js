@@ -7,6 +7,18 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.2.0',
+    datum: '2026-04-21',
+    aenderungen: [
+      'Kategorien: Farbe wählbar (10 Vorschläge + eigene Farbe), Vorschau im Modal',
+      'Kategorien: Eingebaute Kategorien erhalten automatisch Icon und Farbe beim ersten Start',
+      'Kategorie-Chips: Farbe und Symbol aus den Einstellungen werden überall angezeigt',
+      'Scroll: Pull-to-Refresh erkennt jetzt den richtigen Scroll-Container (kein falsches Auslösen mehr)',
+      'Scroll: overscroll-behavior korrigiert, sanfteres Scrollverhalten auf iOS',
+      'Einstellungen: Feedback-Bereich ganz nach unten verschoben',
+    ],
+  },
+  {
     version: '2.1.1',
     datum: '2026-04-21',
     aenderungen: [

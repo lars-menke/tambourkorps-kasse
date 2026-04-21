@@ -125,7 +125,7 @@ a {
   min-height: 0;
   padding-bottom: calc(var(--nav-h) + var(--sab));
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* ── Status Bar ──────────────────────────────────── */
@@ -2846,4 +2846,36 @@ a {
   background: var(--color-brand-subtle);
   border-color: var(--color-brand);
   color: var(--color-brand);
+}
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.color-picker__swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+}
+
+.color-picker__swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-picker__swatch--active {
+  border-color: var(--color-text);
+  transform: scale(1.15);
+}
+
+.color-picker__custom {
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
 }

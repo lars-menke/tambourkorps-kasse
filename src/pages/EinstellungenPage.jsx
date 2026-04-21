@@ -104,9 +104,6 @@ export default function EinstellungenPage() {
           </div>
         </section>
 
-        {/* Feedback */}
-        <FeedbackSection />
-
         {/* Navigation */}
         <section className="settings-section">
           <h2 className="settings-section__title">Verwaltung</h2>
@@ -147,6 +144,9 @@ export default function EinstellungenPage() {
             Token zurücksetzen
           </button>
         </section>
+
+        {/* Feedback — ganz unten */}
+        <FeedbackSection />
 
       </div>
     </div>

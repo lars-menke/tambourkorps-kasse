@@ -97,18 +97,27 @@ export async function putMeta(path, sha) {
 // --- Default data init ---
 
 const DEFAULT_KATEGORIEN = [
-  { id: 'k_umlage',      name: 'Umlage',      typ: 'einzahlung' },
-  { id: 'k_spende',      name: 'Spende',       typ: 'einzahlung' },
-  { id: 'k_beitrag',     name: 'Beitrag',      typ: 'einzahlung' },
-  { id: 'k_ausflug',     name: 'Ausflug',      typ: 'auszahlung' },
-  { id: 'k_ausruestung', name: 'Ausrüstung',   typ: 'auszahlung' },
-  { id: 'k_notenmat',    name: 'Notenmaterial', typ: 'auszahlung' },
-  { id: 'k_sonstiges',   name: 'Sonstiges',    typ: 'beide' },
+  { id: 'k_umlage',      name: 'Umlage',       typ: 'einzahlung', icon: 'HandCoins',    color: '#0d9488' },
+  { id: 'k_spende',      name: 'Spende',        typ: 'einzahlung', icon: 'Heart',        color: '#db2777' },
+  { id: 'k_beitrag',     name: 'Beitrag',       typ: 'einzahlung', icon: 'Users',        color: '#2d6a1f' },
+  { id: 'k_ausflug',     name: 'Ausflug',       typ: 'auszahlung', icon: 'Car',          color: '#b45309' },
+  { id: 'k_ausruestung', name: 'Ausrüstung',    typ: 'auszahlung', icon: 'Drum',         color: '#7c3aed' },
+  { id: 'k_notenmat',    name: 'Notenmaterial', typ: 'auszahlung', icon: 'Music',        color: '#2563eb' },
+  { id: 'k_sonstiges',   name: 'Sonstiges',     typ: 'beide',      icon: 'MoreHorizontal', color: '#6b7280' },
 ];
 
 export async function initDefaultKategorien() {
   const existing = await dbGetAll('kategorien');
   if (existing.length === 0) {
     await dbPutMany('kategorien', DEFAULT_KATEGORIEN);
+    return;
+  }
+  // Migrate existing default entries that are missing icon/color
+  const existingById = Object.fromEntries(existing.map(k => [k.id, k]));
+  for (const def of DEFAULT_KATEGORIEN) {
+    const k = existingById[def.id];
+    if (k && (!k.icon || !k.color)) {
+      await dbPut('kategorien', { ...k, icon: k.icon ?? def.icon, color: k.color ?? def.color });
+    }
   }
 }

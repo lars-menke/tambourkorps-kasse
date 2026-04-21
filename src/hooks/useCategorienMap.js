@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { dbGetAll } from '../services/db';
 
+// Returns a map of { [name]: { icon, color } } from IndexedDB kategorien
 export function useCategorienMap() {
   const [map, setMap] = useState({});
 
@@ -9,7 +10,7 @@ export function useCategorienMap() {
       const data = await dbGetAll('kategorien');
       const m = {};
       for (const k of data) {
-        if (k.name && k.icon) m[k.name] = k.icon;
+        if (k.name) m[k.name] = { icon: k.icon, color: k.color };
       }
       setMap(m);
     } catch {/* ignore */}

@@ -251,7 +251,7 @@ export default function DashboardPage() {
                 <div className="recent-card__body">
                   <span className="recent-card__datum">{fmtDatum(letzteBuchung.datum)}</span>
                   {letzteBuchung.kategorie && (
-                    <CategoryChip name={letzteBuchung.kategorie} icon={catIcons[letzteBuchung.kategorie]} />
+                    <CategoryChip name={letzteBuchung.kategorie} cat={catIcons[letzteBuchung.kategorie]} />
                   )}
                   {letzteBuchung.notiz && (
                     <span className="recent-card__notiz">{letzteBuchung.notiz}</span>

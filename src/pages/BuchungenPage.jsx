@@ -237,7 +237,7 @@ export default function BuchungenPage() {
                   <div className="buchung-item__meta">
                     <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
                     {item.kategorie && (
-                      <CategoryChip name={item.kategorie} icon={catIcons[item.kategorie]} />
+                      <CategoryChip name={item.kategorie} cat={catIcons[item.kategorie]} />
                     )}
                   </div>
                   {item.notiz && (

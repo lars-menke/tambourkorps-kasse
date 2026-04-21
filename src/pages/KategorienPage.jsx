@@ -19,6 +19,20 @@ const ICON_MAP = {
 
 export const ICON_OPTIONS = Object.keys(ICON_MAP);
 
+// Farbpalette — Vorschlagsfarben für Kategorien
+export const COLOR_SWATCHES = [
+  { hex: '#2d6a1f', label: 'Grün' },
+  { hex: '#0d9488', label: 'Türkis' },
+  { hex: '#2563eb', label: 'Blau' },
+  { hex: '#7c3aed', label: 'Lila' },
+  { hex: '#d97706', label: 'Amber' },
+  { hex: '#b45309', label: 'Orange' },
+  { hex: '#b91c1c', label: 'Rot' },
+  { hex: '#db2777', label: 'Pink' },
+  { hex: '#9a7a1c', label: 'Gold' },
+  { hex: '#6b7280', label: 'Grau' },
+];
+
 const TYP_LABELS = {
   einzahlung: 'Einnahme',
   auszahlung: 'Ausgabe',
@@ -98,9 +112,13 @@ export default function KategorienPage() {
 }
 
 function KategorieItem({ kategorie, onEdit, onDelete }) {
+  const color = kategorie.color;
   return (
     <li className="member-item">
-      <span className="kategorie-list__icon">
+      <span
+        className="kategorie-list__icon"
+        style={color ? { background: color + '1f', color } : undefined}
+      >
         <KategorieIcon iconName={kategorie.icon || 'MoreHorizontal'} size={18} />
       </span>
       <span className="member-item__name">
@@ -131,6 +149,7 @@ function KategorieModal({ kategorie, onSave, onClose }) {
   const [name, setName] = useState(kategorie?.name ?? '');
   const [typ, setTyp] = useState(kategorie?.typ ?? 'auszahlung');
   const [icon, setIcon] = useState(kategorie?.icon ?? 'MoreHorizontal');
+  const [color, setColor] = useState(kategorie?.color ?? COLOR_SWATCHES[0].hex);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -149,6 +168,7 @@ function KategorieModal({ kategorie, onSave, onClose }) {
         name: name.trim(),
         typ,
         icon,
+        color,
       });
     } finally {
       setSaving(false);
@@ -192,17 +212,59 @@ function KategorieModal({ kategorie, onSave, onClose }) {
           </div>
 
           <div className="form-group">
+            <label>Farbe</label>
+            <div className="color-picker">
+              {COLOR_SWATCHES.map(s => (
+                <button
+                  key={s.hex}
+                  type="button"
+                  className={`color-picker__swatch${color === s.hex ? ' color-picker__swatch--active' : ''}`}
+                  style={{ background: s.hex }}
+                  onClick={() => setColor(s.hex)}
+                  title={s.label}
+                  aria-label={s.label}
+                />
+              ))}
+              {/* Eigene Farbe via native color input */}
+              <label className="color-picker__custom" title="Eigene Farbe">
+                <input
+                  type="color"
+                  value={color}
+                  onChange={e => setColor(e.target.value)}
+                  style={{ opacity: 0, position: 'absolute', width: 0, height: 0 }}
+                />
+                <span style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 32, height: 32, borderRadius: 8,
+                  border: `1.5px solid ${color}`,
+                  background: color + '1f',
+                  color,
+                  fontSize: 14,
+                }}>✎</span>
+              </label>
+            </div>
+            {/* Vorschau */}
+            <span
+              className="cat-chip cat-chip--sm"
+              style={{ background: color + '1f', color, marginTop: 6, display: 'inline-flex' }}
+            >
+              {name || 'Vorschau'}
+            </span>
+          </div>
+
+          <div className="form-group">
             <label>Symbol</label>
             <div className="icon-picker">
-              {ICON_OPTIONS.map(name => {
-                const Icon = ICON_MAP[name];
+              {ICON_OPTIONS.map(n => {
+                const Icon = ICON_MAP[n];
                 return (
                   <button
-                    key={name}
+                    key={n}
                     type="button"
-                    className={`icon-picker__item${icon === name ? ' icon-picker__item--active' : ''}`}
-                    onClick={() => setIcon(name)}
-                    title={name}
+                    className={`icon-picker__item${icon === n ? ' icon-picker__item--active' : ''}`}
+                    style={icon === n ? { background: color + '1f', borderColor: color, color } : undefined}
+                    onClick={() => setIcon(n)}
+                    title={n}
                   >
                     <Icon size={20} strokeWidth={2} />
                   </button>

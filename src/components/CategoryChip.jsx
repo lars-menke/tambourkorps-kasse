@@ -13,16 +13,20 @@ const ICON_MAP = {
   Briefcase, Truck, Home,
 };
 
-export function CategoryChip({ name, icon: iconOverride, size = 'sm' }) {
+// cat = { icon?, color? } from useCategorienMap — overrides static config
+export function CategoryChip({ name, cat, size = 'sm' }) {
   const def = resolveCategoryDef(name);
-  const iconName = iconOverride || def.icon;
+  const iconName = cat?.icon || def.icon;
   const Icon = ICON_MAP[iconName] ?? ICON_MAP.MoreHorizontal;
   const iconSize = size === 'sm' ? 11 : 13;
+
+  const accent = cat?.color || def.accent;
+  const bg = cat?.color ? cat.color + '1f' : def.bg;
 
   return (
     <span
       className={`cat-chip cat-chip--${size}`}
-      style={{ background: def.bg, color: def.accent }}
+      style={{ background: bg, color: accent }}
     >
       {Icon && <Icon size={iconSize} strokeWidth={2.25} aria-hidden />}
       <span>{name || def.label}</span>
