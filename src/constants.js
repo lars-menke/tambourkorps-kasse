@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.2.1',
+    datum: '2026-04-21',
+    aenderungen: [
+      'Dark Mode: Umlage-Chip, Zahlungen-Badge und "Offen"-Status verwenden jetzt korrekte Dark-Mode-Farben',
+    ],
+  },
+  {
     version: '2.2.0',
     datum: '2026-04-21',
     aenderungen: [
