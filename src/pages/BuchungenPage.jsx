@@ -212,7 +212,7 @@ export default function BuchungenPage() {
               >
                 <div className="buchung-item__meta">
                   <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
-                  <CategoryChip name="Umlage" />
+                  <CategoryChip name="Umlage" cat={catIcons['Umlage']} />
                   <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
                 </div>
                 <div className="buchung-item__notiz">
