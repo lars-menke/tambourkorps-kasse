@@ -275,12 +275,14 @@ export default function BuchungenPage() {
                   </div>
                   {(item.notiz || metaZusammenfassung(item.meta, item.kategorie)) && (
                     <div className="buchung-item__notiz">
-                      {item.notiz}
-                      {item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
-                        <span className="buchung-item__notiz-meta"> ({metaZusammenfassung(item.meta, item.kategorie)})</span>
-                      )}
-                      {!item.notiz && (
+                      {metaZusammenfassung(item.meta, item.kategorie) && (
                         <span className="buchung-item__notiz--meta">{metaZusammenfassung(item.meta, item.kategorie)}</span>
+                      )}
+                      {item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
+                        <span className="buchung-item__notiz-info"> ({item.notiz})</span>
+                      )}
+                      {item.notiz && !metaZusammenfassung(item.meta, item.kategorie) && (
+                        <span>{item.notiz}</span>
                       )}
                     </div>
                   )}

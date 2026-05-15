@@ -1764,6 +1764,11 @@ a {
   font-style: italic;
 }
 
+.buchung-item__notiz-info {
+  color: var(--text);
+  font-style: normal;
+}
+
 .buchung-item__notiz-meta {
   color: var(--text-muted);
   font-size: 0.82em;
