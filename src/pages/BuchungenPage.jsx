@@ -17,6 +17,13 @@ const FILTER_TYPEN = [
   { value: 'auszahlung', label: 'Auszahlungen' },
 ];
 
+const SORT_OPTIONEN = [
+  { value: 'datum_desc',  label: 'Neueste zuerst' },
+  { value: 'datum_asc',   label: 'Älteste zuerst' },
+  { value: 'betrag_desc', label: 'Höchster Betrag' },
+  { value: 'betrag_asc',  label: 'Niedrigster Betrag' },
+];
+
 const formatBetrag = (betrag, typ) => {
   const f = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(betrag);
   return typ === 'einzahlung' ? `+${f}` : `−${f}`;
@@ -30,6 +37,7 @@ const formatDatum = (datum) =>
 export default function BuchungenPage() {
   const [listItems, setListItems] = useState([]); // Normal-Buchungen + virtuelle Umlage-Einträge
   const [filter, setFilter]       = useState('alle');
+  const [sort, setSort]           = useState('datum_desc');
   const [detailBuchung, setDetailBuchung] = useState(null);
   const [editBuchung,   setEditBuchung]   = useState(null);
   const navigate = useNavigate();
@@ -107,6 +115,13 @@ export default function BuchungenPage() {
     ? listItems
     : listItems.filter(b => b.typ === filter);
 
+  const sortedFiltered = [...filtered].sort((a, b) => {
+    if (sort === 'datum_asc')   return a.datum.localeCompare(b.datum);
+    if (sort === 'betrag_desc') return b.betrag - a.betrag;
+    if (sort === 'betrag_asc')  return a.betrag - b.betrag;
+    return b.datum.localeCompare(a.datum);
+  });
+
   async function handleSave() {
     setEditBuchung(null);
     setDetailBuchung(null);
@@ -180,30 +195,42 @@ export default function BuchungenPage() {
 
       <PullToRefresh onRefresh={load}>
       <div className="filter-bar">
-        {FILTER_TYPEN.map(({ value, label }) => (
-          <button
-            key={value}
-            className={`filter-btn${filter === value ? ' filter-btn--active' : ''}`}
-            onClick={() => setFilter(value)}
-          >
-            {label}
-          </button>
-        ))}
+        <div className="filter-bar__pills">
+          {FILTER_TYPEN.map(({ value, label }) => (
+            <button
+              key={value}
+              className={`filter-btn${filter === value ? ' filter-btn--active' : ''}`}
+              onClick={() => setFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <select
+          className="sort-select"
+          value={sort}
+          onChange={e => setSort(e.target.value)}
+          aria-label="Sortierung"
+        >
+          {SORT_OPTIONEN.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
       </div>
 
-      {filtered.length === 0 ? (
+      {sortedFiltered.length === 0 ? (
         !hasBuchungen && listItems.length === 0
           ? <EmptyState
               title="Noch keine Buchungen"
               description="Lege deine erste Einnahme oder Ausgabe an. Die App synchronisiert automatisch."
             />
           : <EmptyState
-              title={`Keine ${filter === 'einzahlung' ? 'Einzahlungen' : 'Auszahlungen'}`}
+              title={filter === 'alle' ? 'Keine Buchungen' : `Keine ${filter === 'einzahlung' ? 'Einzahlungen' : 'Auszahlungen'}`}
               description="Wechsle den Filter, um andere Buchungen zu sehen."
             />
       ) : (
         <ul className="buchungen-list">
-          {filtered.map(item => item._isUmlage
+          {sortedFiltered.map(item => item._isUmlage
             ? (
               <li
                 key={item.id}

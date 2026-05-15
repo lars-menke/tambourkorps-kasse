@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.3.0',
+    datum: '2026-05-15',
+    aenderungen: [
+      'Buchungen: Sortierung wählbar (Neueste, Älteste, Höchster/Niedrigster Betrag)',
+      'Buchungsliste: mehr Abstand zwischen Einträgen für bessere Lesbarkeit',
+      'Dashboard: Kassenstand-Kurve mit glatten Kurven und Verlaufsfüllung',
+    ],
+  },
+  {
     version: '2.2.1',
     datum: '2026-04-21',
     aenderungen: [
