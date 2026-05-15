@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { dbGet } from '../services/db';
 import { fetchBeleg } from '../utils/sync';
 
+const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
+
 const formatBetrag = (betrag, typ) => {
   const formatted = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(betrag);
   return typ === 'einzahlung' ? `+${formatted}` : `−${formatted}`;
@@ -92,12 +94,41 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
             <div className="detail-table">
               <div className="detail-row">
                 <span className="detail-row__label">Datum</span>
-                <span className="detail-row__value">{formatDatum(buchung.datum)}</span>
+                <span className="detail-row__value">
+                  {formatDatum(buchung.datum)}
+                  {buchung.uhrzeit && <span style={{ marginLeft: 6, opacity: 0.6 }}>{buchung.uhrzeit} Uhr</span>}
+                </span>
               </div>
               {buchung.kategorie && (
                 <div className="detail-row">
                   <span className="detail-row__label">Kategorie</span>
                   <span className="detail-row__value">{buchung.kategorie}</span>
+                </div>
+              )}
+              {buchung.meta?.spendername && (
+                <div className="detail-row">
+                  <span className="detail-row__label">Spender</span>
+                  <span className="detail-row__value">{buchung.meta.spendername}</span>
+                </div>
+              )}
+              {buchung.meta?.ort && (
+                <div className="detail-row">
+                  <span className="detail-row__label">Ort</span>
+                  <span className="detail-row__value">{buchung.meta.ort}</span>
+                </div>
+              )}
+              {buchung.meta?.von && (
+                <div className="detail-row">
+                  <span className="detail-row__label">Strecke</span>
+                  <span className="detail-row__value">{buchung.meta.von} → {buchung.meta.nach ?? '?'}</span>
+                </div>
+              )}
+              {buchung.meta?.trinkgeld != null && (
+                <div className="detail-row">
+                  <span className="detail-row__label">Trinkgeld</span>
+                  <span className="detail-row__value">
+                    {fmt(buchung.meta.betragBase)} + {fmt(buchung.meta.trinkgeld)}
+                  </span>
                 </div>
               )}
               <div className="detail-row">

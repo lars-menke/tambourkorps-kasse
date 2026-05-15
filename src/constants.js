@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.4.0',
+    datum: '2026-05-15',
+    aenderungen: [
+      'Buchungen: Kategorie-spezifische Zusatzfelder (Spende: Spendername, Getränke/Essen: Ort + Trinkgeld, Taxi: Von/Nach)',
+      'Trinkgeld: wird automatisch auf den Gesamtbetrag addiert, Aufschlüsselung in Detailansicht',
+      'Spendername, Ort und Strecke werden in der Buchungsliste und Detailansicht angezeigt',
+      'Detailansicht: Uhrzeit wird jetzt neben dem Datum angezeigt',
+    ],
+  },
+  {
     version: '2.3.0',
     datum: '2026-05-15',
     aenderungen: [

@@ -1726,6 +1726,44 @@ a {
 
 .settings-item--link:hover { background: var(--surface2); }
 
+/* ── Toggle Button ───────────────────────────────── */
+
+.toggle-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.toggle-btn--active {
+  background: var(--color-income-bg);
+  border-color: var(--color-income-border);
+  color: var(--color-income);
+}
+
+.trinkgeld-total {
+  margin-top: 8px;
+  font-size: 0.82rem;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-muted);
+}
+
+.trinkgeld-total strong {
+  color: var(--text);
+}
+
+.buchung-item__notiz--meta {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* ── Segmented Control ───────────────────────────── */
 .segmented {
   display: flex;

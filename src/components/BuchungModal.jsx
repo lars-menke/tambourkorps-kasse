@@ -3,19 +3,31 @@ import { dbGetAll, dbPut, dbGet, dbDelete } from '../services/db';
 import { pushBeleg, deleteBeleg } from '../utils/sync';
 import { generateId, todayIso } from '../utils/imageUtils';
 import BelegUpload from './BelegUpload';
+import { getMetaSchema } from '../lib/kategorieMeta';
+
+const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
 export default function BuchungModal({ buchung, onSave, onClose }) {
   const isEdit = Boolean(buchung);
 
-  const [typ, setTyp] = useState(buchung?.typ ?? 'einzahlung');
-  const [betrag, setBetrag] = useState(buchung ? String(buchung.betrag) : '');
-  const [datum, setDatum] = useState(buchung?.datum ?? todayIso());
+  const [typ, setTyp]         = useState(buchung?.typ ?? 'einzahlung');
+  const [betrag, setBetrag]   = useState(buchung ? String(buchung.meta?.betragBase ?? buchung.betrag) : '');
+  const [datum, setDatum]     = useState(buchung?.datum ?? todayIso());
   const [uhrzeit, setUhrzeit] = useState(buchung?.uhrzeit ?? '');
   const [kategorieId, setKategorieId] = useState(buchung?.kategorie_id ?? '');
-  const [notiz, setNotiz] = useState(buchung?.notiz ?? '');
+  const [notiz, setNotiz]     = useState(buchung?.notiz ?? '');
   const [belegDataUrl, setBelegDataUrl] = useState(null);
   const [kategorien, setKategorien] = useState([]);
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving]   = useState(false);
+
+  const initMeta = () => {
+    const m = buchung?.meta ?? {};
+    const { trinkgeld: _, betragBase: __, ...rest } = m;
+    return rest;
+  };
+  const [meta, setMeta]               = useState(initMeta);
+  const [hatTrinkgeld, setHatTrinkgeld] = useState(buchung?.meta?.trinkgeld != null);
+  const [trinkgeld, setTrinkgeld]     = useState(buchung?.meta?.trinkgeld != null ? String(buchung.meta.trinkgeld) : '');
 
   useEffect(() => {
     dbGetAll('kategorien').then(setKategorien);
@@ -26,55 +38,69 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
     }
   }, [buchung]);
 
-  // Close on backdrop click
   const handleBackdrop = useCallback((e) => {
     if (e.target === e.currentTarget) onClose();
   }, [onClose]);
 
-  // Close on Escape
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  const filteredKategorien = kategorien.filter(
-    k => k.typ === typ || k.typ === 'beide'
-  );
+  function handleKategorieChange(newId) {
+    setKategorieId(newId);
+    setMeta({});
+    setHatTrinkgeld(false);
+    setTrinkgeld('');
+  }
+
+  const filteredKategorien = kategorien.filter(k => k.typ === typ || k.typ === 'beide');
+  const kategorieNamen     = kategorien.find(k => k.id === kategorieId)?.name ?? null;
+  const metaSchema         = getMetaSchema(kategorieNamen);
+
+  const betragNum    = parseFloat(String(betrag).replace(',', '.')) || 0;
+  const trinkgeldNum = hatTrinkgeld ? (parseFloat(String(trinkgeld).replace(',', '.')) || 0) : 0;
+  const gesamtNum    = betragNum + trinkgeldNum;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const betragNum = parseFloat(betrag.replace(',', '.'));
-    if (isNaN(betragNum) || betragNum <= 0) return;
+    if (betragNum <= 0) return;
 
     setSaving(true);
     try {
       let belegId = buchung?.beleg_id ?? null;
 
-      // Save beleg if changed
       if (belegDataUrl && belegDataUrl !== 'unchanged') {
         belegId = belegId ?? generateId('beleg');
         await dbPut('belege', { id: belegId, dataUrl: belegDataUrl, datum });
         pushBeleg(belegId, belegDataUrl).catch(console.warn);
       } else if (!belegDataUrl && belegId) {
-        // Removed beleg
         await dbDelete('belege', belegId);
         deleteBeleg(belegId).catch(console.warn);
         belegId = null;
       }
 
+      const metaEntries = Object.entries(meta).filter(([, v]) => v?.toString().trim());
+      const hasMeta = metaEntries.length > 0 || trinkgeldNum > 0;
+      const metaRecord = hasMeta ? {
+        ...Object.fromEntries(metaEntries),
+        ...(trinkgeldNum > 0 ? { betragBase: betragNum, trinkgeld: trinkgeldNum } : {}),
+      } : null;
+
       const record = {
-        id: buchung?.id ?? generateId('b'),
+        id:           buchung?.id ?? generateId('b'),
         typ,
-        betrag: betragNum,
+        betrag:       gesamtNum,
         datum,
-        uhrzeit: uhrzeit.trim() || null,
+        uhrzeit:      uhrzeit.trim() || null,
         kategorie_id: kategorieId || null,
-        kategorie: kategorien.find(k => k.id === kategorieId)?.name ?? null,
-        notiz: notiz.trim() || null,
-        beleg_id: belegId,
-        erstellt: buchung?.erstellt ?? new Date().toISOString(),
-        geaendert: new Date().toISOString(),
+        kategorie:    kategorien.find(k => k.id === kategorieId)?.name ?? null,
+        notiz:        notiz.trim() || null,
+        meta:         metaRecord,
+        beleg_id:     belegId,
+        erstellt:     buchung?.erstellt ?? new Date().toISOString(),
+        geaendert:    new Date().toISOString(),
       };
 
       await dbPut('buchungen', record);
@@ -121,7 +147,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
 
           {/* Betrag */}
           <div className="form-group">
-            <label htmlFor="betrag">Betrag (€)</label>
+            <label htmlFor="betrag">{hatTrinkgeld ? 'Grundbetrag (€)' : 'Betrag (€)'}</label>
             <input
               id="betrag"
               type="number"
@@ -166,7 +192,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
             <select
               id="kategorie"
               value={kategorieId}
-              onChange={e => setKategorieId(e.target.value)}
+              onChange={e => handleKategorieChange(e.target.value)}
             >
               <option value="">— Keine —</option>
               {filteredKategorien.map(k => (
@@ -174,6 +200,49 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
               ))}
             </select>
           </div>
+
+          {/* Kategorie-spezifische Felder */}
+          {metaSchema.map(field => field.type === 'text' ? (
+            <div key={field.key} className="form-group">
+              <label>{field.label}</label>
+              <input
+                type="text"
+                value={meta[field.key] ?? ''}
+                onChange={e => setMeta(prev => ({ ...prev, [field.key]: e.target.value }))}
+                placeholder={field.placeholder}
+              />
+            </div>
+          ) : field.type === 'trinkgeld' ? (
+            <div key="trinkgeld" className="form-group">
+              <div className="form-group--inline">
+                <label>Trinkgeld gegeben?</label>
+                <button
+                  type="button"
+                  className={`toggle-btn${hatTrinkgeld ? ' toggle-btn--active' : ''}`}
+                  onClick={() => { setHatTrinkgeld(v => !v); setTrinkgeld(''); }}
+                >
+                  {hatTrinkgeld ? 'Ja' : 'Nein'}
+                </button>
+              </div>
+              {hatTrinkgeld && (
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  min="0"
+                  value={trinkgeld}
+                  onChange={e => setTrinkgeld(e.target.value)}
+                  placeholder="0,00"
+                  style={{ marginTop: 8 }}
+                />
+              )}
+              {hatTrinkgeld && trinkgeldNum > 0 && betragNum > 0 && (
+                <div className="trinkgeld-total">
+                  {fmt(betragNum)} + {fmt(trinkgeldNum)} Trinkgeld = <strong>{fmt(gesamtNum)}</strong>
+                </div>
+              )}
+            </div>
+          ) : null)}
 
           {/* Notiz */}
           <div className="form-group">
@@ -196,7 +265,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
           <button
             type="submit"
             className={`btn btn--full btn--${typ === 'einzahlung' ? 'primary' : 'danger-solid'}`}
-            disabled={saving || !betrag}
+            disabled={saving || betragNum <= 0}
           >
             {saving ? 'Speichern…' : isEdit ? 'Speichern' : 'Buchung anlegen'}
           </button>

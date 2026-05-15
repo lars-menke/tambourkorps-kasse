@@ -10,6 +10,7 @@ import { useToast } from '../components/ToastProvider';
 import { haptic } from '../lib/haptics';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { useCategorienMap } from '../hooks/useCategorienMap';
+import { metaZusammenfassung } from '../lib/kategorieMeta';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -274,6 +275,11 @@ export default function BuchungenPage() {
                   </div>
                   {item.notiz && (
                     <div className="buchung-item__notiz">{item.notiz}</div>
+                  )}
+                  {!item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
+                    <div className="buchung-item__notiz buchung-item__notiz--meta">
+                      {metaZusammenfassung(item.meta, item.kategorie)}
+                    </div>
                   )}
                   <div className="buchung-item__right">
                     <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
