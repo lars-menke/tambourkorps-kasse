@@ -29,10 +29,12 @@ const formatBetrag = (betrag, typ) => {
   return typ === 'einzahlung' ? `+${f}` : `−${f}`;
 };
 
-const formatDatum = (datum) =>
-  new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
+const formatDatum = (datum, uhrzeit) => {
+  const d = new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
+  return uhrzeit ? `${d} ${uhrzeit}` : d;
+};
 
 export default function BuchungenPage() {
   const [listItems, setListItems] = useState([]); // Normal-Buchungen + virtuelle Umlage-Einträge
@@ -115,16 +117,14 @@ export default function BuchungenPage() {
     ? listItems
     : listItems.filter(b => b.typ === filter);
 
+  const datumKey = (item) =>
+    item.uhrzeit ? `${item.datum}T${item.uhrzeit}:00` : (item.erstellt ?? `${item.datum}T00:00:00`);
+
   const sortedFiltered = [...filtered].sort((a, b) => {
-    if (sort === 'datum_asc') {
-      const d = a.datum.localeCompare(b.datum);
-      return d !== 0 ? d : (a.erstellt ?? '').localeCompare(b.erstellt ?? '');
-    }
     if (sort === 'betrag_desc') return b.betrag - a.betrag;
     if (sort === 'betrag_asc')  return a.betrag - b.betrag;
-    // datum_desc (default)
-    const d = b.datum.localeCompare(a.datum);
-    return d !== 0 ? d : (b.erstellt ?? '').localeCompare(a.erstellt ?? '');
+    const cmp = datumKey(a).localeCompare(datumKey(b));
+    return sort === 'datum_asc' ? cmp : -cmp;
   });
 
   async function handleSave() {
@@ -243,7 +243,7 @@ export default function BuchungenPage() {
                 onClick={() => handleItemClick(item)}
               >
                 <div className="buchung-item__meta">
-                  <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
+                  <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
                   <CategoryChip name="Umlage" cat={catIcons['Umlage']} />
                   <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
                 </div>
@@ -267,7 +267,7 @@ export default function BuchungenPage() {
                   onClick={() => handleItemClick(item)}
                 >
                   <div className="buchung-item__meta">
-                    <span className="buchung-item__datum">{formatDatum(item.datum)}</span>
+                    <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
                     {item.kategorie && (
                       <CategoryChip name={item.kategorie} cat={catIcons[item.kategorie]} />
                     )}

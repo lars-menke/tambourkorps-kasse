@@ -10,6 +10,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
   const [typ, setTyp] = useState(buchung?.typ ?? 'einzahlung');
   const [betrag, setBetrag] = useState(buchung ? String(buchung.betrag) : '');
   const [datum, setDatum] = useState(buchung?.datum ?? todayIso());
+  const [uhrzeit, setUhrzeit] = useState(buchung?.uhrzeit ?? '');
   const [kategorieId, setKategorieId] = useState(buchung?.kategorie_id ?? '');
   const [notiz, setNotiz] = useState(buchung?.notiz ?? '');
   const [belegDataUrl, setBelegDataUrl] = useState(null);
@@ -67,6 +68,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
         typ,
         betrag: betragNum,
         datum,
+        uhrzeit: uhrzeit.trim() || null,
         kategorie_id: kategorieId || null,
         kategorie: kategorien.find(k => k.id === kategorieId)?.name ?? null,
         notiz: notiz.trim() || null,
@@ -135,16 +137,27 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
             />
           </div>
 
-          {/* Datum */}
-          <div className="form-group">
-            <label htmlFor="datum">Datum</label>
-            <input
-              id="datum"
-              type="date"
-              value={datum}
-              onChange={e => setDatum(e.target.value)}
-              required
-            />
+          {/* Datum + Uhrzeit */}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="datum">Datum</label>
+              <input
+                id="datum"
+                type="date"
+                value={datum}
+                onChange={e => setDatum(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="uhrzeit">Uhrzeit <span className="form-hint">(optional)</span></label>
+              <input
+                id="uhrzeit"
+                type="time"
+                value={uhrzeit}
+                onChange={e => setUhrzeit(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Kategorie */}
