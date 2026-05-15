@@ -116,10 +116,15 @@ export default function BuchungenPage() {
     : listItems.filter(b => b.typ === filter);
 
   const sortedFiltered = [...filtered].sort((a, b) => {
-    if (sort === 'datum_asc')   return a.datum.localeCompare(b.datum);
+    if (sort === 'datum_asc') {
+      const d = a.datum.localeCompare(b.datum);
+      return d !== 0 ? d : (a.erstellt ?? '').localeCompare(b.erstellt ?? '');
+    }
     if (sort === 'betrag_desc') return b.betrag - a.betrag;
     if (sort === 'betrag_asc')  return a.betrag - b.betrag;
-    return b.datum.localeCompare(a.datum);
+    // datum_desc (default)
+    const d = b.datum.localeCompare(a.datum);
+    return d !== 0 ? d : (b.erstellt ?? '').localeCompare(a.erstellt ?? '');
   });
 
   async function handleSave() {
