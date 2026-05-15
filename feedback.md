@@ -2,6 +2,12 @@
 
 ---
 
+## 15.05.2026, 15:58 — v2.2.1
+
+Die Auflistung der einzelnen Buchungen ist optisch nicht ganz schön. Man sollte den Abstand zwischen den einzelnen Verbuchungen etwas erhöhen, sodass jede Buchung als solches einzeln besser wahrnehmbar ist. Die einzelnen Daten stehen zu sich zusammen.
+
+---
+
 ## 15.05.2026, 15:57 — v2.2.1
 
 Die grafische Kurve unter dem gesamten Kassenbestand sieht optisch nicht schön aus und sollte optimiert werden.
