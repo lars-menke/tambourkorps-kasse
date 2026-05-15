@@ -3,17 +3,22 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import SplashScreen from './components/SplashScreen';
+import LockScreen from './components/LockScreen';
 import { ToastProvider } from './components/ToastProvider';
 import { initTheme } from './lib/theme';
+import { isEnabled } from './lib/biometrics';
 import './index.css';
 
 initTheme();
 
 function Root() {
   const [splashDone, setSplashDone] = useState(false);
+  const [unlocked, setUnlocked]     = useState(!isEnabled());
+
   return (
     <ToastProvider>
       {!splashDone && <SplashScreen onDone={() => setSplashDone(true)} />}
+      {splashDone && !unlocked && <LockScreen onUnlock={() => setUnlocked(true)} />}
       <RouterProvider router={router} />
     </ToastProvider>
   );

@@ -967,7 +967,7 @@ a {
 
 .buchung-item__notiz {
   font-size: 0.875rem;
-  color: var(--text);
+  color: var(--text-muted);
   grid-column: 1;
   grid-row: 2;
   font-weight: 500;
@@ -1765,7 +1765,7 @@ a {
 }
 
 .buchung-item__notiz-info {
-  color: var(--text);
+  color: var(--text-muted);
   font-style: normal;
 }
 
@@ -3020,4 +3020,88 @@ a {
 .meta-felder-add {
   display: flex;
   gap: 8px;
+}
+
+/* ── Settings Item Hint ──────────────────────────── */
+
+.settings-item__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── Lock Screen ─────────────────────────────────── */
+
+.lock-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 8000;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg);
+  padding: 40px var(--space-xl);
+}
+
+.lock-screen__logo {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 2px solid var(--gold-border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.lock-screen__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.lock-screen__subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: -6px;
+}
+
+.lock-screen__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--space-xl);
+  background: none;
+  border: none;
+  color: var(--blue);
+  cursor: pointer;
+  padding: var(--space-lg);
+  border-radius: var(--r-lg);
+  transition: background 0.12s;
+  min-width: 120px;
+}
+
+.lock-screen__btn:hover {
+  background: var(--blue-light);
+}
+
+.lock-screen__btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.lock-screen__btn span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.lock-screen__error {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 240px;
+  line-height: 1.5;
 }

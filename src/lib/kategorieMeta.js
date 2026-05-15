@@ -32,5 +32,9 @@ export function metaZusammenfassung(meta, kategorie) {
   if (kategorie === 'Spende' && meta.spendername) return `Spende von ${meta.spendername}`;
   if ((kategorie === 'Getränke' || kategorie === 'Essen') && meta.ort) return meta.ort;
   if (kategorie === 'Taxi' && meta.von) return `${meta.von} → ${meta.nach ?? '?'}`;
-  return null;
+  // Fallback: benutzerdefinierte Felder (Schluessel beginnen mit fld_)
+  const custom = Object.entries(meta)
+    .filter(([k, v]) => k.startsWith('fld_') && v?.toString().trim())
+    .map(([, v]) => v.toString().trim());
+  return custom.length > 0 ? custom.join(' · ') : null;
 }

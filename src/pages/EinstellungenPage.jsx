@@ -4,6 +4,7 @@ import { useToken } from '../hooks/useToken';
 import { REPO_OWNER_KEY, REPO_DATA_KEY, LAST_SEEN_VERSION_KEY, CHANGELOG } from '../constants';
 import { ghReadRawFile, ghWriteRawFile } from '../services/github';
 import { applyTheme, getStoredTheme } from '../lib/theme';
+import * as biometrics from '../lib/biometrics';
 
 const APP_VERSION = __APP_VERSION__;
 
@@ -87,6 +88,7 @@ export default function EinstellungenPage() {
         {/* Erscheinungsbild */}
         <section className="settings-section">
           <h2 className="settings-section__title">Erscheinungsbild</h2>
+
           <div className="settings-item">
             <span className="settings-item__label">Design</span>
             <div className="segmented">
@@ -103,6 +105,9 @@ export default function EinstellungenPage() {
             </div>
           </div>
         </section>
+
+        {/* Sicherheit */}
+        <SicherheitSection />
 
         {/* Navigation */}
         <section className="settings-section">
@@ -150,6 +155,65 @@ export default function EinstellungenPage() {
 
       </div>
     </div>
+  );
+}
+
+function SicherheitSection() {
+  const [verfuegbar, setVerfuegbar] = useState(null);
+  const [aktiviert, setAktiviert]   = useState(biometrics.isEnabled());
+  const [busy, setBusy]             = useState(false);
+  const [fehler, setFehler]         = useState('');
+
+  useEffect(() => {
+    biometrics.isAvailable().then(setVerfuegbar);
+  }, []);
+
+  async function handleAktivieren() {
+    setBusy(true);
+    setFehler('');
+    try {
+      await biometrics.register();
+      setAktiviert(true);
+    } catch (err) {
+      if (err?.name !== 'NotAllowedError') {
+        setFehler('Aktivierung fehlgeschlagen: ' + (err.message || 'Unbekannter Fehler'));
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function handleDeaktivieren() {
+    if (!confirm('Face ID deaktivieren?')) return;
+    biometrics.disable();
+    setAktiviert(false);
+  }
+
+  if (verfuegbar === null || !verfuegbar) return null;
+
+  return (
+    <section className="settings-section">
+      <h2 className="settings-section__title">Sicherheit</h2>
+      <div className="settings-item">
+        <div>
+          <div className="settings-item__label">Face ID / Touch ID</div>
+          <div className="settings-item__hint">App beim Start sperren</div>
+        </div>
+        <button
+          className={`btn btn--sm ${aktiviert ? 'btn--danger' : 'btn--primary'}`}
+          style={{ margin: 0, width: 'auto' }}
+          onClick={aktiviert ? handleDeaktivieren : handleAktivieren}
+          disabled={busy}
+        >
+          {busy ? '…' : aktiviert ? 'Deaktivieren' : 'Aktivieren'}
+        </button>
+      </div>
+      {fehler && (
+        <div className="settings-item" style={{ paddingTop: 6, paddingBottom: 10 }}>
+          <span style={{ fontSize: '0.82rem', color: 'var(--red)' }}>{fehler}</span>
+        </div>
+      )}
+    </section>
   );
 }
 

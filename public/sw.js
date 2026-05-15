@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tk-kasse-v6';
+const CACHE_NAME = 'tk-kasse-v7';
 const BASE = '/tambourkorps-kasse/';
 
 // Nur die statischen Shell-Dateien precachen

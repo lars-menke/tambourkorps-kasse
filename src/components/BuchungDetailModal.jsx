@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { dbGet } from '../services/db';
 import { fetchBeleg } from '../utils/sync';
+import { getMetaSchemaFromRecord } from '../lib/kategorieMeta';
 
 const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
@@ -18,7 +19,16 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
   const [belegUrl, setBelegUrl] = useState(null);
   const [belegStatus, setBelegStatus] = useState('idle'); // idle | loading | fetching | done | fehlt
   const [lightbox, setLightbox] = useState(false);
+  const [metaSchema, setMetaSchema] = useState([]);
   const bodyRef = useRef(null);
+
+  useEffect(() => {
+    if (buchung.kategorie_id) {
+      dbGet('kategorien', buchung.kategorie_id).then(k => {
+        setMetaSchema(getMetaSchemaFromRecord(k));
+      });
+    }
+  }, [buchung.kategorie_id]);
 
   // Scroll immer ganz nach oben beim Öffnen (iOS-Problem)
   useEffect(() => {
@@ -131,6 +141,15 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
                   </span>
                 </div>
               )}
+              {metaSchema
+                .filter(f => f.type === 'text' && f.key.startsWith('fld_') && buchung.meta?.[f.key]?.toString().trim())
+                .map(f => (
+                  <div key={f.key} className="detail-row">
+                    <span className="detail-row__label">{f.label || 'Zusatz'}</span>
+                    <span className="detail-row__value">{buchung.meta[f.key]}</span>
+                  </div>
+                ))
+              }
               <div className="detail-row">
                 <span className="detail-row__label">Erfasst</span>
                 <span className="detail-row__value">

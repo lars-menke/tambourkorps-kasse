@@ -7,6 +7,23 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.5.0',
+    datum: '2026-05-15',
+    aenderungen: [
+      'Sicherheit: App mit Face ID / Touch ID sperren (WebAuthn, plattformeigen)',
+      'Sperrbildschirm erscheint nach dem Splash wenn Face ID aktiviert ist',
+      'Einstellungen: Face ID unter "Sicherheit" aktivieren und deaktivieren',
+      'Kategorien: Benutzerdefinierte Felder werden in Buchungsliste und Detailansicht angezeigt',
+    ],
+  },
+  {
+    version: '2.4.2',
+    datum: '2026-05-15',
+    aenderungen: [
+      'Buchungsliste: Notiz-Text immer grau — Metafelder kursiv, Notiz normal',
+    ],
+  },
+  {
     version: '2.4.1',
     datum: '2026-05-15',
     aenderungen: [
