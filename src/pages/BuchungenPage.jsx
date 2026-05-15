@@ -273,12 +273,15 @@ export default function BuchungenPage() {
                       <CategoryChip name={item.kategorie} cat={catIcons[item.kategorie]} />
                     )}
                   </div>
-                  {item.notiz && (
-                    <div className="buchung-item__notiz">{item.notiz}</div>
-                  )}
-                  {!item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
-                    <div className="buchung-item__notiz buchung-item__notiz--meta">
-                      {metaZusammenfassung(item.meta, item.kategorie)}
+                  {(item.notiz || metaZusammenfassung(item.meta, item.kategorie)) && (
+                    <div className="buchung-item__notiz">
+                      {item.notiz}
+                      {item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
+                        <span className="buchung-item__notiz-meta"> ({metaZusammenfassung(item.meta, item.kategorie)})</span>
+                      )}
+                      {!item.notiz && (
+                        <span className="buchung-item__notiz--meta">{metaZusammenfassung(item.meta, item.kategorie)}</span>
+                      )}
                     </div>
                   )}
                   <div className="buchung-item__right">

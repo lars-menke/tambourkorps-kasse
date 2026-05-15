@@ -3,7 +3,7 @@ import { dbGetAll, dbPut, dbGet, dbDelete } from '../services/db';
 import { pushBeleg, deleteBeleg } from '../utils/sync';
 import { generateId, todayIso } from '../utils/imageUtils';
 import BelegUpload from './BelegUpload';
-import { getMetaSchema } from '../lib/kategorieMeta';
+import { getMetaSchema, getMetaSchemaFromRecord } from '../lib/kategorieMeta';
 
 const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
@@ -56,8 +56,8 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
   }
 
   const filteredKategorien = kategorien.filter(k => k.typ === typ || k.typ === 'beide');
-  const kategorieNamen     = kategorien.find(k => k.id === kategorieId)?.name ?? null;
-  const metaSchema         = getMetaSchema(kategorieNamen);
+  const aktKategorie       = kategorien.find(k => k.id === kategorieId) ?? null;
+  const metaSchema         = getMetaSchemaFromRecord(aktKategorie);
 
   const betragNum    = parseFloat(String(betrag).replace(',', '.')) || 0;
   const trinkgeldNum = hatTrinkgeld ? (parseFloat(String(trinkgeld).replace(',', '.')) || 0) : 0;

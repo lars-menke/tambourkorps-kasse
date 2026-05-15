@@ -21,6 +21,12 @@ export function getMetaSchema(kategorieName) {
   return KATEGORIE_META_SCHEMA[kategorieName] ?? [];
 }
 
+export function getMetaSchemaFromRecord(kategorie) {
+  if (!kategorie) return [];
+  if (kategorie.metaFelder !== undefined) return kategorie.metaFelder;
+  return KATEGORIE_META_SCHEMA[kategorie.name] ?? [];
+}
+
 export function metaZusammenfassung(meta, kategorie) {
   if (!meta) return null;
   if (kategorie === 'Spende' && meta.spendername) return `Spende von ${meta.spendername}`;

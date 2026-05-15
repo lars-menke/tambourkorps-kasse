@@ -9,6 +9,7 @@ import {
   Briefcase, Truck, Home,
 } from 'lucide-react';
 import { EmptyState } from '../components/EmptyState';
+import { KATEGORIE_META_SCHEMA } from '../lib/kategorieMeta';
 
 const ICON_MAP = {
   Users, HandCoins, Heart, Drum, Music, Shirt, Car, Utensils,
@@ -126,6 +127,11 @@ function KategorieItem({ kategorie, onEdit, onDelete }) {
         <span className={`kategorie-item__typ kategorie-item__typ--${kategorie.typ}`}>
           {TYP_LABELS[kategorie.typ] ?? kategorie.typ}
         </span>
+        {(kategorie.metaFelder?.length > 0) && (
+          <span className="kategorie-item__meta-count">
+            {kategorie.metaFelder.length} {kategorie.metaFelder.length === 1 ? 'Feld' : 'Felder'}
+          </span>
+        )}
       </span>
       <button className="member-item__edit" onClick={onEdit} aria-label="Kategorie bearbeiten">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={15} height={15}>
@@ -151,12 +157,40 @@ function KategorieModal({ kategorie, onSave, onClose }) {
   const [icon, setIcon] = useState(kategorie?.icon ?? 'MoreHorizontal');
   const [color, setColor] = useState(kategorie?.color ?? COLOR_SWATCHES[0].hex);
   const [saving, setSaving] = useState(false);
+  const [metaFelder, setMetaFelder] = useState(
+    kategorie?.metaFelder !== undefined
+      ? kategorie.metaFelder
+      : (KATEGORIE_META_SCHEMA[kategorie?.name] ?? [])
+  );
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
+
+  const hasTrinkgeld = metaFelder.some(f => f.type === 'trinkgeld');
+
+  function addTextField() {
+    setMetaFelder(prev => [...prev, {
+      key: `fld_${Date.now()}`,
+      label: '',
+      type: 'text',
+      placeholder: '',
+    }]);
+  }
+
+  function addTrinkgeld() {
+    setMetaFelder(prev => [...prev, { key: 'trinkgeld', label: 'Trinkgeld', type: 'trinkgeld' }]);
+  }
+
+  function updateFeldLabel(i, label) {
+    setMetaFelder(prev => prev.map((f, idx) => idx === i ? { ...f, label } : f));
+  }
+
+  function removeFeld(i) {
+    setMetaFelder(prev => prev.filter((_, idx) => idx !== i));
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -169,6 +203,7 @@ function KategorieModal({ kategorie, onSave, onClose }) {
         typ,
         icon,
         color,
+        metaFelder: metaFelder.filter(f => f.type === 'trinkgeld' || f.label.trim()),
       });
     } finally {
       setSaving(false);
@@ -270,6 +305,41 @@ function KategorieModal({ kategorie, onSave, onClose }) {
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Zusatzfelder */}
+          <div className="form-group">
+            <label>Zusatzfelder</label>
+            {metaFelder.length > 0 && (
+              <div className="meta-felder-list">
+                {metaFelder.map((f, i) => (
+                  <div key={f.key} className="meta-feld-row">
+                    {f.type === 'trinkgeld' ? (
+                      <span className="meta-feld-row__label-fixed">Trinkgeld</span>
+                    ) : (
+                      <input
+                        type="text"
+                        className="meta-feld-row__input"
+                        value={f.label}
+                        onChange={e => updateFeldLabel(i, e.target.value)}
+                        placeholder="Bezeichnung des Feldes"
+                      />
+                    )}
+                    <button type="button" className="meta-feld-row__delete" onClick={() => removeFeld(i)} aria-label="Feld entfernen">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={14} height={14}>
+                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="meta-felder-add">
+              <button type="button" className="btn btn--ghost btn--sm" onClick={addTextField}>+ Textfeld</button>
+              {!hasTrinkgeld && (
+                <button type="button" className="btn btn--ghost btn--sm" onClick={addTrinkgeld}>+ Trinkgeld</button>
+              )}
             </div>
           </div>
 

@@ -1764,6 +1764,11 @@ a {
   font-style: italic;
 }
 
+.buchung-item__notiz-meta {
+  color: var(--text-muted);
+  font-size: 0.82em;
+}
+
 /* ── Segmented Control ───────────────────────────── */
 .segmented {
   display: flex;
@@ -2751,7 +2756,7 @@ a {
   z-index: 200;
 }
 
-.bottom-sheet {
+.quick-sheet {
   position: fixed;
   left: 0;
   right: 0;
@@ -2774,7 +2779,7 @@ a {
   to   { transform: translateY(calc(-1 * var(--kbd-offset, 0px))); }
 }
 
-.bottom-sheet__handle {
+.quick-sheet__handle {
   width: 36px;
   height: 4px;
   border-radius: 2px;
@@ -2945,4 +2950,69 @@ a {
   cursor: pointer;
   position: relative;
   flex-shrink: 0;
+}
+
+.kategorie-item__meta-count {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.meta-felder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.meta-feld-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6px 10px;
+}
+
+.meta-feld-row__input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+}
+
+.meta-feld-row__label-fixed {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--text-dim);
+}
+
+.meta-feld-row__delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+}
+
+.meta-feld-row__delete:hover {
+  color: var(--red);
+}
+
+.meta-felder-add {
+  display: flex;
+  gap: 8px;
 }

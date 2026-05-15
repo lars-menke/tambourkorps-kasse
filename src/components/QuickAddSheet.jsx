@@ -94,8 +94,8 @@ export function QuickAddSheet({ open, onClose, onSave, initialTyp = null }) {
   return (
     <>
       <div className="sheet-overlay" onClick={onClose} />
-      <div className="bottom-sheet" role="dialog" aria-label="Buchung erfassen">
-        <div className="bottom-sheet__handle" />
+      <div className="quick-sheet" role="dialog" aria-label="Buchung erfassen">
+        <div className="quick-sheet__handle" />
 
         <div className="sheet-type-row">
           <button

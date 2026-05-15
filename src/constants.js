@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.4.1',
+    datum: '2026-05-15',
+    aenderungen: [
+      'Buchungsformular: Scroll funktioniert wieder korrekt (CSS-Konflikt behoben)',
+      'Buchungsliste: Notiz und Kategorie-Infos (Ort, Spender, Strecke) werden gemeinsam angezeigt',
+      'Kategorien: Zusatzfelder pro Kategorie in den Einstellungen konfigurierbar',
+    ],
+  },
+  {
     version: '2.4.0',
     datum: '2026-05-15',
     aenderungen: [
