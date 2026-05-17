@@ -3194,3 +3194,57 @@ a {
   min-width: 76px;
   text-align: right;
 }
+
+/* ── Drag & Drop (Manuell-Sortierung) ─────────────── */
+
+.draggable-item {
+  display: flex;
+  align-items: stretch;
+  list-style: none;
+  margin-bottom: var(--space-sm);
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.draggable-item--active {
+  opacity: 0.45;
+  transform: scale(0.975);
+}
+
+.drag-handle {
+  flex-shrink: 0;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  color: var(--text);
+}
+
+.draggable-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.draggable-item__content .buchung-item,
+.draggable-item__content .buchung-item--umlage {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  background: transparent;
+}

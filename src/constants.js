@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.7.0',
+    datum: '2026-05-17',
+    aenderungen: [
+      'Buchungen: Sortierung nach eingetragenem Datum (Uhrzeit der Anlage als Fallback)',
+      'Buchungen: Manuelle Sortierung per Drag & Drop (Sortierung "Manuell")',
+    ],
+  },
+  {
     version: '2.6.0',
     datum: '2026-05-17',
     aenderungen: [

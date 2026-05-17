@@ -43,6 +43,7 @@ const SORT_OPTIONEN = [
   { value: 'datum_asc',   label: 'Älteste zuerst' },
   { value: 'betrag_desc', label: 'Höchster Betrag' },
   { value: 'betrag_asc',  label: 'Niedrigster Betrag' },
+  { value: 'manuell',     label: 'Manuell' },
 ];
 
 const formatBetrag = (betrag, typ) => {
@@ -57,11 +58,25 @@ const formatDatum = (datum, uhrzeit) => {
   return uhrzeit ? `${d} ${uhrzeit}` : d;
 };
 
+function datumKey(item) {
+  if (item.uhrzeit) return `${item.datum}T${item.uhrzeit}:00`;
+  if (item.erstellt) {
+    const t = new Date(item.erstellt);
+    const time = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}:${String(t.getSeconds()).padStart(2,'0')}`;
+    return `${item.datum}T${time}`;
+  }
+  return `${item.datum}T00:00:00`;
+}
+
 export default function BuchungenPage() {
   const [listItems, setListItems]   = useState([]);
   const [monatsSaldo, setMonatsSaldo] = useState([]);
   const [filter, setFilter]         = useState('alle');
   const [sort, setSort]             = useState('datum_desc');
+  const [manualOrder, setManualOrder] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('buch_manual_order') || 'null'); }
+    catch { return null; }
+  });
   const [detailBuchung, setDetailBuchung] = useState(null);
   const [editBuchung,   setEditBuchung]   = useState(null);
   const navigate = useNavigate();
@@ -136,16 +151,55 @@ export default function BuchungenPage() {
     return () => window.removeEventListener('tk-sync-complete', load);
   }, [load]);
 
+  useEffect(() => {
+    if (sort !== 'manuell' || listItems.length === 0) return;
+    const allIds = listItems.map(b => String(b.id));
+    setManualOrder(prev => {
+      if (!prev) {
+        const ordered = [...listItems]
+          .sort((a, b) => datumKey(b).localeCompare(datumKey(a)))
+          .map(b => String(b.id));
+        localStorage.setItem('buch_manual_order', JSON.stringify(ordered));
+        return ordered;
+      }
+      const existing = new Set(prev);
+      const newIds = allIds.filter(id => !existing.has(id));
+      if (newIds.length === 0) return prev;
+      const next = [...newIds, ...prev];
+      localStorage.setItem('buch_manual_order', JSON.stringify(next));
+      return next;
+    });
+  }, [sort, listItems]);
+
+  const handleReorder = useCallback((fromId, toId) => {
+    setManualOrder(prev => {
+      const base = prev ?? [];
+      const from = base.indexOf(String(fromId));
+      const to = base.indexOf(String(toId));
+      if (from === -1 || to === -1) return prev;
+      const next = [...base];
+      next.splice(from, 1);
+      next.splice(to, 0, String(fromId));
+      localStorage.setItem('buch_manual_order', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   const filtered = filter === 'alle'
     ? listItems
     : listItems.filter(b => b.typ === filter);
 
-  const datumKey = (item) =>
-    item.uhrzeit ? `${item.datum}T${item.uhrzeit}:00` : (item.erstellt ?? `${item.datum}T00:00:00`);
-
   const sortedFiltered = [...filtered].sort((a, b) => {
     if (sort === 'betrag_desc') return b.betrag - a.betrag;
     if (sort === 'betrag_asc')  return a.betrag - b.betrag;
+    if (sort === 'manuell') {
+      const order = manualOrder ?? [];
+      const ai = order.indexOf(String(a.id)), bi = order.indexOf(String(b.id));
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    }
     const cmp = datumKey(a).localeCompare(datumKey(b));
     return sort === 'datum_asc' ? cmp : -cmp;
   });
@@ -277,6 +331,56 @@ export default function BuchungenPage() {
               title={filter === 'alle' ? 'Keine Buchungen' : `Keine ${filter === 'einzahlung' ? 'Einzahlungen' : 'Auszahlungen'}`}
               description="Wechsle den Filter, um andere Buchungen zu sehen."
             />
+      ) : sort === 'manuell' ? (
+        <DraggableList items={sortedFiltered} onReorder={handleReorder}>
+          {(item) => (
+            <div
+              className={`buchung-item${item._isUmlage ? ' buchung-item--umlage' : ''}`}
+              onClick={() => handleItemClick(item)}
+            >
+              <div className="buchung-item__meta">
+                <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
+                {item._isUmlage ? (
+                  <>
+                    <CategoryChip name="Umlage" cat={catIcons['Umlage']} />
+                    <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
+                  </>
+                ) : item.kategorie && (
+                  <CategoryChip name={item.kategorie} cat={catIcons[item.kategorie]} />
+                )}
+              </div>
+              {item._isUmlage ? (
+                <div className="buchung-item__notiz">{item.notiz}</div>
+              ) : (item.notiz || metaZusammenfassung(item.meta, item.kategorie)) && (
+                <div className="buchung-item__notiz">
+                  {metaZusammenfassung(item.meta, item.kategorie) && (
+                    <span className="buchung-item__notiz--meta">{metaZusammenfassung(item.meta, item.kategorie)}</span>
+                  )}
+                  {item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
+                    <span className="buchung-item__notiz-info"> ({item.notiz})</span>
+                  )}
+                  {item.notiz && !metaZusammenfassung(item.meta, item.kategorie) && (
+                    <span>{item.notiz}</span>
+                  )}
+                </div>
+              )}
+              <div className="buchung-item__right">
+                <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
+                  {formatBetrag(item.betrag, item.typ)}
+                </div>
+                {item.beleg_id && !item._isUmlage && (
+                  <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+                )}
+                {item._isUmlage && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+                    width={14} height={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                )}
+              </div>
+            </div>
+          )}
+        </DraggableList>
       ) : (
         <ul className="buchungen-list">
           {sortedFiltered.map(item => item._isUmlage
@@ -441,5 +545,89 @@ function SwipeToDelete({ children, onDelete }) {
         {children}
       </div>
     </li>
+  );
+}
+
+function applyReorder(arr, fromId, toId) {
+  const from = arr.findIndex(i => String(i.id) === fromId);
+  const to   = arr.findIndex(i => String(i.id) === toId);
+  if (from === -1 || to === -1) return arr;
+  const next = [...arr];
+  const [el] = next.splice(from, 1);
+  next.splice(to, 0, el);
+  return next;
+}
+
+function DraggableList({ items, onReorder, children }) {
+  const [displayItems, setDisplayItems] = useState(items);
+  const [draggingId, setDraggingId]     = useState(null);
+  const dragRef  = useRef({ id: null, overId: null });
+  const itemEls  = useRef({});
+
+  useEffect(() => {
+    if (!draggingId) setDisplayItems(items);
+  }, [items, draggingId]);
+
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!dragRef.current.id) return;
+      const y = e.clientY ?? e.touches?.[0]?.clientY;
+      if (y == null) return;
+      for (const [id, el] of Object.entries(itemEls.current)) {
+        if (!el || id === dragRef.current.id) continue;
+        const r = el.getBoundingClientRect();
+        if (y >= r.top && y < r.bottom && id !== dragRef.current.overId) {
+          dragRef.current.overId = id;
+          setDisplayItems(prev => applyReorder(prev, dragRef.current.id, id));
+          break;
+        }
+      }
+    };
+    const onUp = () => {
+      const { id, overId } = dragRef.current;
+      if (id && overId && id !== overId) onReorder(id, overId);
+      dragRef.current = { id: null, overId: null };
+      setDraggingId(null);
+    };
+    document.addEventListener('pointermove', onMove, { passive: true });
+    document.addEventListener('pointerup', onUp);
+    return () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+    };
+  }, [onReorder]);
+
+  function startDrag(id, e) {
+    e.preventDefault();
+    dragRef.current = { id, overId: id };
+    setDraggingId(id);
+    setDisplayItems(items);
+  }
+
+  return (
+    <ul className="buchungen-list">
+      {displayItems.map(item => (
+        <li
+          key={item.id}
+          ref={el => { itemEls.current[String(item.id)] = el; }}
+          className={`draggable-item${draggingId === item.id ? ' draggable-item--active' : ''}`}
+        >
+          <button
+            className="drag-handle"
+            onPointerDown={(e) => startDrag(String(item.id), e)}
+            aria-label="Reihenfolge ändern"
+          >
+            <svg viewBox="0 0 20 20" width={16} height={16} fill="currentColor" aria-hidden="true">
+              <circle cx="7" cy="5" r="1.5"/><circle cx="13" cy="5" r="1.5"/>
+              <circle cx="7" cy="10" r="1.5"/><circle cx="13" cy="10" r="1.5"/>
+              <circle cx="7" cy="15" r="1.5"/><circle cx="13" cy="15" r="1.5"/>
+            </svg>
+          </button>
+          <div className="draggable-item__content">
+            {children(item)}
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
