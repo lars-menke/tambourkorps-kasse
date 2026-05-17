@@ -253,7 +253,7 @@ export default function BuchungenPage() {
           <EmptyState title="Keine Buchungen" description="Noch keine Daten für den Saldo-Verlauf." />
         ) : (
           <div className="monatssaldo-card">
-            <div className="monatssaldo-card__title">Fortgeschriebener Saldo</div>
+            <div className="monatssaldo-card__title">Saldo</div>
             {monatsSaldo.map(m => (
               <div key={m.key} className="monatssaldo-row">
                 <span className="monatssaldo-row__monat">
