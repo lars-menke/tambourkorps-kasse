@@ -96,22 +96,6 @@ function buildDonutEin(buchungen) {
     .slice(0, 6);
 }
 
-function buildMonatsSaldo(buchungen) {
-  const map = {};
-  for (const b of buchungen) {
-    const d = new Date(b.datum + 'T12:00:00');
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    if (!map[key]) map[key] = { year: d.getFullYear(), month: d.getMonth(), net: 0 };
-    map[key].net += b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0);
-  }
-  const sorted = Object.keys(map).sort();
-  let running = 0;
-  const result = sorted.map(k => {
-    running += map[k].net;
-    return { key: k, ...map[k], saldo: running };
-  });
-  return result.reverse();
-}
 
 export default function DashboardPage() {
   const [kassenstand, setKassenstand] = useState(null);
@@ -124,7 +108,6 @@ export default function DashboardPage() {
   const [deltaInfo, setDeltaInfo] = useState({ delta: 0, label: '' });
   const [donutData, setDonutData]         = useState([]);
   const [donutEinData, setDonutEinData]   = useState([]);
-  const [monatsSaldo, setMonatsSaldo]     = useState([]);
   const [donutAnsicht, setDonutAnsicht]   = useState(0); // 0=ausgaben, 1=einnahmen
   const [quickAddOpen, setQuickAddOpen]   = useState(false);
   const [quickAddTyp, setQuickAddTyp]     = useState(null);
@@ -158,7 +141,6 @@ export default function DashboardPage() {
     setDeltaInfo(buildDelta(buchungen));
     setDonutData(buildDonut(buchungen));
     setDonutEinData(buildDonutEin(buchungen));
-    setMonatsSaldo(buildMonatsSaldo(buchungen));
 
     const sorted = [...normalBuchungen].sort((a, b) => b.datum.localeCompare(a.datum));
     setLetzteBuchung(sorted[0] ?? null);
@@ -291,24 +273,6 @@ export default function DashboardPage() {
             </div>
           );
         })()}
-
-        {/* Fortgeschriebener Saldo */}
-        {monatsSaldo.length > 0 && (
-          <div className="monatssaldo-card">
-            <div className="monatssaldo-card__title">Fortgeschriebener Saldo</div>
-            {monatsSaldo.slice(0, 12).map(m => (
-              <div key={m.key} className="monatssaldo-row">
-                <span className="monatssaldo-row__monat">
-                  {new Date(m.year, m.month).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
-                </span>
-                <span className={`monatssaldo-row__net${m.net >= 0 ? ' monatssaldo-row__net--pos' : ' monatssaldo-row__net--neg'}`}>
-                  {m.net >= 0 ? '+' : ''}{fmt(m.net)}
-                </span>
-                <span className="monatssaldo-row__saldo">{fmt(m.saldo)}</span>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Letzte Aktivitäten */}
         {(letzteBuchung || letzteUmlage) && (

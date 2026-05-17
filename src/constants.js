@@ -12,7 +12,7 @@ export const CHANGELOG = [
     aenderungen: [
       'Dashboard: Letzte Buchung zeigt Meta und Notiz wie in der Buchungsliste',
       'Dashboard: Kategorie-Donut per Swipe zwischen Ausgaben und Einnahmen wechselbar',
-      'Dashboard: Fortgeschriebener Saldo — monatliche Übersicht mit Veränderung und Kassenstand',
+      'Buchungen: Neuer Tab "Saldo" — fortgeschriebener Saldo als monatliche Übersicht',
     ],
   },
   {

@@ -16,7 +16,27 @@ const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
   { value: 'einzahlung', label: 'Einzahlungen' },
   { value: 'auszahlung', label: 'Auszahlungen' },
+  { value: 'saldo',      label: 'Saldo' },
 ];
+
+const fmtEur = (n) =>
+  new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
+
+function buildMonatsSaldo(buchungen) {
+  const map = {};
+  for (const b of buchungen) {
+    const d = new Date(b.datum + 'T12:00:00');
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!map[key]) map[key] = { year: d.getFullYear(), month: d.getMonth(), net: 0 };
+    map[key].net += b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0);
+  }
+  const sorted = Object.keys(map).sort();
+  let running = 0;
+  return sorted.map(k => {
+    running += map[k].net;
+    return { key: k, ...map[k], saldo: running };
+  }).reverse();
+}
 
 const SORT_OPTIONEN = [
   { value: 'datum_desc',  label: 'Neueste zuerst' },
@@ -38,9 +58,10 @@ const formatDatum = (datum, uhrzeit) => {
 };
 
 export default function BuchungenPage() {
-  const [listItems, setListItems] = useState([]); // Normal-Buchungen + virtuelle Umlage-Einträge
-  const [filter, setFilter]       = useState('alle');
-  const [sort, setSort]           = useState('datum_desc');
+  const [listItems, setListItems]   = useState([]);
+  const [monatsSaldo, setMonatsSaldo] = useState([]);
+  const [filter, setFilter]         = useState('alle');
+  const [sort, setSort]             = useState('datum_desc');
   const [detailBuchung, setDetailBuchung] = useState(null);
   const [editBuchung,   setEditBuchung]   = useState(null);
   const navigate = useNavigate();
@@ -106,6 +127,7 @@ export default function BuchungenPage() {
       .sort((a, b) => b.datum.localeCompare(a.datum));
 
     setListItems(combined);
+    setMonatsSaldo(buildMonatsSaldo(allBuchungen));
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -212,19 +234,40 @@ export default function BuchungenPage() {
             </button>
           ))}
         </div>
-        <select
-          className="sort-select"
-          value={sort}
-          onChange={e => setSort(e.target.value)}
-          aria-label="Sortierung"
-        >
-          {SORT_OPTIONEN.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
+        {filter !== 'saldo' && (
+          <select
+            className="sort-select"
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+            aria-label="Sortierung"
+          >
+            {SORT_OPTIONEN.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        )}
       </div>
 
-      {sortedFiltered.length === 0 ? (
+      {filter === 'saldo' ? (
+        monatsSaldo.length === 0 ? (
+          <EmptyState title="Keine Buchungen" description="Noch keine Daten für den Saldo-Verlauf." />
+        ) : (
+          <div className="monatssaldo-card">
+            <div className="monatssaldo-card__title">Fortgeschriebener Saldo</div>
+            {monatsSaldo.map(m => (
+              <div key={m.key} className="monatssaldo-row">
+                <span className="monatssaldo-row__monat">
+                  {new Date(m.year, m.month).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+                </span>
+                <span className={`monatssaldo-row__net${m.net >= 0 ? ' monatssaldo-row__net--pos' : ' monatssaldo-row__net--neg'}`}>
+                  {m.net >= 0 ? '+' : ''}{fmtEur(m.net)}
+                </span>
+                <span className="monatssaldo-row__saldo">{fmtEur(m.saldo)}</span>
+              </div>
+            ))}
+          </div>
+        )
+      ) : sortedFiltered.length === 0 ? (
         !hasBuchungen && listItems.length === 0
           ? <EmptyState
               title="Noch keine Buchungen"
