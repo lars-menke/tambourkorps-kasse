@@ -7,6 +7,15 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.6.0',
+    datum: '2026-05-17',
+    aenderungen: [
+      'Dashboard: Letzte Buchung zeigt Meta und Notiz wie in der Buchungsliste',
+      'Dashboard: Kategorie-Donut per Swipe zwischen Ausgaben und Einnahmen wechselbar',
+      'Dashboard: Fortgeschriebener Saldo — monatliche Übersicht mit Veränderung und Kassenstand',
+    ],
+  },
+  {
     version: '2.5.0',
     datum: '2026-05-15',
     aenderungen: [

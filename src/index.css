@@ -3105,3 +3105,92 @@ a {
   max-width: 240px;
   line-height: 1.5;
 }
+
+/* ── Donut Swipe ─────────────────────────────────── */
+
+.donut-swipe-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.donut-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  padding-bottom: 2px;
+}
+
+.donut-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border2);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.donut-dot--active {
+  background: var(--blue);
+  transform: scale(1.25);
+}
+
+/* ── Monatssaldo ─────────────────────────────────── */
+
+.monatssaldo-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.monatssaldo-card__title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  padding: 10px var(--space-lg) 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.monatssaldo-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--space-md);
+  align-items: center;
+  padding: 9px var(--space-lg);
+  border-bottom: 1px solid var(--border);
+}
+
+.monatssaldo-row:last-child { border-bottom: none; }
+
+.monatssaldo-row__monat {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.monatssaldo-row__net {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+  text-align: right;
+}
+
+.monatssaldo-row__net--pos { color: var(--green); }
+.monatssaldo-row__net--neg { color: var(--red); }
+
+.monatssaldo-row__saldo {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-width: 76px;
+  text-align: right;
+}

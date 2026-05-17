@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
@@ -9,6 +9,7 @@ import { CategoryDonut } from '../components/CategoryDonut';
 import { EmptyState } from '../components/EmptyState';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { QuickAddSheet } from '../components/QuickAddSheet';
+import { metaZusammenfassung } from '../lib/kategorieMeta';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -82,6 +83,36 @@ function buildDonut(buchungen) {
     .slice(0, 6);
 }
 
+function buildDonutEin(buchungen) {
+  const map = {};
+  for (const b of buchungen) {
+    if (b.typ !== 'einzahlung') continue;
+    const key = b.kategorie || 'Sonstiges';
+    map[key] = (map[key] || 0) + (b.betrag || 0);
+  }
+  return Object.entries(map)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 6);
+}
+
+function buildMonatsSaldo(buchungen) {
+  const map = {};
+  for (const b of buchungen) {
+    const d = new Date(b.datum + 'T12:00:00');
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!map[key]) map[key] = { year: d.getFullYear(), month: d.getMonth(), net: 0 };
+    map[key].net += b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0);
+  }
+  const sorted = Object.keys(map).sort();
+  let running = 0;
+  const result = sorted.map(k => {
+    running += map[k].net;
+    return { key: k, ...map[k], saldo: running };
+  });
+  return result.reverse();
+}
+
 export default function DashboardPage() {
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
@@ -91,9 +122,13 @@ export default function DashboardPage() {
   const [letzteUmlage, setLetzteUmlage] = useState(null);
   const [sparkData, setSparkData] = useState([]);
   const [deltaInfo, setDeltaInfo] = useState({ delta: 0, label: '' });
-  const [donutData, setDonutData] = useState([]);
-  const [quickAddOpen, setQuickAddOpen] = useState(false);
-  const [quickAddTyp, setQuickAddTyp] = useState(null);
+  const [donutData, setDonutData]         = useState([]);
+  const [donutEinData, setDonutEinData]   = useState([]);
+  const [monatsSaldo, setMonatsSaldo]     = useState([]);
+  const [donutAnsicht, setDonutAnsicht]   = useState(0); // 0=ausgaben, 1=einnahmen
+  const [quickAddOpen, setQuickAddOpen]   = useState(false);
+  const [quickAddTyp, setQuickAddTyp]     = useState(null);
+  const donutTouchRef                     = useRef({ startX: 0 });
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -122,6 +157,8 @@ export default function DashboardPage() {
     setSparkData(buildSparkline(buchungen));
     setDeltaInfo(buildDelta(buchungen));
     setDonutData(buildDonut(buchungen));
+    setDonutEinData(buildDonutEin(buchungen));
+    setMonatsSaldo(buildMonatsSaldo(buchungen));
 
     const sorted = [...normalBuchungen].sort((a, b) => b.datum.localeCompare(a.datum));
     setLetzteBuchung(sorted[0] ?? null);
@@ -229,8 +266,49 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Kategorie-Donut */}
-        {ausgaben > 0 && <CategoryDonut data={donutData} />}
+        {/* Kategorie-Donut — swipeable zwischen Ausgaben und Einnahmen */}
+        {(ausgaben > 0 || donutEinData.length > 0) && (() => {
+          const showSwipe = ausgaben > 0 && donutEinData.length > 0;
+          const activeData  = donutAnsicht === 0 ? donutData : donutEinData;
+          const activeTitle = donutAnsicht === 0 ? 'Ausgaben nach Kategorie' : 'Einnahmen nach Kategorie';
+          return (
+            <div
+              className="donut-swipe-wrapper"
+              onTouchStart={e => { donutTouchRef.current.startX = e.touches[0].clientX; }}
+              onTouchEnd={e => {
+                if (!showSwipe) return;
+                const dx = e.changedTouches[0].clientX - donutTouchRef.current.startX;
+                if (Math.abs(dx) > 40) setDonutAnsicht(dx < 0 ? 1 : 0);
+              }}
+            >
+              <CategoryDonut data={activeData} title={activeTitle} />
+              {showSwipe && (
+                <div className="donut-dots">
+                  <button className={`donut-dot${donutAnsicht === 0 ? ' donut-dot--active' : ''}`} onClick={() => setDonutAnsicht(0)} aria-label="Ausgaben" />
+                  <button className={`donut-dot${donutAnsicht === 1 ? ' donut-dot--active' : ''}`} onClick={() => setDonutAnsicht(1)} aria-label="Einnahmen" />
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* Fortgeschriebener Saldo */}
+        {monatsSaldo.length > 0 && (
+          <div className="monatssaldo-card">
+            <div className="monatssaldo-card__title">Fortgeschriebener Saldo</div>
+            {monatsSaldo.slice(0, 12).map(m => (
+              <div key={m.key} className="monatssaldo-row">
+                <span className="monatssaldo-row__monat">
+                  {new Date(m.year, m.month).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+                </span>
+                <span className={`monatssaldo-row__net${m.net >= 0 ? ' monatssaldo-row__net--pos' : ' monatssaldo-row__net--neg'}`}>
+                  {m.net >= 0 ? '+' : ''}{fmt(m.net)}
+                </span>
+                <span className="monatssaldo-row__saldo">{fmt(m.saldo)}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Letzte Aktivitäten */}
         {(letzteBuchung || letzteUmlage) && (
@@ -253,10 +331,22 @@ export default function DashboardPage() {
                   {letzteBuchung.kategorie && (
                     <CategoryChip name={letzteBuchung.kategorie} cat={catIcons[letzteBuchung.kategorie]} />
                   )}
-                  {letzteBuchung.notiz && (
-                    <span className="recent-card__notiz">{letzteBuchung.notiz}</span>
-                  )}
                 </div>
+                {(metaZusammenfassung(letzteBuchung.meta, letzteBuchung.kategorie) || letzteBuchung.notiz) && (
+                  <div className="recent-card__notiz">
+                    {metaZusammenfassung(letzteBuchung.meta, letzteBuchung.kategorie) && (
+                      <span className="buchung-item__notiz--meta">
+                        {metaZusammenfassung(letzteBuchung.meta, letzteBuchung.kategorie)}
+                      </span>
+                    )}
+                    {letzteBuchung.notiz && metaZusammenfassung(letzteBuchung.meta, letzteBuchung.kategorie) && (
+                      <span className="buchung-item__notiz-info"> ({letzteBuchung.notiz})</span>
+                    )}
+                    {letzteBuchung.notiz && !metaZusammenfassung(letzteBuchung.meta, letzteBuchung.kategorie) && (
+                      <span>{letzteBuchung.notiz}</span>
+                    )}
+                  </div>
+                )}
                 <div className={`recent-card__betrag recent-card__betrag--${letzteBuchung.typ}`}>
                   {letzteBuchung.typ === 'einzahlung' ? '+' : '−'}{fmt(letzteBuchung.betrag)}
                 </div>
