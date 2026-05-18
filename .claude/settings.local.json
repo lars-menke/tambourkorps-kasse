@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(Test-Path *)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(uipro init *)",
+      "PowerShell(New-Item *)",
+      "PowerShell(Move-Item *)",
+      "Bash(git checkout *)",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(Select-String -Pattern \"deploy|homepage|scripts\" -Context 0,10)",
+      "Bash(git merge *)",
+      "Bash(git push *)",
+      "Bash(gh api *)",
+      "Bash(git branch *)"
+    ]
+  }
+}
