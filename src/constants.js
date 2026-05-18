@@ -7,6 +7,18 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.8.0',
+    datum: '2026-05-18',
+    aenderungen: [
+      'Dashboard: Bento Grid — Einnahmen und Ausgaben nebeneinander, Schnellaktionen als horizontale Karten',
+      'Navigation: Aktiver Tab mit Pill-Hinterlegung (iOS-Stil)',
+      'Alle Seiten: Large Title scrollt weg und taucht kompakt in der Kopfzeile auf',
+      'Buchungen: Einträge nach Datum gruppiert mit Tages-Netto pro Gruppe',
+      'Design: Aktiv-Zustände (Tippen) auf Karten und Buttons überall konsistent',
+      'Design: Animationen deaktiviert wenn "Bewegung reduzieren" aktiviert ist',
+    ],
+  },
+  {
     version: '2.7.0',
     datum: '2026-05-17',
     aenderungen: [
