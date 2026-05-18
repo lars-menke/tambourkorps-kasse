@@ -12,6 +12,7 @@ import { haptic } from '../lib/haptics';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { useCategorienMap } from '../hooks/useCategorienMap';
 import { metaZusammenfassung } from '../lib/kategorieMeta';
+import { TxnListSkeleton } from '../components/skeletons/TxnListSkeleton';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -97,6 +98,7 @@ function datumKey(item) {
 
 export default function BuchungenPage() {
   const { titleRef, compact } = useLargeTitle();
+  const [loading, setLoading] = useState(true);
   const [listItems, setListItems]   = useState([]);
   const [monatsSaldo, setMonatsSaldo] = useState([]);
   const [filter, setFilter]         = useState('alle');
@@ -121,6 +123,7 @@ export default function BuchungenPage() {
   }, []);
 
   const load = useCallback(async () => {
+    setLoading(true);
     const [allBuchungen, allUmlagen] = await Promise.all([
       dbGetAll('buchungen'),
       dbGetAll('umlagen'),
@@ -171,6 +174,7 @@ export default function BuchungenPage() {
 
     setListItems(combined);
     setMonatsSaldo(buildMonatsSaldo(allBuchungen));
+    setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -385,7 +389,9 @@ export default function BuchungenPage() {
         )}
       </div>
 
-      {filter === 'saldo' ? (
+      {loading ? (
+        <TxnListSkeleton rows={7} />
+      ) : filter === 'saldo' ? (
         monatsSaldo.length === 0 ? (
           <EmptyState title="Keine Buchungen" description="Noch keine Daten für den Saldo-Verlauf." />
         ) : (

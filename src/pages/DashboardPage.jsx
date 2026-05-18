@@ -11,6 +11,7 @@ import { EmptyState } from '../components/EmptyState';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { QuickAddSheet } from '../components/QuickAddSheet';
 import { metaZusammenfassung } from '../lib/kategorieMeta';
+import { DashboardSkeleton } from '../components/skeletons/DashboardSkeleton';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -100,6 +101,7 @@ function buildDonutEin(buchungen) {
 
 export default function DashboardPage() {
   const { titleRef, compact } = useLargeTitle();
+  const [loading, setLoading] = useState(true);
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
   const [ausgaben, setAusgaben] = useState(0);
@@ -120,6 +122,7 @@ export default function DashboardPage() {
   const catIcons = useCategorienMap();
 
   const loadData = useCallback(async () => {
+    setLoading(true);
     await initDefaultKategorien();
     const [buchungen, umlagen, statuses] = await Promise.all([
       dbGetAll('buchungen'),
@@ -156,6 +159,7 @@ export default function DashboardPage() {
     } else {
       setLetzteUmlage(null);
     }
+    setLoading(false);
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -197,6 +201,9 @@ export default function DashboardPage() {
 
       <PullToRefresh onRefresh={async () => { await sync(); await loadData(); }}>
       <h1 ref={titleRef} className="page-large-title">Übersicht</h1>
+      {loading ? (
+        <div className="dashboard"><DashboardSkeleton /></div>
+      ) : (
       <div className="dashboard">
         {/* Kassenstand */}
         <BalanceCard
@@ -358,6 +365,7 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      )}
       </PullToRefresh>
       <QuickAddSheet
         open={quickAddOpen}

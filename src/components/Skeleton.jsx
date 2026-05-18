@@ -1,4 +1,4 @@
-export function Skeleton({ w = '100%', h = 16, radius = '6px', className = '' }) {
+export function Skeleton({ w = '100%', h = 16, radius = '6px', className = '', style }) {
   return (
     <span
       className={`skeleton${className ? ` ${className}` : ''}`}
@@ -6,6 +6,7 @@ export function Skeleton({ w = '100%', h = 16, radius = '6px', className = '' })
         width: typeof w === 'number' ? `${w}px` : w,
         height: typeof h === 'number' ? `${h}px` : h,
         borderRadius: radius,
+        ...style,
       }}
       aria-hidden="true"
     />
