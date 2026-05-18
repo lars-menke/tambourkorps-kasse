@@ -88,6 +88,7 @@ export default function BottomNav() {
             end={to === '/'}
             className={({ isActive }) => `bottom-nav__item${isActive ? ' bottom-nav__item--active' : ''}`}
           >
+            <span className="bottom-nav__pill">
             <span className="bottom-nav__icon">
               {icon}
               {badge > 0 && (
@@ -95,6 +96,7 @@ export default function BottomNav() {
               )}
             </span>
             <span className="bottom-nav__label">{label}</span>
+          </span>
           </NavLink>
         );
       })}

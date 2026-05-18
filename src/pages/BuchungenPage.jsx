@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useLargeTitle } from '../hooks/useLargeTitle';
 import { dbGetAll, dbDelete, dbPut } from '../services/db';
 import { pushStore } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
@@ -46,6 +47,32 @@ const SORT_OPTIONEN = [
   { value: 'manuell',     label: 'Manuell' },
 ];
 
+function groupByDate(items) {
+  const groups = [];
+  const dateMap = new Map();
+  for (const item of items) {
+    if (!dateMap.has(item.datum)) {
+      const group = { datum: item.datum, items: [] };
+      groups.push(group);
+      dateMap.set(item.datum, group);
+    }
+    dateMap.get(item.datum).items.push(item);
+  }
+  return groups;
+}
+
+function formatDateLabel(datum) {
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (datum === today) return 'Heute';
+  if (datum === yesterday) return 'Gestern';
+  return new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', { day: 'numeric', month: 'long' });
+}
+
+function dailyNet(items) {
+  return items.reduce((sum, b) => sum + (b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0)), 0);
+}
+
 const formatBetrag = (betrag, typ) => {
   const f = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(betrag);
   return typ === 'einzahlung' ? `+${f}` : `−${f}`;
@@ -69,6 +96,7 @@ function datumKey(item) {
 }
 
 export default function BuchungenPage() {
+  const { titleRef, compact } = useLargeTitle();
   const [listItems, setListItems]   = useState([]);
   const [monatsSaldo, setMonatsSaldo] = useState([]);
   const [filter, setFilter]         = useState('alle');
@@ -266,9 +294,63 @@ export default function BuchungenPage() {
 
   const hasBuchungen = listItems.some(b => !b._isUmlage);
 
+  const renderItem = (item) => item._isUmlage ? (
+    <li
+      key={item.id}
+      className="buchung-item buchung-item--umlage"
+      onClick={() => handleItemClick(item)}
+    >
+      <div className="buchung-item__meta">
+        <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
+        <CategoryChip name="Umlage" cat={catIcons['Umlage']} />
+        <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
+      </div>
+      <div className="buchung-item__notiz">{item.notiz}</div>
+      <div className="buchung-item__right">
+        <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
+          {formatBetrag(item.betrag, item.typ)}
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
+          width={14} height={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </div>
+    </li>
+  ) : (
+    <SwipeToDelete key={item.id} onDelete={() => handleSwipeDelete(item.id)}>
+      <div className="buchung-item" onClick={() => handleItemClick(item)}>
+        <div className="buchung-item__meta">
+          <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
+          {item.kategorie && <CategoryChip name={item.kategorie} cat={catIcons[item.kategorie]} />}
+        </div>
+        {(item.notiz || metaZusammenfassung(item.meta, item.kategorie)) && (
+          <div className="buchung-item__notiz">
+            {metaZusammenfassung(item.meta, item.kategorie) && (
+              <span className="buchung-item__notiz--meta">{metaZusammenfassung(item.meta, item.kategorie)}</span>
+            )}
+            {item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
+              <span className="buchung-item__notiz-info"> ({item.notiz})</span>
+            )}
+            {item.notiz && !metaZusammenfassung(item.meta, item.kategorie) && (
+              <span>{item.notiz}</span>
+            )}
+          </div>
+        )}
+        <div className="buchung-item__right">
+          <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
+            {formatBetrag(item.betrag, item.typ)}
+          </div>
+          {item.beleg_id && (
+            <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
+          )}
+        </div>
+      </div>
+    </SwipeToDelete>
+  );
+
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header${compact ? ' is-compact' : ''}`}>
         <h1>Buchungen</h1>
         <button className="btn btn--primary btn--sm" onClick={() => setEditBuchung({})}>
           + Neu
@@ -276,6 +358,7 @@ export default function BuchungenPage() {
       </header>
 
       <PullToRefresh onRefresh={load}>
+      <h1 ref={titleRef} className="page-large-title">Buchungen</h1>
       <div className="filter-bar">
         <div className="filter-bar__pills">
           {FILTER_TYPEN.map(({ value, label }) => (
@@ -381,71 +464,22 @@ export default function BuchungenPage() {
             </div>
           )}
         </DraggableList>
+      ) : (sort === 'datum_desc' || sort === 'datum_asc') ? (
+        <div className="buchungen-grouped">
+          {groupByDate(sortedFiltered).map(group => (
+            <div key={group.datum} className="buchung-date-group">
+              <div className="buchung-date-sep">
+                <span className="buchung-date-sep__label">{formatDateLabel(group.datum)}</span>
+                <span className={`buchung-date-sep__net${dailyNet(group.items) >= 0 ? ' buchung-date-sep__net--pos' : ' buchung-date-sep__net--neg'}`}>
+                  {dailyNet(group.items) >= 0 ? '+' : ''}{fmtEur(dailyNet(group.items))}
+                </span>
+              </div>
+              <ul className="buchungen-list">{group.items.map(renderItem)}</ul>
+            </div>
+          ))}
+        </div>
       ) : (
-        <ul className="buchungen-list">
-          {sortedFiltered.map(item => item._isUmlage
-            ? (
-              <li
-                key={item.id}
-                className="buchung-item buchung-item--umlage"
-                onClick={() => handleItemClick(item)}
-              >
-                <div className="buchung-item__meta">
-                  <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
-                  <CategoryChip name="Umlage" cat={catIcons['Umlage']} />
-                  <span className="buchung-item__umlage-count">{item.anzahl} Zahlung{item.anzahl !== 1 ? 'en' : ''}</span>
-                </div>
-                <div className="buchung-item__notiz">
-                  {item.notiz}
-                </div>
-                <div className="buchung-item__right">
-                  <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
-                    {formatBetrag(item.betrag, item.typ)}
-                  </div>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}
-                    width={14} height={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </div>
-              </li>
-            ) : (
-              <SwipeToDelete key={item.id} onDelete={() => handleSwipeDelete(item.id)}>
-                <div
-                  className="buchung-item"
-                  onClick={() => handleItemClick(item)}
-                >
-                  <div className="buchung-item__meta">
-                    <span className="buchung-item__datum">{formatDatum(item.datum, item.uhrzeit)}</span>
-                    {item.kategorie && (
-                      <CategoryChip name={item.kategorie} cat={catIcons[item.kategorie]} />
-                    )}
-                  </div>
-                  {(item.notiz || metaZusammenfassung(item.meta, item.kategorie)) && (
-                    <div className="buchung-item__notiz">
-                      {metaZusammenfassung(item.meta, item.kategorie) && (
-                        <span className="buchung-item__notiz--meta">{metaZusammenfassung(item.meta, item.kategorie)}</span>
-                      )}
-                      {item.notiz && metaZusammenfassung(item.meta, item.kategorie) && (
-                        <span className="buchung-item__notiz-info"> ({item.notiz})</span>
-                      )}
-                      {item.notiz && !metaZusammenfassung(item.meta, item.kategorie) && (
-                        <span>{item.notiz}</span>
-                      )}
-                    </div>
-                  )}
-                  <div className="buchung-item__right">
-                    <div className={`buchung-item__betrag buchung-item__betrag--${item.typ}`}>
-                      {formatBetrag(item.betrag, item.typ)}
-                    </div>
-                    {item.beleg_id && (
-                      <span className="buchung-item__beleg-icon" title="Beleg vorhanden">📎</span>
-                    )}
-                  </div>
-                </div>
-              </SwipeToDelete>
-            )
-          )}
-        </ul>
+        <ul className="buchungen-list">{sortedFiltered.map(renderItem)}</ul>
       )}
 
       {detailBuchung && (

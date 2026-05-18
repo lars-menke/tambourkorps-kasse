@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLargeTitle } from '../hooks/useLargeTitle';
 import { dbGetAll, initDefaultKategorien } from '../services/db';
 import { useSync } from '../hooks/useSync';
 import { CategoryChip } from '../components/CategoryChip';
@@ -98,6 +99,7 @@ function buildDonutEin(buchungen) {
 
 
 export default function DashboardPage() {
+  const { titleRef, compact } = useLargeTitle();
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
   const [ausgaben, setAusgaben] = useState(0);
@@ -177,7 +179,7 @@ export default function DashboardPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header${compact ? ' is-compact' : ''}`}>
         <h1>Übersicht</h1>
         <button
           className="btn btn--icon"
@@ -194,6 +196,7 @@ export default function DashboardPage() {
       </header>
 
       <PullToRefresh onRefresh={async () => { await sync(); await loadData(); }}>
+      <h1 ref={titleRef} className="page-large-title">Übersicht</h1>
       <div className="dashboard">
         {/* Kassenstand */}
         <BalanceCard

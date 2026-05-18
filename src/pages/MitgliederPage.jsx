@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLargeTitle } from '../hooks/useLargeTitle';
 import { dbGetAll, dbPut, dbDelete } from '../services/db';
 import { generateId } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
@@ -39,6 +40,7 @@ function computeName(vorname, nachname) {
 }
 
 export default function MitgliederPage() {
+  const { titleRef, compact } = useLargeTitle();
   const [mitglieder, setMitglieder] = useState([]);
   const [editMember, setEditMember] = useState(null); // null | {} (neu) | {...} (bearbeiten)
 
@@ -91,7 +93,7 @@ export default function MitgliederPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header${compact ? ' is-compact' : ''}`}>
         <h1>Mitglieder</h1>
         <button
           className="btn btn--primary btn--sm"
@@ -100,6 +102,7 @@ export default function MitgliederPage() {
           + Neu
         </button>
       </header>
+      <h1 ref={titleRef} className="page-large-title">Mitglieder</h1>
 
       {mitglieder.length === 0 ? (
         <EmptyState

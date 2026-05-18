@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLargeTitle } from '../hooks/useLargeTitle';
 import { dbGetAll } from '../services/db';
 import UmlageModal from '../components/UmlageModal';
 
 export default function UmlagenPage() {
+  const { titleRef, compact } = useLargeTitle();
   const [umlagen, setUmlagen] = useState([]);
   const [statusMap, setStatusMap] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -42,12 +44,13 @@ export default function UmlagenPage() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={`page-header${compact ? ' is-compact' : ''}`}>
         <h1>Umlagen</h1>
         <button className="btn btn--primary btn--sm" onClick={() => setShowModal(true)}>
           + Neu
         </button>
       </header>
+      <h1 ref={titleRef} className="page-large-title">Umlagen</h1>
 
       {umlagen.length === 0 ? (
         <div className="empty-state">
