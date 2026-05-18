@@ -10,6 +10,7 @@ export function CategoryDonut({ data, title = 'Ausgaben nach Kategorie' }) {
   if (total === 0 || data.length === 0) return null;
 
   const R = 40, CIRC = 2 * Math.PI * R;
+  const GAP = data.length > 1 ? 3 : 0;
   let offset = 0;
 
   return (
@@ -19,9 +20,10 @@ export function CategoryDonut({ data, title = 'Ausgaben nach Kategorie' }) {
         <svg viewBox="0 0 100 100" className="donut-svg" aria-hidden="true">
           {data.map(slice => {
             const def = resolveCategoryDef(slice.category);
-            const dash = (slice.amount / total) * CIRC;
+            const segmentLength = (slice.amount / total) * CIRC;
+            const dash = Math.max(0, segmentLength - GAP);
             const currentOffset = offset;
-            offset += dash;
+            offset += segmentLength;
             return (
               <circle
                 key={slice.category}
@@ -29,6 +31,7 @@ export function CategoryDonut({ data, title = 'Ausgaben nach Kategorie' }) {
                 fill="none"
                 stroke={def.accent}
                 strokeWidth="14"
+                strokeLinecap="round"
                 strokeDasharray={`${dash} ${CIRC - dash}`}
                 strokeDashoffset={-currentOffset}
                 transform="rotate(-90 50 50)"

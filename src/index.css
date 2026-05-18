@@ -145,9 +145,9 @@ a {
 }
 
 .status-bar--syncing {
-  background: var(--blue-light);
-  color: var(--blue);
-  border-bottom: 1px solid var(--blue-mid);
+  background: var(--color-brand-subtle);
+  color: var(--color-brand);
+  border-bottom: 1px solid var(--color-brand-border);
 }
 
 .status-bar--error {
@@ -198,7 +198,7 @@ a {
 }
 
 .bottom-nav__item--active {
-  color: var(--blue);
+  color: var(--color-brand);
 }
 
 .bottom-nav__icon {
@@ -271,7 +271,7 @@ a {
 }
 
 .btn--primary {
-  background: var(--blue);
+  background: var(--color-brand);
   color: #fff;
   box-shadow: var(--shadow-sm);
 }
@@ -363,14 +363,14 @@ a {
 }
 
 .setup-page__info {
-  background: var(--blue-light);
-  border: 1px solid var(--blue-mid);
+  background: var(--color-brand-subtle);
+  border: 1px solid var(--color-brand-border);
   border-radius: var(--r-lg);
   padding: var(--space-lg);
   margin-bottom: var(--space-xl);
   font-size: 0.85rem;
   line-height: 1.65;
-  color: var(--blue);
+  color: var(--color-brand);
 }
 
 .setup-page__info p {
@@ -391,7 +391,7 @@ a {
 .setup-page__link {
   font-family: 'DM Mono', monospace;
   font-size: 0.78rem;
-  color: var(--blue);
+  color: var(--color-brand);
 }
 
 .setup-page__form {
@@ -512,7 +512,7 @@ a {
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--color-brand);
   box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
 }
 
@@ -549,41 +549,6 @@ a {
   gap: var(--space-lg);
 }
 
-.saldo-card {
-  background: var(--blue);
-  border-radius: var(--r-xl);
-  padding: var(--space-xl) var(--space-xl) var(--space-2xl);
-  text-align: center;
-  box-shadow: var(--shadow-lg);
-  color: #fff;
-}
-
-.saldo-card__label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.7;
-  margin-bottom: var(--space-sm);
-}
-
-.saldo-card__betrag {
-  font-size: 3rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  font-family: 'DM Mono', monospace;
-  color: var(--color-brand-accent-strong);
-}
-
-.saldo-card__betrag--negativ {
-  color: var(--red-200);
-}
-
-.saldo-card__info {
-  font-size: 0.8rem;
-  opacity: 0.65;
-  margin-top: var(--space-sm);
-}
 
 /* ── Balance Card (new) ──────────────────────────── */
 
@@ -760,7 +725,7 @@ a {
   align-items: center;
   gap: var(--space-sm);
   cursor: pointer;
-  transition: box-shadow 0.15s, border-color 0.15s;
+  transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s, opacity 0.1s;
   box-shadow: var(--shadow-sm);
   font-family: inherit;
 }
@@ -770,15 +735,20 @@ a {
   border-color: var(--border2);
 }
 
+.action-card:active {
+  transform: scale(0.96);
+  opacity: 0.82;
+}
+
 .action-card__icon {
   width: 40px;
   height: 40px;
-  background: var(--blue-light);
+  background: var(--color-brand-subtle);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--blue);
+  color: var(--color-brand);
 }
 
 .action-card__icon svg {
@@ -822,13 +792,18 @@ a {
   text-align: left;
   font-family: inherit;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.12s, border-color 0.12s;
+  transition: box-shadow 0.12s, border-color 0.12s, transform 0.1s, opacity 0.1s;
   width: 100%;
 }
 
 .recent-card:hover {
   box-shadow: var(--shadow);
   border-color: var(--border2);
+}
+
+.recent-card:active {
+  transform: scale(0.98);
+  opacity: 0.82;
 }
 
 .recent-card__header {
@@ -939,6 +914,10 @@ a {
 
 .buchung-item:hover {
   box-shadow: var(--shadow);
+}
+
+.buchung-item:active {
+  background: var(--color-surface-alt);
 }
 
 .buchung-item__meta {
@@ -1131,10 +1110,14 @@ a {
 }
 
 .filter-btn--active {
-  background: var(--blue);
-  border-color: var(--blue);
+  background: var(--color-brand);
+  border-color: var(--color-brand);
   color: #fff;
   box-shadow: var(--shadow-sm);
+}
+
+.filter-btn:active {
+  opacity: 0.7;
 }
 
 /* ── Modal Overlay ───────────────────────────────── */
@@ -1278,8 +1261,8 @@ a {
 }
 
 .beleg-upload:hover {
-  border-color: var(--blue);
-  background: var(--blue-light);
+  border-color: var(--color-brand);
+  background: var(--color-brand-subtle);
 }
 
 .beleg-upload__icon { font-size: 1.6rem; }
@@ -1336,7 +1319,7 @@ a {
 
 .member-add-form input:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--color-brand);
   box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.1);
 }
 
@@ -1416,7 +1399,7 @@ a {
   flex-shrink: 0;
 }
 
-.member-item__edit:hover  { color: var(--blue);  background: var(--blue-light); }
+.member-item__edit:hover  { color: var(--color-brand);  background: var(--color-brand-subtle); }
 .member-item__delete:hover { color: var(--red);   background: var(--red-bg); }
 
 .member-funktion-badge {
@@ -1553,7 +1536,7 @@ a {
 .settings-section__add-btn {
   background: none;
   border: none;
-  color: var(--blue);
+  color: var(--color-brand);
   font-size: 0.8rem;
   font-weight: 600;
   padding: var(--space-md) var(--space-lg);
@@ -1623,7 +1606,7 @@ a {
 
 .feedback-form__textarea:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--color-brand);
   box-shadow: 0 0 0 3px rgba(22,101,52,0.1);
 }
 
@@ -1839,7 +1822,7 @@ a {
   border-radius: var(--r-lg);
   padding: var(--space-lg);
   cursor: pointer;
-  transition: box-shadow 0.12s;
+  transition: box-shadow 0.12s, transform 0.1s, opacity 0.1s;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -1850,9 +1833,14 @@ a {
   box-shadow: var(--shadow-md);
 }
 
+.umlage-card:active {
+  transform: scale(0.98);
+  opacity: 0.82;
+}
+
 .umlage-card--erledigt {
   opacity: 0.72;
-  border-left: 3px solid var(--blue);
+  border-left: 3px solid var(--color-brand);
 }
 
 .umlage-card__anlass {
@@ -2118,7 +2106,7 @@ a {
 .link-btn {
   background: none;
   border: none;
-  color: var(--blue);
+  color: var(--color-brand);
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
@@ -2151,7 +2139,7 @@ a {
 }
 
 .member-checkbox input[type="checkbox"] {
-  accent-color: var(--blue);
+  accent-color: var(--color-brand);
   width: 15px;
   height: 15px;
   cursor: pointer;
@@ -2166,12 +2154,12 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--blue-light);
-  border: 1px solid var(--blue-mid);
+  background: var(--color-brand-subtle);
+  border: 1px solid var(--color-brand-border);
   border-radius: var(--r-md);
   padding: var(--space-md) var(--space-lg);
   font-size: 0.85rem;
-  color: var(--blue);
+  color: var(--color-brand);
   font-weight: 500;
 }
 
@@ -2181,7 +2169,7 @@ a {
 }
 
 .umlage-total-preview__value strong {
-  color: var(--blue);
+  color: var(--color-brand);
   font-size: 0.95rem;
 }
 
@@ -2256,7 +2244,6 @@ a {
 
 /* ── Tabular Numerals ────────────────────────────── */
 
-.saldo-card__betrag,
 .buchung-item__betrag,
 .stat-card__value {
   font-variant-numeric: tabular-nums;
@@ -2266,7 +2253,7 @@ a {
 /* ── Focus ───────────────────────────────────────── */
 
 :focus-visible {
-  outline: 2px solid var(--blue);
+  outline: 2px solid var(--color-brand);
   outline-offset: 2px;
 }
 
@@ -2296,7 +2283,7 @@ a {
 .version-badge {
   font-size: 0.65rem;
   font-weight: 700;
-  background: var(--blue);
+  background: var(--color-brand);
   color: #fff;
   border-radius: 4px;
   padding: 2px 6px;
@@ -2323,9 +2310,9 @@ a {
   font-family: 'DM Mono', monospace;
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--blue);
-  background: var(--blue-light);
-  border: 1px solid var(--blue-mid);
+  color: var(--color-brand);
+  background: var(--color-brand-subtle);
+  border: 1px solid var(--color-brand-border);
   border-radius: 5px;
   padding: 2px 8px;
 }
@@ -2354,6 +2341,17 @@ a {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+/* ── Reduced Motion ──────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay { animation: none; }
+  .bottom-sheet  { animation: none; }
+  .spin          { animation: none !important; }
+  .action-card,
+  .recent-card,
+  .umlage-card   { transition: opacity 0.1s; }
 }
 
 /* ── Buchung Detail Modal ────────────────────────── */
@@ -3076,7 +3074,7 @@ a {
   margin-top: var(--space-xl);
   background: none;
   border: none;
-  color: var(--blue);
+  color: var(--color-brand);
   cursor: pointer;
   padding: var(--space-lg);
   border-radius: var(--r-lg);
@@ -3085,7 +3083,7 @@ a {
 }
 
 .lock-screen__btn:hover {
-  background: var(--blue-light);
+  background: var(--color-brand-subtle);
 }
 
 .lock-screen__btn:disabled {
@@ -3133,7 +3131,7 @@ a {
 }
 
 .donut-dot--active {
-  background: var(--blue);
+  background: var(--color-brand);
   transform: scale(1.25);
 }
 
