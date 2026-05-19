@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 
 const DB_NAME = 'tk-kasse';
-const DB_VERSION = 2; // Bumped: added belege store
+const DB_VERSION = 3; // Bumped: added vorlagen store
 
 let _db = null;
 
@@ -29,6 +29,10 @@ export async function getDB() {
       if (!db.objectStoreNames.contains('belege')) {
         // Stores compressed image dataURLs — keyed by beleg_id
         db.createObjectStore('belege', { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains('vorlagen')) {
+        const vs = db.createObjectStore('vorlagen', { keyPath: 'id' });
+        vs.createIndex('by_verwendungen', 'verwendungen');
       }
       if (!db.objectStoreNames.contains('_meta')) {
         db.createObjectStore('_meta', { keyPath: 'path' });

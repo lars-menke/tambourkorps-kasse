@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.10.0',
+    datum: '2026-05-19',
+    aenderungen: [
+      'Vorlagen: Buchungen als Vorlage merken (im Formular und in der Detailansicht)',
+      'Vorlagen: Vorlage nutzen — neues Schnellaktions-Feld oeffnet Vorlage-Auswahl',
+      'Vorlagen: Antippen belegt das Schnellerfassungs-Sheet vor',
+      'Vorlagen: Wischen oder Loeschen-Button entfernt Vorlagen aus der Liste',
+    ],
+  },
+  {
     version: '2.9.0',
     datum: '2026-05-19',
     aenderungen: [

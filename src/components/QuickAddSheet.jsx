@@ -19,7 +19,7 @@ function getTopKategorien(buchungen, kategorien, n = 4) {
   return kategorien.slice(0, n).map(k => k.name);
 }
 
-export function QuickAddSheet({ open, onClose, onSave, initialTyp = null }) {
+export function QuickAddSheet({ open, onClose, onSave, initialTyp = null, initialBetrag = '', initialKategorie = '' }) {
   const { isVisible, isClosing } = useExitAnimation(open);
   const [typ, setTyp] = useState(initialTyp || 'auszahlung');
   const [betrag, setBetrag] = useState('');
@@ -31,8 +31,8 @@ export function QuickAddSheet({ open, onClose, onSave, initialTyp = null }) {
   useEffect(() => {
     if (!open) return;
     setTyp(initialTyp || 'auszahlung');
-    setBetrag('');
-    setKategorie('');
+    setBetrag(initialBetrag ? String(initialBetrag).replace('.', ',') : '');
+    setKategorie(initialKategorie || '');
     setSaving(false);
     setTimeout(() => inputRef.current?.focus(), 80);
 

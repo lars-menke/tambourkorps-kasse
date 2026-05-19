@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { dbGet } from '../services/db';
+import { dbGet, dbPut } from '../services/db';
 import { fetchBeleg } from '../utils/sync';
 import { getMetaSchemaFromRecord } from '../lib/kategorieMeta';
 import { useClosingAnimation } from '../hooks/useClosingAnimation';
+import { generateId } from '../utils/imageUtils';
 
 const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
@@ -22,6 +23,7 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
   const [belegStatus, setBelegStatus] = useState('idle'); // idle | loading | fetching | done | fehlt
   const [lightbox, setLightbox] = useState(false);
   const [metaSchema, setMetaSchema] = useState([]);
+  const [vorlageSaved, setVorlageSaved] = useState(false);
   const bodyRef = useRef(null);
 
   useEffect(() => {
@@ -71,6 +73,24 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
+
+  async function handleSaveVorlage() {
+    if (vorlageSaved) return;
+    await dbPut('vorlagen', {
+      id: generateId('v'),
+      name: buchung.kategorie || (buchung.typ === 'einzahlung' ? 'Einnahme' : 'Ausgabe'),
+      typ: buchung.typ,
+      betrag: buchung.meta?.betragBase ?? buchung.betrag,
+      kategorie_id: buchung.kategorie_id || null,
+      kategorie: buchung.kategorie || null,
+      notiz: buchung.notiz || null,
+      verwendungen: 0,
+      zuletzt_verwendet: null,
+      erstellt: new Date().toISOString(),
+    });
+    setVorlageSaved(true);
+    setTimeout(() => setVorlageSaved(false), 2000);
+  }
 
   const isEin = buchung.typ === 'einzahlung';
 
@@ -206,6 +226,13 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
             <div className="detail-actions">
               <button className="btn btn--primary btn--full" onClick={() => onEdit(buchung)}>
                 Bearbeiten
+              </button>
+              <button
+                className={`btn btn--ghost btn--full${vorlageSaved ? ' btn--saved' : ''}`}
+                onClick={handleSaveVorlage}
+                disabled={vorlageSaved}
+              >
+                {vorlageSaved ? 'Als Vorlage gespeichert' : 'Als Vorlage merken'}
               </button>
               <button className="btn btn--danger btn--full" onClick={() => onDelete(buchung.id)}>
                 Löschen

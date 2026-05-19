@@ -637,6 +637,10 @@ a {
   grid-column: 1 / -1;
 }
 
+.action-card--wide {
+  grid-column: 1 / -1;
+}
+
 
 /* ── Balance Card (new) ──────────────────────────── */
 
@@ -3005,6 +3009,141 @@ a {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* ── VorlagenSheet ────────────────────────────────── */
+
+.vorlage-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.vorlage-sheet-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-label-primary);
+}
+
+.vorlage-empty {
+  padding: 24px 0 8px;
+  text-align: center;
+  color: var(--color-label-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.vorlage-empty p {
+  margin: 0 0 4px;
+}
+
+.vorlage-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 55vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vorlage-item {
+  display: flex;
+  align-items: stretch;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-fill-secondary);
+}
+
+.vorlage-item__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vorlage-item__btn:hover {
+    background: var(--color-fill-tertiary);
+  }
+}
+
+.vorlage-item__btn:active {
+  background: var(--color-fill-tertiary);
+}
+
+.vorlage-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vorlage-item__name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-label-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vorlage-item__meta {
+  font-size: 12px;
+  color: var(--color-label-secondary);
+}
+
+.vorlage-item__betrag {
+  font-family: 'Fira Code', monospace;
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.vorlage-item__betrag--einzahlung {
+  color: var(--color-income);
+}
+
+.vorlage-item__betrag--auszahlung {
+  color: var(--color-expense);
+}
+
+.vorlage-item__del {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--color-separator);
+  cursor: pointer;
+  color: var(--color-label-secondary);
+  transition: color 0.15s ease-out, background 0.15s ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vorlage-item__del:hover {
+    color: var(--color-expense);
+    background: var(--color-fill-tertiary);
+  }
+}
+
+.vorlage-item__del:active {
+  color: var(--color-expense);
+  background: var(--color-fill-tertiary);
 }
 
 /* ── KategorienPage ───────────────────────────────── */

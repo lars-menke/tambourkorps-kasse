@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.10.0 — 2026-05-19
+
+- **Vorlagen** — Buchungen als Vorlage merken: Checkbox im Erfassungsformular oder Button in der Detailansicht
+- **Vorlagen** — "Vorlage nutzen" als dritte Schnellaktion auf dem Dashboard
+- **Vorlagen** — Antippen einer Vorlage belegt das Schnellerfassungs-Sheet mit Typ, Betrag und Kategorie vor
+- **Vorlagen** — Loeschen per Trash-Icon; Vorlagen nach Nutzungshaeufigkeit sortiert
+
 ## v2.9.0 — 2026-05-19
 
 - **Design: Typografie** — Figtree (Body) und Fira Code (Zahlen/Betraege) ersetzen Plus Jakarta Sans und DM Mono; Fira Code mit slashed zero fuer Finanzzahlen

@@ -6,6 +6,21 @@ import BelegUpload from './BelegUpload';
 import { useClosingAnimation } from '../hooks/useClosingAnimation';
 import { getMetaSchema, getMetaSchemaFromRecord } from '../lib/kategorieMeta';
 
+async function saveVorlage({ name, typ, betrag, kategorieId, kategorieName, notiz }) {
+  await dbPut('vorlagen', {
+    id: generateId('v'),
+    name: name || kategorieName || (typ === 'einzahlung' ? 'Einnahme' : 'Ausgabe'),
+    typ,
+    betrag,
+    kategorie_id: kategorieId || null,
+    kategorie: kategorieName || null,
+    notiz: notiz || null,
+    verwendungen: 0,
+    zuletzt_verwendet: null,
+    erstellt: new Date().toISOString(),
+  });
+}
+
 const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
 export default function BuchungModal({ buchung, onSave, onClose }) {
@@ -30,6 +45,8 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
   const [meta, setMeta]               = useState(initMeta);
   const [hatTrinkgeld, setHatTrinkgeld] = useState(buchung?.meta?.trinkgeld != null);
   const [trinkgeld, setTrinkgeld]     = useState(buchung?.meta?.trinkgeld != null ? String(buchung.meta.trinkgeld) : '');
+  const [alsVorlage, setAlsVorlage]   = useState(false);
+  const [vorlageName, setVorlageName] = useState('');
 
   useEffect(() => {
     dbGetAll('kategorien').then(setKategorien);
@@ -106,6 +123,19 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
       };
 
       await dbPut('buchungen', record);
+
+      if (alsVorlage) {
+        const kategorieName = kategorien.find(k => k.id === kategorieId)?.name ?? null;
+        await saveVorlage({
+          name: vorlageName.trim(),
+          typ,
+          betrag: betragNum,
+          kategorieId: kategorieId || null,
+          kategorieName,
+          notiz: notiz.trim() || null,
+        });
+      }
+
       onSave(record);
     } finally {
       setSaving(false);
@@ -263,6 +293,31 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
             <label>Beleg</label>
             <BelegUpload value={belegDataUrl} onChange={setBelegDataUrl} />
           </div>
+
+          {/* Als Vorlage merken */}
+          {!isEdit && (
+            <div className="form-group">
+              <div className="form-group--inline">
+                <label>Als Vorlage merken</label>
+                <button
+                  type="button"
+                  className={`toggle-btn${alsVorlage ? ' toggle-btn--active' : ''}`}
+                  onClick={() => { setAlsVorlage(v => !v); setVorlageName(''); }}
+                >
+                  {alsVorlage ? 'Ja' : 'Nein'}
+                </button>
+              </div>
+              {alsVorlage && (
+                <input
+                  type="text"
+                  placeholder={kategorien.find(k => k.id === kategorieId)?.name || (typ === 'einzahlung' ? 'Einnahme' : 'Ausgabe')}
+                  value={vorlageName}
+                  onChange={e => setVorlageName(e.target.value)}
+                  style={{ marginTop: 8 }}
+                />
+              )}
+            </div>
+          )}
 
           <button
             type="submit"

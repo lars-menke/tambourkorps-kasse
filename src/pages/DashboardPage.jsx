@@ -10,6 +10,7 @@ import { CategoryDonut } from '../components/CategoryDonut';
 import { EmptyState } from '../components/EmptyState';
 import { PullToRefresh } from '../components/PullToRefresh';
 import { QuickAddSheet } from '../components/QuickAddSheet';
+import { VorlagenSheet } from '../components/VorlagenSheet';
 import { metaZusammenfassung } from '../lib/kategorieMeta';
 import { DashboardSkeleton } from '../components/skeletons/DashboardSkeleton';
 
@@ -115,6 +116,8 @@ export default function DashboardPage() {
   const [donutAnsicht, setDonutAnsicht]   = useState(0); // 0=ausgaben, 1=einnahmen
   const [quickAddOpen, setQuickAddOpen]   = useState(false);
   const [quickAddTyp, setQuickAddTyp]     = useState(null);
+  const [quickAddFill, setQuickAddFill]   = useState({ betrag: '', kategorie: '' });
+  const [vorlagenOpen, setVorlagenOpen]   = useState(false);
   const donutTouchRef                     = useRef({ startX: 0 });
   const { sync, syncing } = useSync();
   const navigate = useNavigate();
@@ -249,6 +252,18 @@ export default function DashboardPage() {
             </div>
             <div className="action-card__label">Mitglieder</div>
           </button>
+
+          <button className="action-card action-card--wide" onClick={() => setVorlagenOpen(true)}>
+            <div className="action-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg>
+            </div>
+            <div className="action-card__label">Vorlage nutzen</div>
+          </button>
         </div>
 
         {buchungenCount === 0 && (
@@ -370,8 +385,20 @@ export default function DashboardPage() {
       <QuickAddSheet
         open={quickAddOpen}
         initialTyp={quickAddTyp}
-        onClose={() => { setQuickAddOpen(false); setQuickAddTyp(null); }}
+        initialBetrag={quickAddFill.betrag}
+        initialKategorie={quickAddFill.kategorie}
+        onClose={() => { setQuickAddOpen(false); setQuickAddTyp(null); setQuickAddFill({ betrag: '', kategorie: '' }); }}
         onSave={loadData}
+      />
+      <VorlagenSheet
+        open={vorlagenOpen}
+        onClose={() => setVorlagenOpen(false)}
+        onSelect={(v) => {
+          setQuickAddTyp(v.typ);
+          setQuickAddFill({ betrag: v.betrag, kategorie: v.kategorie || '' });
+          setVorlagenOpen(false);
+          setTimeout(() => setQuickAddOpen(true), 50);
+        }}
       />
     </div>
   );
