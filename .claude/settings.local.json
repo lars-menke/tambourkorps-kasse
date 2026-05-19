@@ -16,7 +16,19 @@
       "Bash(git merge *)",
       "Bash(git push *)",
       "Bash(gh api *)",
-      "Bash(git branch *)"
+      "Bash(git branch *)",
+      "Bash(py \"C:\\\\Users\\\\Lars Menke\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"mobile app finance dashboard iOS touch interaction\" --domain ux -n 8)",
+      "Bash(py \"C:\\\\Users\\\\Lars Menke\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"loading skeleton empty states feedback\" --domain ux -n 6)",
+      "Bash(py \"C:\\\\Users\\\\Lars Menke\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"mobile finance professional minimal clean modern\" --domain typography -n 8)",
+      "Bash(py \"C:\\\\Users\\\\Lars Menke\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"mobile finance app clean modern geometric humanist\" --domain typography -n 10)",
+      "Bash(py \"C:\\\\Users\\\\Lars Menke\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"rounded warm friendly approachable club community app\" --domain typography -n 6)",
+      "Bash(py \"C:\\\\Users\\\\Lars Menke\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"technical precise data mono interface system\" --domain typography -n 6)",
+      "Bash(python skills/ui-ux-pro-max/scripts/search.py \"fintech mobile PWA dashboard modern clean\" --design-system -p \"TambourWallet\")",
+      "Bash(python3 skills/ui-ux-pro-max/scripts/search.py \"fintech mobile PWA dashboard modern clean\" --design-system -p \"TambourWallet\")",
+      "Bash(npx vite *)",
+      "Bash(Remove-Item *)",
+      "Bash(npx skills *)",
+      "Bash(curl *)"
     ]
   }
 }
