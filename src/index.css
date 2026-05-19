@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 @import './styles/tokens.css';
 
 *, *::before, *::after {
@@ -14,7 +14,7 @@ html {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Figtree', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -100,7 +100,7 @@ a {
 }
 
 .app-header__version {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.7rem;
   color: var(--text-muted);
   background: var(--surface2);
@@ -135,7 +135,7 @@ a {
 .status-bar {
   padding: 7px var(--space-lg);
   font-size: 0.75rem;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   text-align: center;
   letter-spacing: 0.01em;
 }
@@ -311,7 +311,7 @@ a {
 }
 
 .buchung-date-sep__net {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.75rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -462,7 +462,7 @@ a {
 }
 
 .setup-page__link {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.78rem;
   color: var(--color-brand);
 }
@@ -575,7 +575,7 @@ a {
   border-radius: var(--r-md);
   padding: 11px var(--space-md);
   color: var(--text);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Figtree', system-ui, sans-serif;
   font-size: 1rem;
   transition: border-color 0.12s, box-shadow 0.12s;
   box-shadow: var(--shadow-sm);
@@ -653,7 +653,7 @@ a {
 }
 
 .balance-card__amount {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 2.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -661,7 +661,7 @@ a {
   margin: 8px 0 4px;
   color: var(--color-brand-accent);
   font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
+  font-feature-settings: "tnum", "zero";
 }
 
 .balance-card.is-negative .balance-card__amount { color: var(--red-200); }
@@ -681,7 +681,7 @@ a {
   font-size: 0.8rem;
   font-weight: 500;
   opacity: 0.85;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
 }
 
 /* ── Donut Chart ─────────────────────────────────── */
@@ -712,7 +712,7 @@ a {
 .donut-svg { width: 120px; height: 120px; }
 
 .donut-total {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 11px;
   font-weight: 700;
   fill: var(--color-text);
@@ -752,7 +752,7 @@ a {
 .donut-legend__label { color: var(--color-text-dim); }
 
 .donut-legend__val {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-weight: 600;
   color: var(--color-text);
 }
@@ -781,7 +781,7 @@ a {
 }
 
 .stat-card__value {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 1.05rem;
   font-weight: 600;
 }
@@ -907,7 +907,7 @@ a {
 }
 
 .recent-card__datum {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.78rem;
   color: var(--text-muted);
   white-space: nowrap;
@@ -934,7 +934,7 @@ a {
 }
 
 .recent-card__betrag {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 1rem;
   font-weight: 600;
 }
@@ -1008,7 +1008,7 @@ a {
 }
 
 .buchung-item__datum {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.78rem;
   color: var(--text-muted);
 }
@@ -1041,7 +1041,7 @@ a {
 }
 
 .buchung-item__betrag {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.95rem;
   font-weight: 600;
   white-space: nowrap;
@@ -1156,7 +1156,7 @@ a {
 }
 
 .sort-select {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Figtree', system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--text-dim);
@@ -1317,7 +1317,7 @@ a {
 
 .betrag-input {
   font-size: 2rem !important;
-  font-family: 'DM Mono', monospace !important;
+  font-family: 'Fira Code', monospace !important;
   font-weight: 600 !important;
   text-align: center;
   padding: var(--space-lg) !important;
@@ -1391,7 +1391,7 @@ a {
   border-radius: var(--r-md);
   padding: 10px var(--space-md);
   color: var(--text);
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: 'Figtree', system-ui, sans-serif;
   font-size: 1rem;
   box-shadow: var(--shadow-sm);
 }
@@ -1575,7 +1575,7 @@ a {
 .settings-item__label { font-size: 0.875rem; color: var(--text); }
 
 .settings-item__value {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.82rem;
   color: var(--text-dim);
 }
@@ -1713,7 +1713,7 @@ a {
 }
 
 .feedback-form__hint code {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   background: var(--surface2);
   padding: 1px 5px;
   border-radius: 3px;
@@ -1813,7 +1813,7 @@ a {
 .trinkgeld-total {
   margin-top: 8px;
   font-size: 0.82rem;
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   color: var(--text-muted);
 }
 
@@ -1958,7 +1958,7 @@ a {
 }
 
 .umlage-card__betrag {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.88rem;
   color: var(--green);
   font-weight: 600;
@@ -2015,7 +2015,7 @@ a {
 .umlage-progress__label {
   font-size: 0.72rem;
   color: var(--text-muted);
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
 }
 
 /* ── Umlage Detail ───────────────────────────────── */
@@ -2037,7 +2037,7 @@ a {
   gap: var(--space-lg);
   font-size: 0.82rem;
   color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
 }
 
 .umlage-detail-totals {
@@ -2056,7 +2056,7 @@ a {
 }
 
 .umlage-total__value {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--text);
@@ -2166,7 +2166,7 @@ a {
 
 .feedback-view__content {
   padding: var(--space-md);
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.72rem;
   line-height: 1.6;
   white-space: pre-wrap;
@@ -2243,7 +2243,7 @@ a {
 }
 
 .umlage-total-preview__value {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.85rem;
 }
 
@@ -2345,7 +2345,7 @@ a {
 }
 
 .version-item__number {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text);
@@ -2386,7 +2386,7 @@ a {
 }
 
 .changelog-entry__version {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--color-brand);
@@ -2399,7 +2399,7 @@ a {
 .changelog-entry__datum {
   font-size: 0.75rem;
   color: var(--text-muted);
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
 }
 
 .changelog-entry__list {
@@ -2444,7 +2444,7 @@ a {
 }
 
 .detail-hero__betrag {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 2.4rem;
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -2907,7 +2907,7 @@ a {
 }
 
 .sheet-amount {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 2.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -2920,7 +2920,7 @@ a {
 }
 
 .sheet-amount__currency {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--color-text-muted);
@@ -3252,7 +3252,7 @@ a {
 }
 
 .monatssaldo-row__net {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.78rem;
   font-variant-numeric: tabular-nums;
   min-width: 76px;
@@ -3263,7 +3263,7 @@ a {
 .monatssaldo-row__net--neg { color: var(--red); }
 
 .monatssaldo-row__saldo {
-  font-family: 'DM Mono', monospace;
+  font-family: 'Fira Code', monospace;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text);
