@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useClosingAnimation } from '../hooks/useClosingAnimation';
 import { dbGetAll, dbPutMany, dbPut } from '../services/db';
 import { generateId } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
 
 export default function UmlageModal({ onSave, onClose, umlage = null }) {
   const isEdit = Boolean(umlage);
+  const { isClosing, handleClose } = useClosingAnimation(onClose);
   const [anlass, setAnlass] = useState(umlage?.anlass ?? '');
   const [betrag, setBetrag] = useState(umlage ? String(umlage.betrag_pro_kopf) : '');
   const [faelligkeit, setFaelligkeit] = useState(umlage?.faelligkeit ?? '');
@@ -23,11 +25,11 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
   }, []);
 
   const handleBackdrop = useCallback((e) => {
-    if (e.target === e.currentTarget) onClose();
-  }, [onClose]);
+    if (e.target === e.currentTarget) handleClose();
+  }, [handleClose]);
 
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    const handler = (e) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
@@ -103,12 +105,12 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={handleBackdrop}>
-      <div className="bottom-sheet" role="dialog" aria-modal="true">
+    <div className={`modal-overlay${isClosing ? ' is-closing' : ''}`} onClick={handleBackdrop}>
+      <div className={`bottom-sheet${isClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true">
         <div className="bottom-sheet__handle" />
         <div className="bottom-sheet__header">
           <h2>{isEdit ? 'Umlage bearbeiten' : 'Neue Umlage'}</h2>
-          <button type="button" className="btn btn--icon" onClick={onClose}>
+          <button type="button" className="btn btn--icon" onClick={handleClose}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={20} height={20}>
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>

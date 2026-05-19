@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useExitAnimation } from '../hooks/useClosingAnimation';
 import { dbGetAll, dbPut } from '../services/db';
 import { generateId } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
@@ -19,6 +20,7 @@ function getTopKategorien(buchungen, kategorien, n = 4) {
 }
 
 export function QuickAddSheet({ open, onClose, onSave, initialTyp = null }) {
+  const { isVisible, isClosing } = useExitAnimation(open);
   const [typ, setTyp] = useState(initialTyp || 'auszahlung');
   const [betrag, setBetrag] = useState('');
   const [kategorie, setKategorie] = useState('');
@@ -89,12 +91,12 @@ export function QuickAddSheet({ open, onClose, onSave, initialTyp = null }) {
     }
   }
 
-  if (!open) return null;
+  if (!isVisible) return null;
 
   return (
     <>
       <div className="sheet-overlay" onClick={onClose} />
-      <div className="quick-sheet" role="dialog" aria-label="Buchung erfassen">
+      <div className={`quick-sheet${isClosing ? ' is-closing' : ''}`} role="dialog" aria-label="Buchung erfassen">
         <div className="quick-sheet__handle" />
 
         <div className="sheet-type-row">

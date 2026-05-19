@@ -3,12 +3,14 @@ import { dbGetAll, dbPut, dbGet, dbDelete } from '../services/db';
 import { pushBeleg, deleteBeleg } from '../utils/sync';
 import { generateId, todayIso } from '../utils/imageUtils';
 import BelegUpload from './BelegUpload';
+import { useClosingAnimation } from '../hooks/useClosingAnimation';
 import { getMetaSchema, getMetaSchemaFromRecord } from '../lib/kategorieMeta';
 
 const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
 export default function BuchungModal({ buchung, onSave, onClose }) {
   const isEdit = Boolean(buchung);
+  const { isClosing, handleClose } = useClosingAnimation(onClose);
 
   const [typ, setTyp]         = useState(buchung?.typ ?? 'einzahlung');
   const [betrag, setBetrag]   = useState(buchung ? String(buchung.meta?.betragBase ?? buchung.betrag) : '');
@@ -39,11 +41,11 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
   }, [buchung]);
 
   const handleBackdrop = useCallback((e) => {
-    if (e.target === e.currentTarget) onClose();
-  }, [onClose]);
+    if (e.target === e.currentTarget) handleClose();
+  }, [handleClose]);
 
   useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    const handler = (e) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
@@ -111,13 +113,13 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={handleBackdrop}>
-      <div className="bottom-sheet" role="dialog" aria-modal="true">
+    <div className={`modal-overlay${isClosing ? ' is-closing' : ''}`} onClick={handleBackdrop}>
+      <div className={`bottom-sheet${isClosing ? ' is-closing' : ''}`} role="dialog" aria-modal="true">
         <div className="bottom-sheet__handle" />
 
         <div className="bottom-sheet__header">
           <h2>{isEdit ? 'Buchung bearbeiten' : 'Neue Buchung'}</h2>
-          <button type="button" className="btn btn--icon" onClick={onClose} aria-label="Schließen">
+          <button type="button" className="btn btn--icon" onClick={handleClose} aria-label="Schließen">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={20} height={20}>
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />

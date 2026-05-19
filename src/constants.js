@@ -7,6 +7,17 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.9.0',
+    datum: '2026-05-19',
+    aenderungen: [
+      'Design: Figtree und Fira Code — neue Schriften fuer Body und Zahlen',
+      'Design: Sheets und Modals schliessen jetzt mit Exit-Animation (180 ms)',
+      'Design: Hover-Effekte nur noch mit Maus — kein haengendes Highlight auf Touch',
+      'Design: Skeleton-Ladeanimation gleichmaessig (kein Pulsieren mehr)',
+      'Design: Alle Animationen vollstaendig unter "Bewegung reduzieren" abgedeckt',
+    ],
+  },
+  {
     version: '2.8.0',
     datum: '2026-05-18',
     aenderungen: [

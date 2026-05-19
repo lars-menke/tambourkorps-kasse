@@ -349,8 +349,10 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
-.btn--primary:not(:disabled):hover {
-  background: var(--color-brand-hover);
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:not(:disabled):hover {
+    background: var(--color-brand-hover);
+  }
 }
 
 .btn--danger {
@@ -371,9 +373,11 @@ a {
   border: 1px solid var(--color-border);
 }
 
-.btn--ghost:not(:disabled):hover {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
+@media (hover: hover) and (pointer: fine) {
+  .btn--ghost:not(:disabled):hover {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
 }
 
 .btn--full { width: 100%; }
@@ -391,9 +395,11 @@ a {
   border-radius: var(--r-sm);
 }
 
-.btn--icon:hover {
-  color: var(--text);
-  background: var(--surface2);
+@media (hover: hover) and (pointer: fine) {
+  .btn--icon:hover {
+    color: var(--text);
+    background: var(--surface2);
+  }
 }
 
 /* ── Setup Page ──────────────────────────────────── */
@@ -809,9 +815,11 @@ a {
   text-align: left;
 }
 
-.action-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: var(--border2);
+@media (hover: hover) and (pointer: fine) {
+  .action-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border2);
+  }
 }
 
 .action-card:active {
@@ -875,9 +883,11 @@ a {
   width: 100%;
 }
 
-.recent-card:hover {
-  box-shadow: var(--shadow);
-  border-color: var(--border2);
+@media (hover: hover) and (pointer: fine) {
+  .recent-card:hover {
+    box-shadow: var(--shadow);
+    border-color: var(--border2);
+  }
 }
 
 .recent-card:active {
@@ -991,8 +1001,10 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
-.buchung-item:hover {
-  box-shadow: var(--shadow);
+@media (hover: hover) and (pointer: fine) {
+  .buchung-item:hover {
+    box-shadow: var(--shadow);
+  }
 }
 
 .buchung-item:active {
@@ -1104,8 +1116,10 @@ a {
   border-left: 4px solid var(--orange);
 }
 
-.buchung-item--umlage:hover {
-  background: var(--surface2);
+@media (hover: hover) and (pointer: fine) {
+  .buchung-item--umlage:hover {
+    background: var(--surface2);
+  }
 }
 
 .buchung-item__umlage-count {
@@ -1134,9 +1148,11 @@ a {
   transition: color 0.12s, background 0.12s;
 }
 
-.buchung-item__delete:hover {
-  color: var(--red);
-  background: var(--red-bg);
+@media (hover: hover) and (pointer: fine) {
+  .buchung-item__delete:hover {
+    color: var(--red);
+    background: var(--red-bg);
+  }
 }
 
 /* ── Filter Bar ──────────────────────────────────── */
@@ -1183,7 +1199,7 @@ a {
   color: var(--text-dim);
   font-size: 0.8rem;
   font-weight: 500;
-  transition: all 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s, box-shadow 0.12s;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
 }
@@ -1196,7 +1212,8 @@ a {
 }
 
 .filter-btn:active {
-  opacity: 0.7;
+  transform: scale(0.96);
+  opacity: 0.8;
 }
 
 /* ── Modal Overlay ───────────────────────────────── */
@@ -1209,13 +1226,24 @@ a {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  animation: fadeIn 0.15s ease;
+  opacity: 1;
+  transition: opacity 0.15s ease-out;
   backdrop-filter: blur(2px);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@starting-style {
+  .modal-overlay { opacity: 0; }
+  .bottom-sheet  { transform: translateY(100%); }
+}
+
+.modal-overlay.is-closing {
+  opacity: 0;
+  transition: opacity 0.18s ease-in;
+}
+
+.bottom-sheet.is-closing {
+  transform: translateY(100%);
+  transition: transform 0.18s ease-in;
 }
 
 /* ── Bottom Sheet ────────────────────────────────── */
@@ -1229,7 +1257,8 @@ a {
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.22s ease;
+  transform: translateY(0);
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
 }
@@ -1478,8 +1507,10 @@ a {
   flex-shrink: 0;
 }
 
-.member-item__edit:hover  { color: var(--color-brand);  background: var(--color-brand-subtle); }
-.member-item__delete:hover { color: var(--red);   background: var(--red-bg); }
+@media (hover: hover) and (pointer: fine) {
+  .member-item__edit:hover   { color: var(--color-brand); background: var(--color-brand-subtle); }
+  .member-item__delete:hover { color: var(--red);         background: var(--red-bg); }
+}
 
 .member-funktion-badge {
   display: inline-block;
@@ -1764,9 +1795,11 @@ a {
   border-radius: var(--r-sm);
 }
 
-.kategorie-item__delete:hover {
-  color: var(--red);
-  background: var(--red-bg);
+@media (hover: hover) and (pointer: fine) {
+  .kategorie-item__delete:hover {
+    color: var(--red);
+    background: var(--red-bg);
+  }
 }
 
 .settings-item--link {
@@ -1786,7 +1819,9 @@ a {
   text-align: left;
 }
 
-.settings-item--link:hover { background: var(--surface2); }
+@media (hover: hover) and (pointer: fine) {
+  .settings-item--link:hover { background: var(--surface2); }
+}
 
 /* ── Toggle Button ───────────────────────────────── */
 
@@ -1800,7 +1835,7 @@ a {
   color: var(--text-dim);
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
   white-space: nowrap;
 }
 
@@ -1859,9 +1894,11 @@ a {
   white-space: nowrap;
 }
 
-.segmented__item:hover:not(.is-active) {
-  background: var(--color-surface-alt);
-  color: var(--color-text);
+@media (hover: hover) and (pointer: fine) {
+  .segmented__item:hover:not(.is-active) {
+    background: var(--color-surface-alt);
+    color: var(--color-text);
+  }
 }
 
 .segmented__item.is-active {
@@ -1908,8 +1945,10 @@ a {
   box-shadow: var(--shadow-sm);
 }
 
-.umlage-card:hover {
-  box-shadow: var(--shadow-md);
+@media (hover: hover) and (pointer: fine) {
+  .umlage-card:hover {
+    box-shadow: var(--shadow-md);
+  }
 }
 
 .umlage-card:active {
@@ -2112,7 +2151,7 @@ a {
   background: var(--surface2);
   color: var(--text-dim);
   cursor: pointer;
-  transition: all 0.12s;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
 .umlage-action-btn:disabled {
@@ -2126,9 +2165,11 @@ a {
   color: var(--green);
 }
 
-.umlage-action-btn--bezahlt:not(.active):not(:disabled):hover {
-  background: var(--green-bg);
-  color: var(--green);
+@media (hover: hover) and (pointer: fine) {
+  .umlage-action-btn--bezahlt:not(.active):not(:disabled):hover {
+    background: var(--green-bg);
+    color: var(--green);
+  }
 }
 
 .umlage-action-btn--befreit.active {
@@ -2141,9 +2182,11 @@ a {
   padding: 4px 6px;
 }
 
-.umlage-action-btn--remove:hover {
-  background: var(--red-bg);
-  color: var(--red);
+@media (hover: hover) and (pointer: fine) {
+  .umlage-action-btn--remove:hover {
+    background: var(--red-bg);
+    color: var(--red);
+  }
 }
 
 /* ── Feedback View ───────────────────────────────── */
@@ -2425,9 +2468,15 @@ a {
 /* ── Reduced Motion ──────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-  .modal-overlay { animation: none; }
-  .bottom-sheet  { animation: none; }
-  .spin          { animation: none !important; }
+  .modal-overlay,
+  .bottom-sheet,
+  .quick-sheet   { transition: none; }
+  .spin,
+  .skeleton      { animation: none !important; }
+  .splash-logo,
+  .splash-text,
+  .splash-progress { animation: none; opacity: 1; transform: none; }
+  .toast         { transition: none; }
   .action-card,
   .recent-card,
   .umlage-card   { transition: opacity 0.1s; }
@@ -2719,7 +2768,7 @@ a {
 }
 
 @keyframes splash-logo-in {
-  0%   { transform: scale(0.72); opacity: 0; }
+  0%   { transform: scale(0.88); opacity: 0; }
   100% { transform: scale(1);    opacity: 1; }
 }
 
@@ -2762,7 +2811,7 @@ a {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
   font-size: 0.85rem;
-  animation: toast-in 0.2s ease;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 
 .toast--success { background: var(--green-700); color: #fff; }
@@ -2789,9 +2838,8 @@ a {
   line-height: 1;
 }
 
-@keyframes toast-in {
-  from { transform: translateY(12px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+@starting-style {
+  .toast { transform: translateY(12px); opacity: 0; }
 }
 
 /* ── Skeleton ────────────────────────────────────── */
@@ -2805,7 +2853,7 @@ a {
     var(--color-surface-alt) 100%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+  animation: shimmer 1.4s linear infinite;
 }
 
 @keyframes shimmer {
@@ -2849,16 +2897,19 @@ a {
   padding: 12px 20px calc(var(--sab) + 24px);
   box-shadow: var(--shadow-lg);
   transform: translateY(calc(-1 * var(--kbd-offset, 0px)));
-  transition: transform 0.15s ease;
+  transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: sheet-in 0.25s cubic-bezier(0.32,0.72,0,1);
 }
 
-@keyframes sheet-in {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(calc(-1 * var(--kbd-offset, 0px))); }
+@starting-style {
+  .quick-sheet { transform: translateY(100%); }
+}
+
+.quick-sheet.is-closing {
+  transform: translateY(100%);
+  transition: transform 0.18s ease-in;
 }
 
 .quick-sheet__handle {

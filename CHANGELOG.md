@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.9.0 — 2026-05-19
+
+- **Design: Typografie** — Figtree (Body) und Fira Code (Zahlen/Betraege) ersetzen Plus Jakarta Sans und DM Mono; Fira Code mit slashed zero fuer Finanzzahlen
+- **Design: Animationen** — Sheet und Modal oeffnen per CSS-Transition (`@starting-style`) statt Keyframe; Schliessen mit 180ms Exit-Animation
+- **Design: Hover** — Alle Hover-Effekte nur noch auf Geraeten mit Zeiger aktiv (`pointer: fine`); kein haengendes Highlight auf Touch
+- **Design: Shimmer** — Skeleton-Ladeanimation laeuft jetzt gleichmaessig (`linear` statt `ease-in-out`)
+- **Design: Reduzierte Bewegung** — Splash, Toast, Skeleton und alle Sheets werden von `prefers-reduced-motion` abgedeckt
+- **Design: Kleinigkeiten** — Splash-Logo startet von `scale(0.88)` statt `scale(0.72)`; Filter-Buttons geben beim Tippen jetzt skalierendes Feedback
+
 ## v2.8.0 — 2026-05-18
 
 - **Dashboard: Bento Grid** — Einnahmen und Ausgaben nebeneinander, Schnellaktionen als horizontale Karten mit Icon links und Label rechts
