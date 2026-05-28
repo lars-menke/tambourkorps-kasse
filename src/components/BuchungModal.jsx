@@ -4,7 +4,8 @@ import { pushBeleg, deleteBeleg } from '../utils/sync';
 import { generateId, todayIso } from '../utils/imageUtils';
 import BelegUpload from './BelegUpload';
 import { useClosingAnimation } from '../hooks/useClosingAnimation';
-import { getMetaSchema, getMetaSchemaFromRecord } from '../lib/kategorieMeta';
+import { getMetaSchemaFromRecord } from '../lib/kategorieMeta';
+import { fmtEur, roundCents } from '../utils/format';
 
 async function saveVorlage({ name, typ, betrag, kategorieId, kategorieName, notiz }) {
   await dbPut('vorlagen', {
@@ -20,8 +21,6 @@ async function saveVorlage({ name, typ, betrag, kategorieId, kategorieName, noti
     erstellt: new Date().toISOString(),
   });
 }
-
-const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 
 export default function BuchungModal({ buchung, onSave, onClose }) {
   const isEdit = Boolean(buchung);
@@ -61,11 +60,13 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
     if (e.target === e.currentTarget) handleClose();
   }, [handleClose]);
 
+  // handleClose (nicht onClose) als Dependency — handleClose ist die stabile
+  // Referenz aus useClosingAnimation, die auch die Exit-Animation ausfuehrt.
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
+  }, [handleClose]);
 
   function handleKategorieChange(newId) {
     setKategorieId(newId);
@@ -80,7 +81,8 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
 
   const betragNum    = parseFloat(String(betrag).replace(',', '.')) || 0;
   const trinkgeldNum = hatTrinkgeld ? (parseFloat(String(trinkgeld).replace(',', '.')) || 0) : 0;
-  const gesamtNum    = betragNum + trinkgeldNum;
+  // roundCents verhindert Fliesskomma-Fehler beim Summieren
+  const gesamtNum    = roundCents(betragNum + trinkgeldNum);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -104,7 +106,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
       const hasMeta = metaEntries.length > 0 || trinkgeldNum > 0;
       const metaRecord = hasMeta ? {
         ...Object.fromEntries(metaEntries),
-        ...(trinkgeldNum > 0 ? { betragBase: betragNum, trinkgeld: trinkgeldNum } : {}),
+        ...(trinkgeldNum > 0 ? { betragBase: roundCents(betragNum), trinkgeld: roundCents(trinkgeldNum) } : {}),
       } : null;
 
       const record = {
@@ -129,7 +131,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
         await saveVorlage({
           name: vorlageName.trim(),
           typ,
-          betrag: betragNum,
+          betrag: roundCents(betragNum),
           kategorieId: kategorieId || null,
           kategorieName,
           notiz: notiz.trim() || null,
@@ -270,7 +272,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
               )}
               {hatTrinkgeld && trinkgeldNum > 0 && betragNum > 0 && (
                 <div className="trinkgeld-total">
-                  {fmt(betragNum)} + {fmt(trinkgeldNum)} Trinkgeld = <strong>{fmt(gesamtNum)}</strong>
+                  {fmtEur(betragNum)} + {fmtEur(trinkgeldNum)} Trinkgeld = <strong>{fmtEur(gesamtNum)}</strong>
                 </div>
               )}
             </div>

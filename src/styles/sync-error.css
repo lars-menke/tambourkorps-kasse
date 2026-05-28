@@ -1,0 +1,12 @@
+/* Sync-Fehler-Banner (DashboardPage) */
+
+.sync-error-banner {
+  margin: 0 var(--space-lg) var(--space-md);
+  padding: 10px var(--space-md);
+  background: color-mix(in srgb, var(--red) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--red) 30%, transparent);
+  border-radius: var(--radius);
+  color: var(--red);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}

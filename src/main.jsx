@@ -8,6 +8,7 @@ import { ToastProvider } from './components/ToastProvider';
 import { initTheme } from './lib/theme';
 import { isEnabled } from './lib/biometrics';
 import './index.css';
+import './styles/sync-error.css';
 
 initTheme();
 

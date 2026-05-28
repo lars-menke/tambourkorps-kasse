@@ -19,19 +19,16 @@ const FUNKTION_BADGE = {
   kassenwart:   { label: 'KW',    title: 'Kassenwart' },
 };
 
-// Anzeigename: "Nachname, Vorname" wenn beide vorhanden, sonst name
 function displayName(m) {
   if (m.nachname && m.vorname) return `${m.nachname}, ${m.vorname}`;
   if (m.nachname) return m.nachname;
   return m.name ?? '';
 }
 
-// Sortierschlüssel: Nachname zuerst
 function sortKey(m) {
   return (m.nachname ?? m.name ?? '').toLowerCase();
 }
 
-// Beim Speichern: name-Feld für Abwärtskompatibilität (Umlage-Notiz etc.)
 function computeName(vorname, nachname) {
   const v = vorname.trim();
   const n = nachname.trim();
@@ -42,15 +39,21 @@ function computeName(vorname, nachname) {
 export default function MitgliederPage() {
   const { titleRef, compact } = useLargeTitle();
   const [mitglieder, setMitglieder] = useState([]);
-  const [editMember, setEditMember] = useState(null); // null | {} (neu) | {...} (bearbeiten)
+  const [editMember, setEditMember] = useState(null);
+  const [loadError, setLoadError] = useState(null);
 
   const load = useCallback(async () => {
-    const data = await dbGetAll('mitglieder');
-    const sorted = [...data].sort((a, b) => {
-      if (a.aktiv !== b.aktiv) return a.aktiv ? -1 : 1;
-      return sortKey(a).localeCompare(sortKey(b), 'de');
-    });
-    setMitglieder(sorted);
+    setLoadError(null);
+    try {
+      const data = await dbGetAll('mitglieder');
+      const sorted = [...data].sort((a, b) => {
+        if (a.aktiv !== b.aktiv) return a.aktiv ? -1 : 1;
+        return sortKey(a).localeCompare(sortKey(b), 'de');
+      });
+      setMitglieder(sorted);
+    } catch (err) {
+      setLoadError('Daten konnten nicht geladen werden: ' + err.message);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -60,7 +63,6 @@ export default function MitgliederPage() {
   }, [load]);
 
   async function handleSave(record) {
-    // Wenn eine Funktion vergeben wird: bisherigen Träger dieser Funktion entfernen
     if (record.funktion) {
       const all = await dbGetAll('mitglieder');
       for (const m of all) {
@@ -104,7 +106,9 @@ export default function MitgliederPage() {
       </header>
       <h1 ref={titleRef} className="page-large-title">Mitglieder</h1>
 
-      {mitglieder.length === 0 ? (
+      {loadError ? (
+        <EmptyState title="Fehler beim Laden" description={loadError} />
+      ) : mitglieder.length === 0 ? (
         <EmptyState
           title="Noch keine Mitglieder"
           description="Füge dein erstes Mitglied hinzu, um Umlagen zu verwalten."
@@ -221,7 +225,7 @@ function MemberModal({ member, onSave, onClose }) {
   const [aktiv,    setAktiv]    = useState(member?.aktiv    ?? true);
   const [saving,   setSaving]   = useState(false);
 
-  // Für alte Einträge ohne vorname/nachname: name in Felder aufteilen
+  // Fuer alte Eintraege ohne vorname/nachname: name in Felder aufteilen
   useEffect(() => {
     if (isEdit && !member.vorname && !member.nachname && member.name) {
       const parts = member.name.split(',').map(s => s.trim());
@@ -232,7 +236,7 @@ function MemberModal({ member, onSave, onClose }) {
         setNachname(parts[0]);
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose(); };

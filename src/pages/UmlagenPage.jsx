@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLargeTitle } from '../hooks/useLargeTitle';
 import { dbGetAll } from '../services/db';
+import { fmtEur, roundCents } from '../utils/format';
 import UmlageModal from '../components/UmlageModal';
 
 export default function UmlagenPage() {
@@ -9,25 +10,30 @@ export default function UmlagenPage() {
   const [umlagen, setUmlagen] = useState([]);
   const [statusMap, setStatusMap] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [loadError, setLoadError] = useState(null);
   const navigate = useNavigate();
 
   const load = useCallback(async () => {
-    const [uList, sList] = await Promise.all([
-      dbGetAll('umlagen'),
-      dbGetAll('umlage_status'),
-    ]);
-    const sorted = [...uList].sort((a, b) =>
-      (b.erstellt ?? '').localeCompare(a.erstellt ?? '')
-    );
-    setUmlagen(sorted);
+    setLoadError(null);
+    try {
+      const [uList, sList] = await Promise.all([
+        dbGetAll('umlagen'),
+        dbGetAll('umlage_status'),
+      ]);
+      const sorted = [...uList].sort((a, b) =>
+        (b.erstellt ?? '').localeCompare(a.erstellt ?? '')
+      );
+      setUmlagen(sorted);
 
-    // Group statuses by umlage_id
-    const map = {};
-    for (const s of sList) {
-      if (!map[s.umlage_id]) map[s.umlage_id] = [];
-      map[s.umlage_id].push(s);
+      const map = {};
+      for (const s of sList) {
+        if (!map[s.umlage_id]) map[s.umlage_id] = [];
+        map[s.umlage_id].push(s);
+      }
+      setStatusMap(map);
+    } catch (err) {
+      setLoadError('Daten konnten nicht geladen werden: ' + err.message);
     }
-    setStatusMap(map);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -52,7 +58,9 @@ export default function UmlagenPage() {
       </header>
       <h1 ref={titleRef} className="page-large-title">Umlagen</h1>
 
-      {umlagen.length === 0 ? (
+      {loadError ? (
+        <div className="empty-state"><p>{loadError}</p></div>
+      ) : umlagen.length === 0 ? (
         <div className="empty-state">
           <p>Noch keine Umlagen vorhanden.</p>
           <p>Tippe auf „+ Neu" um eine Umlage anzulegen.</p>
@@ -67,8 +75,9 @@ export default function UmlagenPage() {
             const offen = total - bezahlt - befreit;
             const erledigt = total > 0 && offen === 0;
             const progress = total > 0 ? bezahlt / (total - befreit) : 0;
-            const erwartet = (total - befreit) * u.betrag_pro_kopf;
-            const gesammelt = bezahlt * u.betrag_pro_kopf;
+            // roundCents verhindert Fliesskomma-Akkumulation bei vielen Mitgliedern
+            const erwartet = roundCents((total - befreit) * u.betrag_pro_kopf);
+            const gesammelt = roundCents(bezahlt * u.betrag_pro_kopf);
 
             return (
               <li key={u.id} className={`umlage-card${erledigt ? ' umlage-card--erledigt' : ''}`} onClick={() => navigate(`/umlagen/${u.id}`)}>
@@ -85,7 +94,7 @@ export default function UmlagenPage() {
                     )}
                   </div>
                   <div className="umlage-card__betrag">
-                    {fmt(u.betrag_pro_kopf)} <span>/ Person</span>
+                    {fmtEur(u.betrag_pro_kopf)} <span>/ Person</span>
                   </div>
                 </div>
 
@@ -97,7 +106,7 @@ export default function UmlagenPage() {
                     />
                   </div>
                   <div className="umlage-progress__label">
-                    {fmt(gesammelt)} von {fmt(erwartet)}
+                    {fmtEur(gesammelt)} von {fmtEur(erwartet)}
                   </div>
                 </div>
 
@@ -122,8 +131,4 @@ export default function UmlagenPage() {
       )}
     </div>
   );
-}
-
-function fmt(n) {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 }

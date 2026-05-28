@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { dbGet, dbGetAll, dbPut, dbDelete } from '../services/db';
 import { generateId, todayIso } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
+import { fmtEur, roundCents } from '../utils/format';
 import UmlageModal from '../components/UmlageModal';
 
 export default function UmlageDetailPage() {
@@ -11,26 +12,30 @@ export default function UmlageDetailPage() {
   const [umlage, setUmlage] = useState(null);
   const [mitglieder, setMitglieder] = useState([]);
   const [statuses, setStatuses] = useState([]);
+  const [loadError, setLoadError] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingVal, setEditingVal] = useState('');
 
   const load = useCallback(async () => {
-    const [u, allMitglieder, allStatus] = await Promise.all([
-      dbGet('umlagen', id),
-      dbGetAll('mitglieder'),
-      dbGetAll('umlage_status'),
-    ]);
-    if (!u) { navigate('/umlagen', { replace: true }); return; }
-    setUmlage(u);
+    setLoadError(null);
+    try {
+      const [u, allMitglieder, allStatus] = await Promise.all([
+        dbGet('umlagen', id),
+        dbGetAll('mitglieder'),
+        dbGetAll('umlage_status'),
+      ]);
+      if (!u) { navigate('/umlagen', { replace: true }); return; }
+      setUmlage(u);
 
-    // Members of this umlage
-    const memberMap = Object.fromEntries(allMitglieder.map(m => [m.id, m]));
-    setMitglieder(memberMap);
+      const memberMap = Object.fromEntries(allMitglieder.map(m => [m.id, m]));
+      setMitglieder(memberMap);
 
-    // Statuses for this umlage
-    const myStatuses = allStatus.filter(s => s.umlage_id === id);
-    setStatuses(myStatuses);
+      const myStatuses = allStatus.filter(s => s.umlage_id === id);
+      setStatuses(myStatuses);
+    } catch (err) {
+      setLoadError('Daten konnten nicht geladen werden: ' + err.message);
+    }
   }, [id, navigate]);
 
   useEffect(() => { load(); }, [load]);
@@ -40,15 +45,21 @@ export default function UmlageDetailPage() {
   }
 
   async function handleAmountSave(status) {
-    const val = parseFloat(editingVal.replace(',', '.'));
+    const val = roundCents(parseFloat(editingVal.replace(',', '.')));
     setEditingId(null);
     if (isNaN(val) || val <= 0) return;
 
     const individuell = val === umlage.betrag_pro_kopf ? null : val;
-    await dbPut('umlage_status', { ...status, betrag_individuell: individuell });
 
-    if (status.status === 'bezahlt' && status.buchung_id) {
-      const buchung = await dbGet('buchungen', status.buchung_id);
+    // Frischen Status aus der DB lesen, um Race-Condition mit einem laufenden
+    // Sync (dbReplaceAll) zu vermeiden — nie veraltete Closure-Daten schreiben.
+    const freshStatus = await dbGet('umlage_status', [status.umlage_id, status.mitglied_id]);
+    const currentStatus = freshStatus ?? status;
+
+    await dbPut('umlage_status', { ...currentStatus, betrag_individuell: individuell });
+
+    if (currentStatus.status === 'bezahlt' && currentStatus.buchung_id) {
+      const buchung = await dbGet('buchungen', currentStatus.buchung_id);
       if (buchung) {
         await dbPut('buchungen', { ...buchung, betrag: val });
         pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
@@ -61,7 +72,6 @@ export default function UmlageDetailPage() {
 
   async function handleBezahlt(status) {
     if (status.status === 'bezahlt') {
-      // Undo: delete booking, set back to offen
       if (status.buchung_id) {
         await dbDelete('buchungen', status.buchung_id);
       }
@@ -69,13 +79,12 @@ export default function UmlageDetailPage() {
         ...status, status: 'offen', bezahlt_am: null, buchung_id: null,
       });
     } else {
-      // Mark as bezahlt → create Buchung
       const buchungId = generateId('b');
       const m = mitglieder[status.mitglied_id];
       await dbPut('buchungen', {
         id: buchungId,
         typ: 'einzahlung',
-        betrag: effectiveBetrag(status),
+        betrag: roundCents(effectiveBetrag(status)),
         datum: umlage.faelligkeit || todayIso(),
         kategorie_id: 'k_umlage',
         kategorie: 'Umlage',
@@ -145,13 +154,11 @@ export default function UmlageDetailPage() {
       );
     }
 
-    // Umlage-Status löschen
     const allStatus = await dbGetAll('umlage_status');
     for (const s of allStatus.filter(s => s.umlage_id === id)) {
       await dbDelete('umlage_status', [s.umlage_id, s.mitglied_id]);
     }
 
-    // Buchungen löschen oder zu Einzelbuchungen konvertieren
     if (buchungenLoeschen) {
       for (const b of zugehoerig) {
         await dbDelete('buchungen', b.id);
@@ -172,14 +179,35 @@ export default function UmlageDetailPage() {
     }
   }
 
+  if (loadError) {
+    return (
+      <div className="page">
+        <header className="page-header">
+          <button className="btn btn--icon" onClick={() => navigate(-1)} aria-label="Zurück">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} width={20} height={20}>
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <h1 style={{ flex: 1, textAlign: 'center' }}>Fehler</h1>
+          <span style={{ width: 36 }} />
+        </header>
+        <div className="empty-state"><p>{loadError}</p></div>
+      </div>
+    );
+  }
+
   if (!umlage) return null;
 
   const bezahlt = statuses.filter(s => s.status === 'bezahlt').length;
   const befreit = statuses.filter(s => s.status === 'befreit').length;
   const gesamt = statuses.length;
   const zahlend = gesamt - befreit;
-  const erwartet = statuses.filter(s => s.status !== 'befreit').reduce((sum, s) => sum + effectiveBetrag(s), 0);
-  const gesammelt = statuses.filter(s => s.status === 'bezahlt').reduce((sum, s) => sum + effectiveBetrag(s), 0);
+  const erwartet = roundCents(
+    statuses.filter(s => s.status !== 'befreit').reduce((sum, s) => sum + effectiveBetrag(s), 0)
+  );
+  const gesammelt = roundCents(
+    statuses.filter(s => s.status === 'bezahlt').reduce((sum, s) => sum + effectiveBetrag(s), 0)
+  );
 
   return (
     <div className="page">
@@ -205,10 +233,9 @@ export default function UmlageDetailPage() {
         </button>
       </header>
 
-      {/* Summary */}
       <div className="umlage-detail-summary">
         <div className="umlage-detail-info">
-          <span>{fmt(umlage.betrag_pro_kopf)} / Person</span>
+          <span>{fmtEur(umlage.betrag_pro_kopf)} / Person</span>
           {umlage.faelligkeit && (
             <span>Fällig {new Date(umlage.faelligkeit).toLocaleDateString('de-DE')}</span>
           )}
@@ -217,11 +244,11 @@ export default function UmlageDetailPage() {
         <div className="umlage-detail-totals">
           <div className="umlage-total">
             <div className="umlage-total__label">Gesammelt</div>
-            <div className="umlage-total__value umlage-total__value--green">{fmt(gesammelt)}</div>
+            <div className="umlage-total__value umlage-total__value--green">{fmtEur(gesammelt)}</div>
           </div>
           <div className="umlage-total">
             <div className="umlage-total__label">Erwartet</div>
-            <div className="umlage-total__value">{fmt(erwartet)}</div>
+            <div className="umlage-total__value">{fmtEur(erwartet)}</div>
           </div>
         </div>
 
@@ -238,7 +265,6 @@ export default function UmlageDetailPage() {
         </div>
       </div>
 
-      {/* Member List */}
       <ul className="umlage-member-list">
         {statuses.map(s => {
           const m = mitglieder[s.mitglied_id];
@@ -268,7 +294,7 @@ export default function UmlageDetailPage() {
                     onClick={() => { setEditingId(s.mitglied_id); setEditingVal(String(effectiveBetrag(s))); }}
                     title="Betrag anpassen"
                   >
-                    {fmt(effectiveBetrag(s))}
+                    {fmtEur(effectiveBetrag(s))}
                   </button>
                 )}
               </div>
@@ -315,8 +341,4 @@ export default function UmlageDetailPage() {
       )}
     </div>
   );
-}
-
-function fmt(n) {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 }

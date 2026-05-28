@@ -7,6 +7,20 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.10.2',
+    datum: '2026-05-28',
+    aenderungen: [
+      'Codequalitaet: Zentrale Formatierungs-Utility (fmtEur, roundCents)',
+      'Stabilitaet: try/catch fuer IndexedDB-Zugriffe in allen Pages',
+      'Sicherheit: GitHub-Token in sessionStorage statt localStorage',
+      'Sicherheit: Token erst nach erfolgreicher Validierung gespeichert',
+      'Bugfix: Belege werden beim Loeschen einer Buchung korrekt mitentfernt',
+      'Bugfix: pushStore fuer Vorlagen nach dem Loeschen ergaenzt',
+      'Bugfix: useEffect-Dependencies in Modals korrigiert',
+      'Bugfix: Sync-Fehler werden sichtbar im Dashboard angezeigt',
+    ],
+  },
+  {
     version: '2.10.1',
     datum: '2026-05-28',
     aenderungen: [

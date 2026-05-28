@@ -3,6 +3,12 @@ import { useClosingAnimation } from '../hooks/useClosingAnimation';
 import { dbGetAll, dbPutMany, dbPut } from '../services/db';
 import { generateId } from '../utils/imageUtils';
 import { pushStore } from '../utils/sync';
+import { fmtEur, roundCents } from '../utils/format';
+
+// Sortierschluessel konsistent mit MitgliederPage (Nachname-first)
+function sortKeyMitglied(m) {
+  return (m.nachname ?? m.name ?? '').toLowerCase();
+}
 
 export default function UmlageModal({ onSave, onClose, umlage = null }) {
   const isEdit = Boolean(umlage);
@@ -17,22 +23,25 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
   useEffect(() => {
     if (isEdit) return; // Mitgliederauswahl nur beim Neuanlegen
     dbGetAll('mitglieder').then(data => {
-      const aktive = data.filter(m => m.aktiv).sort((a, b) => a.name.localeCompare(b.name, 'de'));
+      // Sortierung nach Nachname — konsistent mit MitgliederPage (Nr. 16)
+      const aktive = data.filter(m => m.aktiv).sort((a, b) =>
+        sortKeyMitglied(a).localeCompare(sortKeyMitglied(b), 'de')
+      );
       setMitglieder(aktive);
-      // Select all active members by default
       setSelected(new Set(aktive.map(m => m.id)));
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBackdrop = useCallback((e) => {
     if (e.target === e.currentTarget) handleClose();
   }, [handleClose]);
 
+  // handleClose als Dependency (stabil, fuehrt Exit-Animation aus)
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
+  }, [handleClose]);
 
   function toggleMember(id) {
     setSelected(prev => {
@@ -51,7 +60,7 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
   }
 
   const betragNum = parseFloat(betrag.replace(',', '.'));
-  const total = selected.size * (isNaN(betragNum) ? 0 : betragNum);
+  const total = roundCents(selected.size * (isNaN(betragNum) ? 0 : betragNum));
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -64,7 +73,7 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
         await dbPut('umlagen', {
           ...umlage,
           anlass: anlass.trim(),
-          betrag_pro_kopf: betragNum,
+          betrag_pro_kopf: roundCents(betragNum),
           faelligkeit: faelligkeit || null,
         });
         pushStore('umlagen', 'data/umlagen.json').catch(console.warn);
@@ -75,17 +84,15 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
       const umlageId = generateId('u');
       const now = new Date().toISOString();
 
-      // Save Umlage
       await dbPut('umlagen', {
         id: umlageId,
         anlass: anlass.trim(),
-        betrag_pro_kopf: betragNum,
+        betrag_pro_kopf: roundCents(betragNum),
         faelligkeit: faelligkeit || null,
         mitglieder_ids: [...selected],
         erstellt: now,
       });
 
-      // Create status records (offen) for each selected member
       const statusRecords = [...selected].map(mitgliedId => ({
         umlage_id: umlageId,
         mitglied_id: mitgliedId,
@@ -193,7 +200,7 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
                 <div className="umlage-total-preview">
                   <span>Gesamtbetrag</span>
                   <span className="umlage-total-preview__value">
-                    {selected.size} × {fmt(betragNum)} = <strong>{fmt(total)}</strong>
+                    {selected.size} × {fmtEur(betragNum)} = <strong>{fmtEur(total)}</strong>
                   </span>
                 </div>
               )}
@@ -211,8 +218,4 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
       </div>
     </div>
   );
-}
-
-function fmt(n) {
-  return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
 }

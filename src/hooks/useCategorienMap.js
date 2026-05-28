@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { dbGetAll } from '../services/db';
 
-// Returns a map of { [name]: { icon, color } } from IndexedDB kategorien
+// Returns a map of { [name]: { icon, color } } from IndexedDB kategorien.
+// load ist via useCallback stabil, damit der Event-Listener korrekt entfernt
+// werden kann (removeEventListener benoetigt exakt dieselbe Referenz).
 export function useCategorienMap() {
   const [map, setMap] = useState({});
 
-  async function load() {
+  const load = useCallback(async () => {
     try {
       const data = await dbGetAll('kategorien');
       const m = {};
@@ -13,14 +15,16 @@ export function useCategorienMap() {
         if (k.name) m[k.name] = { icon: k.icon, color: k.color };
       }
       setMap(m);
-    } catch {/* ignore */}
-  }
+    } catch {
+      // Fehler beim DB-Zugriff ignorieren — Map bleibt leer
+    }
+  }, []);
 
   useEffect(() => {
     load();
     window.addEventListener('tk-sync-complete', load);
     return () => window.removeEventListener('tk-sync-complete', load);
-  }, []);
+  }, [load]);
 
   return map;
 }

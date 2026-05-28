@@ -2,8 +2,11 @@ import { TOKEN_KEY } from '../constants';
 
 const API_BASE = 'https://api.github.com';
 
+// Token wird aus sessionStorage gelesen (sicherer als localStorage,
+// da er nicht persistent im Browser gespeichert bleibt).
+// useToken kummert sich um die Migration von alten localStorage-Eintraegen.
 function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  return sessionStorage.getItem(TOKEN_KEY) ?? localStorage.getItem(TOKEN_KEY) ?? '';
 }
 
 function headers() {

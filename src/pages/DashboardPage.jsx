@@ -13,6 +13,7 @@ import { QuickAddSheet } from '../components/QuickAddSheet';
 import { VorlagenSheet } from '../components/VorlagenSheet';
 import { metaZusammenfassung } from '../lib/kategorieMeta';
 import { DashboardSkeleton } from '../components/skeletons/DashboardSkeleton';
+import { fmtEur } from '../utils/format';
 
 const fmtDatum = (datum) =>
   datum ? new Date(datum + 'T12:00:00').toLocaleDateString('de-DE', {
@@ -29,7 +30,6 @@ function buildSparkline(buchungen, days = 30) {
   const points = [];
   let running = 0;
 
-  // Sum all buchungen before the window as baseline
   const cutoff = new Date(now);
   cutoff.setDate(cutoff.getDate() - days);
   for (const b of buchungen) {
@@ -99,10 +99,39 @@ function buildDonutEin(buchungen) {
     .slice(0, 6);
 }
 
+// Eigenstaendige Komponente statt IIFE im JSX-Body — lesbar und optimierbar
+function DonutSwipe({ donutData, donutEinData, ausgaben }) {
+  const [ansicht, setAnsicht] = useState(0); // 0=ausgaben, 1=einnahmen
+  const touchRef = useRef({ startX: 0 });
+  const showSwipe = ausgaben > 0 && donutEinData.length > 0;
+  const activeData  = ansicht === 0 ? donutData : donutEinData;
+  const activeTitle = ansicht === 0 ? 'Ausgaben nach Kategorie' : 'Einnahmen nach Kategorie';
+
+  return (
+    <div
+      className="donut-swipe-wrapper"
+      onTouchStart={e => { touchRef.current.startX = e.touches[0].clientX; }}
+      onTouchEnd={e => {
+        if (!showSwipe) return;
+        const dx = e.changedTouches[0].clientX - touchRef.current.startX;
+        if (Math.abs(dx) > 40) setAnsicht(dx < 0 ? 1 : 0);
+      }}
+    >
+      <CategoryDonut data={activeData} title={activeTitle} />
+      {showSwipe && (
+        <div className="donut-dots">
+          <button className={`donut-dot${ansicht === 0 ? ' donut-dot--active' : ''}`} onClick={() => setAnsicht(0)} aria-label="Ausgaben" />
+          <button className={`donut-dot${ansicht === 1 ? ' donut-dot--active' : ''}`} onClick={() => setAnsicht(1)} aria-label="Einnahmen" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function DashboardPage() {
   const { titleRef, compact } = useLargeTitle();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [kassenstand, setKassenstand] = useState(null);
   const [einnahmen, setEinnahmen] = useState(0);
   const [ausgaben, setAusgaben] = useState(0);
@@ -111,58 +140,62 @@ export default function DashboardPage() {
   const [letzteUmlage, setLetzteUmlage] = useState(null);
   const [sparkData, setSparkData] = useState([]);
   const [deltaInfo, setDeltaInfo] = useState({ delta: 0, label: '' });
-  const [donutData, setDonutData]         = useState([]);
-  const [donutEinData, setDonutEinData]   = useState([]);
-  const [donutAnsicht, setDonutAnsicht]   = useState(0); // 0=ausgaben, 1=einnahmen
-  const [quickAddOpen, setQuickAddOpen]   = useState(false);
-  const [quickAddTyp, setQuickAddTyp]     = useState(null);
-  const [quickAddFill, setQuickAddFill]   = useState({ betrag: '', kategorie: '' });
-  const [vorlagenOpen, setVorlagenOpen]   = useState(false);
-  const donutTouchRef                     = useRef({ startX: 0 });
-  const { sync, syncing } = useSync();
+  const [donutData, setDonutData]       = useState([]);
+  const [donutEinData, setDonutEinData] = useState([]);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickAddTyp, setQuickAddTyp]   = useState(null);
+  const [quickAddFill, setQuickAddFill] = useState({ betrag: '', kategorie: '' });
+  const [vorlagenOpen, setVorlagenOpen] = useState(false);
+  const { sync, syncing, syncError } = useSync();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const catIcons = useCategorienMap();
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    await initDefaultKategorien();
-    const [buchungen, umlagen, statuses] = await Promise.all([
-      dbGetAll('buchungen'),
-      dbGetAll('umlagen'),
-      dbGetAll('umlage_status'),
-    ]);
+    setLoadError(null);
+    try {
+      await initDefaultKategorien();
+      const [buchungen, umlagen, statuses] = await Promise.all([
+        dbGetAll('buchungen'),
+        dbGetAll('umlagen'),
+        dbGetAll('umlage_status'),
+      ]);
 
-    const normalBuchungen = buchungen.filter(b => !b.umlage_id);
-    setBuchungenCount(buchungen.length);
+      const normalBuchungen = buchungen.filter(b => !b.umlage_id);
+      setBuchungenCount(buchungen.length);
 
-    let ein = 0, aus = 0;
-    for (const b of buchungen) {
-      if (b.typ === 'einzahlung') ein += b.betrag || 0;
-      else if (b.typ === 'auszahlung') aus += b.betrag || 0;
+      let ein = 0, aus = 0;
+      for (const b of buchungen) {
+        if (b.typ === 'einzahlung') ein += b.betrag || 0;
+        else if (b.typ === 'auszahlung') aus += b.betrag || 0;
+      }
+      setEinnahmen(ein);
+      setAusgaben(aus);
+      setKassenstand(ein - aus);
+
+      setSparkData(buildSparkline(buchungen));
+      setDeltaInfo(buildDelta(buchungen));
+      setDonutData(buildDonut(buchungen));
+      setDonutEinData(buildDonutEin(buchungen));
+
+      const sorted = [...normalBuchungen].sort((a, b) => b.datum.localeCompare(a.datum));
+      setLetzteBuchung(sorted[0] ?? null);
+
+      if (umlagen.length > 0) {
+        const lastU = [...umlagen].sort((a, b) => (b.erstellt ?? '').localeCompare(a.erstellt ?? ''))[0];
+        const uStatuses = statuses.filter(s => s.umlage_id === lastU.id);
+        const bezahlt = uStatuses.filter(s => s.status === 'bezahlt').length;
+        const befreit = uStatuses.filter(s => s.status === 'befreit').length;
+        setLetzteUmlage({ ...lastU, bezahlt, befreit, gesamt: uStatuses.length });
+      } else {
+        setLetzteUmlage(null);
+      }
+    } catch (err) {
+      setLoadError('Daten konnten nicht geladen werden: ' + err.message);
+    } finally {
+      setLoading(false);
     }
-    setEinnahmen(ein);
-    setAusgaben(aus);
-    setKassenstand(ein - aus);
-
-    setSparkData(buildSparkline(buchungen));
-    setDeltaInfo(buildDelta(buchungen));
-    setDonutData(buildDonut(buchungen));
-    setDonutEinData(buildDonutEin(buchungen));
-
-    const sorted = [...normalBuchungen].sort((a, b) => b.datum.localeCompare(a.datum));
-    setLetzteBuchung(sorted[0] ?? null);
-
-    if (umlagen.length > 0) {
-      const lastU = [...umlagen].sort((a, b) => (b.erstellt ?? '').localeCompare(a.erstellt ?? ''))[0];
-      const uStatuses = statuses.filter(s => s.umlage_id === lastU.id);
-      const bezahlt = uStatuses.filter(s => s.status === 'bezahlt').length;
-      const befreit = uStatuses.filter(s => s.status === 'befreit').length;
-      setLetzteUmlage({ ...lastU, bezahlt, befreit, gesamt: uStatuses.length });
-    } else {
-      setLetzteUmlage(null);
-    }
-    setLoading(false);
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
@@ -179,10 +212,6 @@ export default function DashboardPage() {
     window.addEventListener('tk-sync-complete', loadData);
     return () => window.removeEventListener('tk-sync-complete', loadData);
   }, [loadData]);
-
-  const fmt = (n) => new Intl.NumberFormat('de-DE', {
-    style: 'currency', currency: 'EUR',
-  }).format(n ?? 0);
 
   return (
     <div className="page">
@@ -202,13 +231,22 @@ export default function DashboardPage() {
         </button>
       </header>
 
+      {syncError && (
+        <div className="sync-error-banner">
+          Sync fehlgeschlagen: {syncError}
+        </div>
+      )}
+
       <PullToRefresh onRefresh={async () => { await sync(); await loadData(); }}>
       <h1 ref={titleRef} className="page-large-title">Übersicht</h1>
       {loading ? (
         <div className="dashboard"><DashboardSkeleton /></div>
+      ) : loadError ? (
+        <div className="dashboard">
+          <EmptyState title="Fehler beim Laden" description={loadError} />
+        </div>
       ) : (
       <div className="dashboard">
-        {/* Kassenstand */}
         <BalanceCard
           balance={kassenstand ?? 0}
           deltaAmount={deltaInfo.delta}
@@ -216,21 +254,19 @@ export default function DashboardPage() {
           history={sparkData}
         />
 
-        {/* Einnahmen / Ausgaben */}
         {buchungenCount > 0 && (
           <div className="dashboard-stats">
             <div className="stat-card stat-card--green">
               <div className="stat-card__label">Einnahmen</div>
-              <div className="stat-card__value">{fmt(einnahmen)}</div>
+              <div className="stat-card__value">{fmtEur(einnahmen)}</div>
             </div>
             <div className="stat-card stat-card--red">
               <div className="stat-card__label">Ausgaben</div>
-              <div className="stat-card__value">{fmt(ausgaben)}</div>
+              <div className="stat-card__value">{fmtEur(ausgaben)}</div>
             </div>
           </div>
         )}
 
-        {/* Schnellaktionen */}
         <div className="dashboard-actions">
           <button className="action-card" onClick={() => setQuickAddOpen(true)}>
             <div className="action-card__icon">
@@ -273,33 +309,14 @@ export default function DashboardPage() {
           />
         )}
 
-        {/* Kategorie-Donut — swipeable zwischen Ausgaben und Einnahmen */}
-        {(ausgaben > 0 || donutEinData.length > 0) && (() => {
-          const showSwipe = ausgaben > 0 && donutEinData.length > 0;
-          const activeData  = donutAnsicht === 0 ? donutData : donutEinData;
-          const activeTitle = donutAnsicht === 0 ? 'Ausgaben nach Kategorie' : 'Einnahmen nach Kategorie';
-          return (
-            <div
-              className="donut-swipe-wrapper"
-              onTouchStart={e => { donutTouchRef.current.startX = e.touches[0].clientX; }}
-              onTouchEnd={e => {
-                if (!showSwipe) return;
-                const dx = e.changedTouches[0].clientX - donutTouchRef.current.startX;
-                if (Math.abs(dx) > 40) setDonutAnsicht(dx < 0 ? 1 : 0);
-              }}
-            >
-              <CategoryDonut data={activeData} title={activeTitle} />
-              {showSwipe && (
-                <div className="donut-dots">
-                  <button className={`donut-dot${donutAnsicht === 0 ? ' donut-dot--active' : ''}`} onClick={() => setDonutAnsicht(0)} aria-label="Ausgaben" />
-                  <button className={`donut-dot${donutAnsicht === 1 ? ' donut-dot--active' : ''}`} onClick={() => setDonutAnsicht(1)} aria-label="Einnahmen" />
-                </div>
-              )}
-            </div>
-          );
-        })()}
+        {(ausgaben > 0 || donutEinData.length > 0) && (
+          <DonutSwipe
+            donutData={donutData}
+            donutEinData={donutEinData}
+            ausgaben={ausgaben}
+          />
+        )}
 
-        {/* Letzte Aktivitäten */}
         {(letzteBuchung || letzteUmlage) && (
           <div className="dashboard-recents">
             <div className="dashboard-recents__title">Zuletzt</div>
@@ -337,7 +354,7 @@ export default function DashboardPage() {
                   </div>
                 )}
                 <div className={`recent-card__betrag recent-card__betrag--${letzteBuchung.typ}`}>
-                  {letzteBuchung.typ === 'einzahlung' ? '+' : '−'}{fmt(letzteBuchung.betrag)}
+                  {letzteBuchung.typ === 'einzahlung' ? '+' : '−'}{fmtEur(letzteBuchung.betrag)}
                 </div>
               </button>
             )}

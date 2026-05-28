@@ -4,8 +4,7 @@ import { fetchBeleg } from '../utils/sync';
 import { getMetaSchemaFromRecord } from '../lib/kategorieMeta';
 import { useClosingAnimation } from '../hooks/useClosingAnimation';
 import { generateId } from '../utils/imageUtils';
-
-const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
+import { fmtEur } from '../utils/format';
 
 const formatBetrag = (betrag, typ) => {
   const formatted = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(betrag);
@@ -34,7 +33,7 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
     }
   }, [buchung.kategorie_id]);
 
-  // Scroll immer ganz nach oben beim Öffnen (iOS-Problem)
+  // Scroll immer ganz nach oben beim Oeffnen (iOS-Problem)
   useEffect(() => {
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
   }, [buchung]);
@@ -68,11 +67,13 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
     if (e.target === e.currentTarget) handleClose();
   }, [handleClose]);
 
+  // handleClose (nicht onClose) als Dependency — handleClose ist die stabile
+  // Referenz aus useClosingAnimation, die auch die Exit-Animation ausfuehrt.
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') handleClose(); };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
+  }, [handleClose]);
 
   async function handleSaveVorlage() {
     if (vorlageSaved) return;
@@ -159,7 +160,7 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
                 <div className="detail-row">
                   <span className="detail-row__label">Trinkgeld</span>
                   <span className="detail-row__value">
-                    {fmt(buchung.meta.betragBase)} + {fmt(buchung.meta.trinkgeld)}
+                    {fmtEur(buchung.meta.betragBase)} + {fmtEur(buchung.meta.trinkgeld)}
                   </span>
                 </div>
               )}
@@ -183,7 +184,7 @@ export default function BuchungDetailModal({ buchung, onClose, onEdit, onDelete 
               </div>
             </div>
 
-            {/* Notiz (außerhalb der Tabelle, damit overflow:hidden nicht stört) */}
+            {/* Notiz */}
             {buchung.notiz ? (
               <div className="detail-notiz">
                 <div className="detail-notiz__label">Notiz</div>

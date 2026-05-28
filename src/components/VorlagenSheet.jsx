@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useExitAnimation } from '../hooks/useClosingAnimation';
 import { dbGetAll, dbDelete, dbPut } from '../services/db';
-
-const fmt = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
+import { pushStore } from '../utils/sync';
+import { fmtEur } from '../utils/format';
 
 export function VorlagenSheet({ open, onClose, onSelect }) {
   const { isVisible, isClosing } = useExitAnimation(open);
@@ -23,6 +23,8 @@ export function VorlagenSheet({ open, onClose, onSelect }) {
   async function handleDelete(id) {
     await dbDelete('vorlagen', id);
     setVorlagen(prev => prev.filter(v => v.id !== id));
+    // Vorlage auch auf GitHub loeschen (konsistent mit anderen Stores)
+    pushStore('vorlagen', 'data/vorlagen.json').catch(console.warn);
   }
 
   async function handleSelect(vorlage) {
@@ -70,7 +72,7 @@ export function VorlagenSheet({ open, onClose, onSelect }) {
                     )}
                   </div>
                   <span className={`vorlage-item__betrag vorlage-item__betrag--${v.typ}`}>
-                    {v.typ === 'einzahlung' ? '+' : '−'}{fmt(v.betrag)}
+                    {v.typ === 'einzahlung' ? '+' : '−'}{fmtEur(v.betrag)}
                   </span>
                 </button>
                 <button

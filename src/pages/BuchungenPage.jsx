@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLargeTitle } from '../hooks/useLargeTitle';
 import { dbGetAll, dbDelete, dbPut } from '../services/db';
-import { pushStore } from '../utils/sync';
+import { pushStore, deleteBeleg } from '../utils/sync';
 import BuchungModal from '../components/BuchungModal';
 import BuchungDetailModal from '../components/BuchungDetailModal';
 import { CategoryChip } from '../components/CategoryChip';
@@ -13,6 +13,7 @@ import { PullToRefresh } from '../components/PullToRefresh';
 import { useCategorienMap } from '../hooks/useCategorienMap';
 import { metaZusammenfassung } from '../lib/kategorieMeta';
 import { TxnListSkeleton } from '../components/skeletons/TxnListSkeleton';
+import { fmtEur, roundCents } from '../utils/format';
 
 const FILTER_TYPEN = [
   { value: 'alle',       label: 'Alle' },
@@ -21,21 +22,18 @@ const FILTER_TYPEN = [
   { value: 'saldo',      label: 'Saldo' },
 ];
 
-const fmtEur = (n) =>
-  new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n ?? 0);
-
 function buildMonatsSaldo(buchungen) {
   const map = {};
   for (const b of buchungen) {
     const d = new Date(b.datum + 'T12:00:00');
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     if (!map[key]) map[key] = { year: d.getFullYear(), month: d.getMonth(), net: 0 };
-    map[key].net += b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0);
+    map[key].net = roundCents(map[key].net + (b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0)));
   }
   const sorted = Object.keys(map).sort();
   let running = 0;
   return sorted.map(k => {
-    running += map[k].net;
+    running = roundCents(running + map[k].net);
     return { key: k, ...map[k], saldo: running };
   }).reverse();
 }
@@ -71,7 +69,9 @@ function formatDateLabel(datum) {
 }
 
 function dailyNet(items) {
-  return items.reduce((sum, b) => sum + (b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0)), 0);
+  return roundCents(
+    items.reduce((sum, b) => sum + (b.typ === 'einzahlung' ? (b.betrag || 0) : -(b.betrag || 0)), 0)
+  );
 }
 
 const formatBetrag = (betrag, typ) => {
@@ -99,6 +99,7 @@ function datumKey(item) {
 export default function BuchungenPage() {
   const { titleRef, compact } = useLargeTitle();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [listItems, setListItems]   = useState([]);
   const [monatsSaldo, setMonatsSaldo] = useState([]);
   const [filter, setFilter]         = useState('alle');
@@ -114,67 +115,73 @@ export default function BuchungenPage() {
   const { push: toast } = useToast();
   const catIcons = useCategorienMap();
 
-  // Direkt-Aufruf vom Dashboard: Detail-Modal der übergebenen Buchung öffnen
+  // Direkt-Aufruf vom Dashboard: Detail-Modal der uebergebenen Buchung oeffnen.
+  // State gezielt loeschen, damit der Ruecknavigation nicht erneut ausloeser.
   useEffect(() => {
     if (location.state?.openBuchung) {
       setDetailBuchung(location.state.openBuchung);
-      window.history.replaceState({}, ''); // State einmalig konsumieren
+      window.history.replaceState(
+        { ...window.history.state, usr: { ...location.state, openBuchung: undefined } },
+        ''
+      );
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [allBuchungen, allUmlagen] = await Promise.all([
-      dbGetAll('buchungen'),
-      dbGetAll('umlagen'),
-    ]);
+    setLoadError(null);
+    try {
+      const [allBuchungen, allUmlagen] = await Promise.all([
+        dbGetAll('buchungen'),
+        dbGetAll('umlagen'),
+      ]);
 
-    // Umlage-Buchungen herausfiltern und gruppieren
-    const normalBuchungen  = allBuchungen.filter(b => !b.umlage_id);
-    const umlageBuchungen  = allBuchungen.filter(b =>  b.umlage_id);
+      const normalBuchungen  = allBuchungen.filter(b => !b.umlage_id);
+      const umlageBuchungen  = allBuchungen.filter(b =>  b.umlage_id);
 
-    const umlageGruppen = {};
-    for (const b of umlageBuchungen) {
-      if (!umlageGruppen[b.umlage_id]) umlageGruppen[b.umlage_id] = [];
-      umlageGruppen[b.umlage_id].push(b);
+      const umlageGruppen = {};
+      for (const b of umlageBuchungen) {
+        if (!umlageGruppen[b.umlage_id]) umlageGruppen[b.umlage_id] = [];
+        umlageGruppen[b.umlage_id].push(b);
+      }
+
+      const umlageMap = Object.fromEntries(allUmlagen.map(u => [u.id, u]));
+      const verwaisteBuchungen = [];
+      const virtuelleEintraege = Object.entries(umlageGruppen)
+        .filter(([umlageId, buchungen]) => {
+          if (umlageMap[umlageId]) return true;
+          verwaisteBuchungen.push(...buchungen);
+          return false;
+        })
+        .map(([umlageId, buchungen]) => {
+          const umlage = umlageMap[umlageId];
+          const gesamtBetrag = roundCents(buchungen.reduce((s, b) => s + b.betrag, 0));
+          const datum = umlage?.faelligkeit
+            ?? [...buchungen].sort((a, b) => b.datum.localeCompare(a.datum))[0]?.datum
+            ?? new Date().toISOString().slice(0, 10);
+          return {
+            id:        `__umlage_${umlageId}`,
+            typ:       'einzahlung',
+            betrag:    gesamtBetrag,
+            datum,
+            kategorie: 'Umlage',
+            notiz:     umlage?.anlass ?? 'Umlage',
+            umlage_id: umlageId,
+            anzahl:    buchungen.length,
+            _isUmlage: true,
+          };
+        });
+
+      const combined = [...normalBuchungen, ...verwaisteBuchungen, ...virtuelleEintraege]
+        .sort((a, b) => b.datum.localeCompare(a.datum));
+
+      setListItems(combined);
+      setMonatsSaldo(buildMonatsSaldo(allBuchungen));
+    } catch (err) {
+      setLoadError('Daten konnten nicht geladen werden: ' + err.message);
+    } finally {
+      setLoading(false);
     }
-
-    // Pro Umlage einen virtuellen Listeneintrag erzeugen
-    const umlageMap = Object.fromEntries(allUmlagen.map(u => [u.id, u]));
-    const verwaisteBuchungen = []; // Umlage-Buchungen deren Umlage gelöscht wurde
-    const virtuelleEintraege = Object.entries(umlageGruppen)
-      .filter(([umlageId, buchungen]) => {
-        if (umlageMap[umlageId]) return true;
-        // Umlage nicht mehr vorhanden → als normale Buchungen behandeln
-        verwaisteBuchungen.push(...buchungen);
-        return false;
-      })
-      .map(([umlageId, buchungen]) => {
-        const umlage = umlageMap[umlageId];
-        const gesamtBetrag = buchungen.reduce((s, b) => s + b.betrag, 0);
-        // Datum: Fälligkeit der Umlage, sonst letztes Zahlungsdatum
-        const datum = umlage?.faelligkeit
-          ?? [...buchungen].sort((a, b) => b.datum.localeCompare(a.datum))[0]?.datum
-          ?? new Date().toISOString().slice(0, 10);
-        return {
-          id:        `__umlage_${umlageId}`,
-          typ:       'einzahlung',
-          betrag:    gesamtBetrag,
-          datum,
-          kategorie: 'Umlage',
-          notiz:     umlage?.anlass ?? 'Umlage',
-          umlage_id: umlageId,
-          anzahl:    buchungen.length,
-          _isUmlage: true,
-        };
-      });
-
-    const combined = [...normalBuchungen, ...verwaisteBuchungen, ...virtuelleEintraege]
-      .sort((a, b) => b.datum.localeCompare(a.datum));
-
-    setListItems(combined);
-    setMonatsSaldo(buildMonatsSaldo(allBuchungen));
-    setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -250,10 +257,24 @@ export default function BuchungenPage() {
     setEditBuchung(b);
   }
 
+  // Buchung inkl. zugehoerigem Beleg loeschen (lokal + GitHub)
+  async function deleteBuchungWithBeleg(id) {
+    const item = listItems.find(b => b.id === id);
+    await dbDelete('buchungen', id);
+    if (item?.beleg_id) {
+      try {
+        await dbDelete('belege', item.beleg_id);
+        deleteBeleg(item.beleg_id).catch(console.warn);
+      } catch {
+        // Beleg-Loeschen ist best-effort
+      }
+    }
+    return item;
+  }
+
   async function handleDelete(id) {
     if (!confirm('Buchung löschen?')) return;
-    const deleted = listItems.find(b => b.id === id);
-    await dbDelete('buchungen', id);
+    const deleted = await deleteBuchungWithBeleg(id);
     setDetailBuchung(null);
     await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
@@ -271,8 +292,7 @@ export default function BuchungenPage() {
   }
 
   async function handleSwipeDelete(id) {
-    const deleted = listItems.find(b => b.id === id);
-    await dbDelete('buchungen', id);
+    const deleted = await deleteBuchungWithBeleg(id);
     await load();
     pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
     haptic('warning');
@@ -391,6 +411,8 @@ export default function BuchungenPage() {
 
       {loading ? (
         <TxnListSkeleton rows={7} />
+      ) : loadError ? (
+        <EmptyState title="Fehler beim Laden" description={loadError} />
       ) : filter === 'saldo' ? (
         monatsSaldo.length === 0 ? (
           <EmptyState title="Keine Buchungen" description="Noch keine Daten für den Saldo-Verlauf." />
@@ -535,7 +557,7 @@ function SwipeToDelete({ children, onDelete }) {
     const dy = e.touches[0].clientY - t.startY;
 
     if (!t.active) {
-      if (Math.abs(dy) > Math.abs(dx) + 4) return; // vertikales Scrollen
+      if (Math.abs(dy) > Math.abs(dx) + 4) return;
       t.active = true;
     }
 
@@ -649,7 +671,14 @@ function DraggableList({ items, onReorder, children }) {
       {displayItems.map(item => (
         <li
           key={item.id}
-          ref={el => { itemEls.current[String(item.id)] = el; }}
+          ref={el => {
+            // Cleanup: Eintrag entfernen wenn Element ausgehaengt wird (el === null)
+            if (el) {
+              itemEls.current[String(item.id)] = el;
+            } else {
+              delete itemEls.current[String(item.id)];
+            }
+          }}
           className={`draggable-item${draggingId === item.id ? ' draggable-item--active' : ''}`}
         >
           <button
