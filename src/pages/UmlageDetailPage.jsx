@@ -12,6 +12,8 @@ export default function UmlageDetailPage() {
   const [mitglieder, setMitglieder] = useState([]);
   const [statuses, setStatuses] = useState([]);
   const [showEdit, setShowEdit] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editingVal, setEditingVal] = useState('');
 
   const load = useCallback(async () => {
     const [u, allMitglieder, allStatus] = await Promise.all([
@@ -33,6 +35,30 @@ export default function UmlageDetailPage() {
 
   useEffect(() => { load(); }, [load]);
 
+  function effectiveBetrag(status) {
+    return status.betrag_individuell ?? umlage.betrag_pro_kopf;
+  }
+
+  async function handleAmountSave(status) {
+    const val = parseFloat(editingVal.replace(',', '.'));
+    setEditingId(null);
+    if (isNaN(val) || val <= 0) return;
+
+    const individuell = val === umlage.betrag_pro_kopf ? null : val;
+    await dbPut('umlage_status', { ...status, betrag_individuell: individuell });
+
+    if (status.status === 'bezahlt' && status.buchung_id) {
+      const buchung = await dbGet('buchungen', status.buchung_id);
+      if (buchung) {
+        await dbPut('buchungen', { ...buchung, betrag: val });
+        pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+      }
+    }
+
+    await load();
+    pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
+  }
+
   async function handleBezahlt(status) {
     if (status.status === 'bezahlt') {
       // Undo: delete booking, set back to offen
@@ -49,7 +75,7 @@ export default function UmlageDetailPage() {
       await dbPut('buchungen', {
         id: buchungId,
         typ: 'einzahlung',
-        betrag: umlage.betrag_pro_kopf,
+        betrag: effectiveBetrag(status),
         datum: umlage.faelligkeit || todayIso(),
         kategorie_id: 'k_umlage',
         kategorie: 'Umlage',
@@ -152,8 +178,8 @@ export default function UmlageDetailPage() {
   const befreit = statuses.filter(s => s.status === 'befreit').length;
   const gesamt = statuses.length;
   const zahlend = gesamt - befreit;
-  const erwartet = zahlend * umlage.betrag_pro_kopf;
-  const gesammelt = bezahlt * umlage.betrag_pro_kopf;
+  const erwartet = statuses.filter(s => s.status !== 'befreit').reduce((sum, s) => sum + effectiveBetrag(s), 0);
+  const gesammelt = statuses.filter(s => s.status === 'bezahlt').reduce((sum, s) => sum + effectiveBetrag(s), 0);
 
   return (
     <div className="page">
@@ -219,6 +245,33 @@ export default function UmlageDetailPage() {
           return (
             <li key={`${s.umlage_id}-${s.mitglied_id}`} className={`umlage-member-item umlage-member-item--${s.status}`}>
               <span className="umlage-member-item__name">{m?.name ?? s.mitglied_id}</span>
+              <div className="umlage-member-item__amount">
+                {editingId === s.mitglied_id ? (
+                  <input
+                    type="number"
+                    className="umlage-amount-input"
+                    value={editingVal}
+                    step="0.01"
+                    min="0.01"
+                    onChange={e => setEditingVal(e.target.value)}
+                    onBlur={() => handleAmountSave(s)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { e.preventDefault(); handleAmountSave(s); }
+                      if (e.key === 'Escape') setEditingId(null);
+                    }}
+                    autoFocus
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className={`umlage-amount-btn${s.betrag_individuell != null ? ' umlage-amount-btn--custom' : ''}`}
+                    onClick={() => { setEditingId(s.mitglied_id); setEditingVal(String(effectiveBetrag(s))); }}
+                    title="Betrag anpassen"
+                  >
+                    {fmt(effectiveBetrag(s))}
+                  </button>
+                )}
+              </div>
               <div className="umlage-member-item__actions">
                 <button
                   className={`umlage-action-btn umlage-action-btn--befreit${s.status === 'befreit' ? ' active' : ''}`}

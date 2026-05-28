@@ -7,6 +7,14 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.10.1',
+    datum: '2026-05-28',
+    aenderungen: [
+      'Umlagen: Umgelegten Betrag pro Mitglied individuell anpassbar',
+      'Umlagen: Buchung wird bei nachtraeglicher Betragsaenderung automatisch aktualisiert',
+    ],
+  },
+  {
     version: '2.10.0',
     datum: '2026-05-19',
     aenderungen: [
