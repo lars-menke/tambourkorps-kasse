@@ -7,6 +7,16 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.10.3',
+    datum: '2026-05-29',
+    aenderungen: [
+      'Animationen: Zeilen-Pop wenn Mitglied als bezahlt markiert wird',
+      'Animationen: Fortschrittsbalken springt + Label wechselt auf Alles bezahlt! bei 100%',
+      'Animationen: Speichern-Button zeigt Haekchen-Bestaetigung vor dem Schliessen',
+      'Animationen: Tastaktiles Scale-Feedback auf allen Action-Buttons',
+    ],
+  },
+  {
     version: '2.10.2',
     datum: '2026-05-28',
     aenderungen: [

@@ -16,6 +16,8 @@ export default function UmlageDetailPage() {
   const [showEdit, setShowEdit] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editingVal, setEditingVal] = useState('');
+  const [flashingId, setFlashingId] = useState(null);
+  const [showAllPaid, setShowAllPaid] = useState(false);
 
   const load = useCallback(async () => {
     setLoadError(null);
@@ -71,7 +73,9 @@ export default function UmlageDetailPage() {
   }
 
   async function handleBezahlt(status) {
-    if (status.status === 'bezahlt') {
+    const markingAsBezahlt = status.status !== 'bezahlt';
+
+    if (!markingAsBezahlt) {
       if (status.buchung_id) {
         await dbDelete('buchungen', status.buchung_id);
       }
@@ -79,6 +83,11 @@ export default function UmlageDetailPage() {
         ...status, status: 'offen', bezahlt_am: null, buchung_id: null,
       });
     } else {
+      const currentBezahlt = statuses.filter(s => s.status === 'bezahlt').length;
+      const currentBefreit = statuses.filter(s => s.status === 'befreit').length;
+      const currentZahlend = statuses.length - currentBefreit;
+      const willComplete = currentBezahlt + 1 >= currentZahlend && currentZahlend > 0;
+
       const buchungId = generateId('b');
       const m = mitglieder[status.mitglied_id];
       await dbPut('buchungen', {
@@ -100,7 +109,18 @@ export default function UmlageDetailPage() {
         buchung_id: buchungId,
       });
       pushStore('buchungen', 'data/buchungen.json').catch(console.warn);
+
+      await load();
+      setFlashingId(status.mitglied_id);
+      setTimeout(() => setFlashingId(null), 420);
+      if (willComplete) {
+        setShowAllPaid(true);
+        setTimeout(() => setShowAllPaid(false), 2600);
+      }
+      pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
+      return;
     }
+
     await load();
     pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
   }
@@ -255,12 +275,15 @@ export default function UmlageDetailPage() {
         <div className="umlage-progress">
           <div className="umlage-progress__bar">
             <div
-              className="umlage-progress__fill"
+              className={`umlage-progress__fill${showAllPaid ? ' umlage-progress__fill--complete' : ''}`}
               style={{ width: zahlend > 0 ? `${Math.round((bezahlt / zahlend) * 100)}%` : '0%' }}
             />
           </div>
           <div className="umlage-progress__label">
-            {bezahlt} von {zahlend} bezahlt{befreit > 0 ? ` (${befreit} befreit)` : ''}
+            {showAllPaid
+              ? '✓ Alles bezahlt!'
+              : `${bezahlt} von ${zahlend} bezahlt${befreit > 0 ? ` (${befreit} befreit)` : ''}`
+            }
           </div>
         </div>
       </div>
@@ -269,7 +292,7 @@ export default function UmlageDetailPage() {
         {statuses.map(s => {
           const m = mitglieder[s.mitglied_id];
           return (
-            <li key={`${s.umlage_id}-${s.mitglied_id}`} className={`umlage-member-item umlage-member-item--${s.status}`}>
+            <li key={`${s.umlage_id}-${s.mitglied_id}`} className={`umlage-member-item umlage-member-item--${s.status}${flashingId === s.mitglied_id ? ' umlage-member-item--flash' : ''}`}>
               <span className="umlage-member-item__name">{m?.name ?? s.mitglied_id}</span>
               <div className="umlage-member-item__amount">
                 {editingId === s.mitglied_id ? (

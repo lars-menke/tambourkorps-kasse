@@ -19,6 +19,7 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
   const [mitglieder, setMitglieder] = useState([]);
   const [selected, setSelected] = useState(new Set());
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (isEdit) return; // Mitgliederauswahl nur beim Neuanlegen
@@ -77,7 +78,8 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
           faelligkeit: faelligkeit || null,
         });
         pushStore('umlagen', 'data/umlagen.json').catch(console.warn);
-        onSave();
+        setSaved(true);
+        setTimeout(() => onSave(), 300);
         return;
       }
 
@@ -105,7 +107,8 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
       pushStore('umlagen', 'data/umlagen.json').catch(console.warn);
       pushStore('umlage_status', 'data/umlage-status.json').catch(console.warn);
 
-      onSave();
+      setSaved(true);
+      setTimeout(() => onSave(), 300);
     } finally {
       setSaving(false);
     }
@@ -210,9 +213,9 @@ export default function UmlageModal({ onSave, onClose, umlage = null }) {
           <button
             type="submit"
             className="btn btn--primary btn--full"
-            disabled={saving || !anlass.trim() || isNaN(betragNum) || betragNum <= 0 || (!isEdit && selected.size === 0)}
+            disabled={saving || saved || !anlass.trim() || isNaN(betragNum) || betragNum <= 0 || (!isEdit && selected.size === 0)}
           >
-            {saving ? 'Speichern…' : isEdit ? 'Speichern' : 'Umlage anlegen'}
+            {saved ? '✓ Gespeichert' : saving ? 'Speichern…' : isEdit ? 'Speichern' : 'Umlage anlegen'}
           </button>
         </form>
       </div>

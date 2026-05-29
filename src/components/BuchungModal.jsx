@@ -35,6 +35,7 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
   const [belegDataUrl, setBelegDataUrl] = useState(null);
   const [kategorien, setKategorien] = useState([]);
   const [saving, setSaving]   = useState(false);
+  const [saved, setSaved]     = useState(false);
 
   const initMeta = () => {
     const m = buchung?.meta ?? {};
@@ -138,7 +139,8 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
         });
       }
 
-      onSave(record);
+      setSaved(true);
+      setTimeout(() => onSave(record), 300);
     } finally {
       setSaving(false);
     }
@@ -323,10 +325,10 @@ export default function BuchungModal({ buchung, onSave, onClose }) {
 
           <button
             type="submit"
-            className={`btn btn--full btn--${typ === 'einzahlung' ? 'primary' : 'danger-solid'}`}
-            disabled={saving || betragNum <= 0}
+            className={`btn btn--full btn--${saved ? 'primary' : typ === 'einzahlung' ? 'primary' : 'danger-solid'}`}
+            disabled={saving || saved || betragNum <= 0}
           >
-            {saving ? 'Speichern…' : isEdit ? 'Speichern' : 'Buchung anlegen'}
+            {saved ? '✓ Gespeichert' : saving ? 'Speichern…' : isEdit ? 'Speichern' : 'Buchung anlegen'}
           </button>
         </form>
       </div>

@@ -2235,6 +2235,41 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Umlage Animations ───────────────────────────── */
+
+@keyframes rowPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.018); background: var(--green-bg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes progressBounce {
+  0%   { transform: scaleX(1); }
+  55%  { transform: scaleX(1.025); }
+  100% { transform: scaleX(1); }
+}
+
+.umlage-member-item--flash {
+  animation: rowPop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.umlage-progress__fill--complete {
+  transform-origin: left;
+  animation: progressBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Tactile :active states */
+.umlage-action-btn:active:not(:disabled) {
+  transform: scale(0.91);
+  transition: transform 0.06s;
+}
+
+.btn--primary:active:not(:disabled),
+.btn--danger-solid:active:not(:disabled) {
+  transform: scale(0.97);
+  transition: transform 0.06s;
+}
+
 /* ── Feedback View ───────────────────────────────── */
 
 .feedback-view {
