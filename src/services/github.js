@@ -121,8 +121,11 @@ export async function ghWriteRawFile(owner, repo, path, content, sha, message) {
  * Verify that the stored token works and return the authenticated username.
  * Throws if the token is invalid.
  */
-export async function ghVerifyToken() {
-  const res = await fetch(`${API_BASE}/user`, { headers: headers() });
+export async function ghVerifyToken(token) {
+  const authHeaders = token
+    ? { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
+    : headers();
+  const res = await fetch(`${API_BASE}/user`, { headers: authHeaders });
   if (!res.ok) throw new Error(`Token ungültig: ${res.status}`);
   const data = await res.json();
   return data.login;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToken } from '../hooks/useToken';
 import { ghVerifyToken } from '../services/github';
-import { REPO_OWNER_KEY, REPO_DATA_KEY, DEFAULT_DATA_REPO, TOKEN_KEY } from '../constants';
+import { REPO_OWNER_KEY, REPO_DATA_KEY, DEFAULT_DATA_REPO } from '../constants';
 import { OnboardingProgress } from '../components/OnboardingProgress';
 
 const TOTAL_STEPS = 3;
@@ -23,19 +23,12 @@ export default function SetupPage() {
     setLoading(true);
     setError('');
     try {
-      // Token temporaer in sessionStorage ablegen, damit ghVerifyToken() ihn
-      // lesen kann — erst nach erfolgreicher Validierung via setToken() speichern.
-      sessionStorage.setItem(TOKEN_KEY, pat.trim());
-      const username = await ghVerifyToken();
-
-      // Validierung erfolgreich: Token dauerhaft speichern
+      const username = await ghVerifyToken(pat.trim());
       setToken(pat.trim());
       localStorage.setItem(REPO_OWNER_KEY, username);
       localStorage.setItem(REPO_DATA_KEY, dataRepo.trim() || DEFAULT_DATA_REPO);
       setStep(2);
     } catch (err) {
-      // Validierung fehlgeschlagen: temporaeren Token wieder entfernen
-      sessionStorage.removeItem(TOKEN_KEY);
       setError(`Token ungültig oder keine Berechtigung: ${err.message}`);
     } finally {
       setLoading(false);
