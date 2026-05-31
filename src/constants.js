@@ -7,6 +7,13 @@ export const DEFAULT_DATA_REPO = 'tambourkorps-kasse-data';
 
 export const CHANGELOG = [
   {
+    version: '2.10.4',
+    datum: '2026-05-31',
+    aenderungen: [
+      'Bugfix: Neue Buchung vom Dashboard oeffnet jetzt das vollstaendige Formular (Datum, Uhrzeit, Kategorie, Notiz, Beleg, Vorlage)',
+    ],
+  },
+  {
     version: '2.10.3',
     datum: '2026-05-29',
     aenderungen: [

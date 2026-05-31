@@ -9,7 +9,7 @@ import { BalanceCard } from '../components/BalanceCard';
 import { CategoryDonut } from '../components/CategoryDonut';
 import { EmptyState } from '../components/EmptyState';
 import { PullToRefresh } from '../components/PullToRefresh';
-import { QuickAddSheet } from '../components/QuickAddSheet';
+import BuchungModal from '../components/BuchungModal';
 import { VorlagenSheet } from '../components/VorlagenSheet';
 import { metaZusammenfassung } from '../lib/kategorieMeta';
 import { DashboardSkeleton } from '../components/skeletons/DashboardSkeleton';
@@ -399,14 +399,13 @@ export default function DashboardPage() {
       </div>
       )}
       </PullToRefresh>
-      <QuickAddSheet
-        open={quickAddOpen}
-        initialTyp={quickAddTyp}
-        initialBetrag={quickAddFill.betrag}
-        initialKategorie={quickAddFill.kategorie}
-        onClose={() => { setQuickAddOpen(false); setQuickAddTyp(null); setQuickAddFill({ betrag: '', kategorie: '' }); }}
-        onSave={loadData}
-      />
+      {quickAddOpen && (
+        <BuchungModal
+          defaultValues={{ typ: quickAddTyp ?? 'auszahlung', betrag: quickAddFill.betrag }}
+          onSave={() => { loadData(); setQuickAddOpen(false); setQuickAddTyp(null); setQuickAddFill({ betrag: '', kategorie: '' }); }}
+          onClose={() => { setQuickAddOpen(false); setQuickAddTyp(null); setQuickAddFill({ betrag: '', kategorie: '' }); }}
+        />
+      )}
       <VorlagenSheet
         open={vorlagenOpen}
         onClose={() => setVorlagenOpen(false)}

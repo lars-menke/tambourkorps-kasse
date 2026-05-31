@@ -22,12 +22,15 @@ async function saveVorlage({ name, typ, betrag, kategorieId, kategorieName, noti
   });
 }
 
-export default function BuchungModal({ buchung, onSave, onClose }) {
+export default function BuchungModal({ buchung, onSave, onClose, defaultValues = {} }) {
   const isEdit = Boolean(buchung);
   const { isClosing, handleClose } = useClosingAnimation(onClose);
 
-  const [typ, setTyp]         = useState(buchung?.typ ?? 'einzahlung');
-  const [betrag, setBetrag]   = useState(buchung ? String(buchung.meta?.betragBase ?? buchung.betrag) : '');
+  const [typ, setTyp]         = useState(buchung?.typ ?? defaultValues.typ ?? 'einzahlung');
+  const [betrag, setBetrag]   = useState(
+    buchung ? String(buchung.meta?.betragBase ?? buchung.betrag)
+            : (defaultValues.betrag ? String(defaultValues.betrag) : '')
+  );
   const [datum, setDatum]     = useState(buchung?.datum ?? todayIso());
   const [uhrzeit, setUhrzeit] = useState(buchung?.uhrzeit ?? '');
   const [kategorieId, setKategorieId] = useState(buchung?.kategorie_id ?? '');
