@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-05-30T22:10:26.299Z",
+  "mode": "headless",
+  "workerType": "audit",
+  "model": "haiku",
+  "durationMs": 54694,
+  "executionId": "audit_1780178971605_nx6ejd",
+  "success": false,
+  "findings": null,
+  "rawOutputPreview": "",
+  "rawOutputLength": 0
+}

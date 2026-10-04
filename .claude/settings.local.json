@@ -28,7 +28,16 @@
       "Bash(npx vite *)",
       "Bash(Remove-Item *)",
       "Bash(npx skills *)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(claude mcp *)",
+      "Bash(gh run *)",
+      "Bash(git commit *)",
+      "Bash(python -m json.tool)",
+      "PowerShell(Remove-Item *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Lars Menke\\\\Documents\\\\GitHub\\\\tambourkorps-kasse\" -Recurse -Filter \"*.tsx\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 20)",
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

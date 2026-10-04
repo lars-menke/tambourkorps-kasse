@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-30T22:10:26.218Z",
+  "projectRoot": "C:\\Users\\Lars Menke\\Documents\\GitHub\\tambourkorps-kasse",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": false,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1780179026220
+}
